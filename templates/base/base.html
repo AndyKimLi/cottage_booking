@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cottage Booking{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <style>
+        /* Стили для пользовательского меню */
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            font-size: 1.2rem;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .user-dropdown {
+            min-width: 280px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            padding: 0;
+            margin-top: 10px;
+        }
+        
+        .user-dropdown .dropdown-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0;
+            margin: 0;
+        }
+        
+        .user-info {
+            text-align: center;
+        }
+        
+        .user-email {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .user-dropdown .dropdown-item {
+            padding: 12px 20px;
+            border: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-dropdown .dropdown-item:hover {
+            background: #f8f9fa;
+            color: #495057;
+            transform: translateX(5px);
+        }
+        
+        .user-dropdown .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .admin-link {
+            background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+            color: white !important;
+            font-weight: 500;
+        }
+        
+        .admin-link:hover {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%) !important;
+            color: white !important;
+            transform: translateX(5px);
+        }
+        
+        .logout-link {
+            color: #dc3545 !important;
+        }
+        
+        .logout-link:hover {
+            background: #dc3545 !important;
+            color: white !important;
+            transform: translateX(5px);
+        }
+        
+        .user-dropdown .dropdown-divider {
+            margin: 0;
+            border-color: #e9ecef;
+        }
+        
+        /* Анимация появления */
+        .user-dropdown {
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .user-dropdown {
+                min-width: 250px;
+            }
+            
+            .user-name {
+                max-width: 100px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #000000;">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'core:index' %}">
+                Качатка чилл
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:index' %}">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'cottages:page' %}">Коттеджи</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api/v1/contacts/">Контакты</a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                <div class="user-avatar me-2">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <span class="user-name">{{ user.email|truncatechars:20 }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                                <li class="dropdown-header">
+                                    <div class="user-info">
+                                        <div class="user-email">{{ user.email }}</div>
+                                        <small class="text-muted">
+                                            {% if user.is_staff %}
+                                                <i class="fas fa-crown text-warning"></i> Администратор
+                                            {% else %}
+                                                <i class="fas fa-user"></i> Пользователь
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'users:profile' %}">
+                                        <i class="fas fa-user me-2"></i>Мой профиль
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'users:bookings' %}">
+                                        <i class="fas fa-calendar-check me-2"></i>Мои бронирования
+                                    </a>
+                                </li>
+                                {% if user.is_staff %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item admin-link" href="/admin/">
+                                        <i class="fas fa-cog me-2"></i>Администрирование
+                                    </a>
+                                </li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item logout-link" href="{% url 'users:logout' %}">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Выйти
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:register' %}">Регистрация</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:login' %}">Вход</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-muted py-3 mt-5">
+        <div class="container">
+            <p>&copy; 2025 Cottage Booking. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,315 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Мои бронирования - Cottage Booking{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bookings-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 50px;
+    }
+    
+    .booking-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .booking-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .booking-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 20px 25px;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+    }
+    
+    .booking-id {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    
+    .booking-status {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .status-confirmed {
+        background: #28a745;
+        color: white;
+    }
+    
+    .status-pending {
+        background: #ffc107;
+        color: #212529;
+    }
+    
+    .status-cancelled {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .booking-body {
+        padding: 25px;
+    }
+    
+    .cottage-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .cottage-image {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        color: #6c757d;
+        font-size: 2rem;
+    }
+    
+    .cottage-details h5 {
+        margin-bottom: 5px;
+        color: #2c3e50;
+    }
+    
+    .cottage-details p {
+        margin: 0;
+        color: #6c757d;
+    }
+    
+    .booking-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .detail-item {
+        text-align: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .detail-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+    
+    .detail-value {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+    
+    .booking-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        border-radius: 20px;
+        padding: 8px 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-view {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+    
+    .btn-view:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .btn-cancel {
+        background: transparent;
+        color: #dc3545;
+        border: 2px solid #dc3545;
+    }
+    
+    .btn-cancel:hover {
+        background: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .no-bookings {
+        text-align: center;
+        padding: 80px 20px;
+        color: #6c757d;
+    }
+    
+    .no-bookings i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    
+    .btn-new-booking {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 15px 30px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-new-booking:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Bookings Header -->
+<section class="bookings-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-4">Мои бронирования</h1>
+                <p class="lead">Управляйте своими заказами и бронированиями</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Bookings Content -->
+<section class="container">
+    <div class="row">
+        <div class="col-12">
+            {% csrf_token %}
+            {% if bookings %}
+                {% for booking in bookings %}
+                <div class="booking-card">
+                    <div class="booking-header">
+                        <div class="booking-id">
+                            <i class="fas fa-home me-2"></i>{{ booking.cottage.name }}
+                        </div>
+                        <div class="booking-status status-{{ booking.status }}">
+                            {% if booking.status == 'confirmed' %}
+                                <i class="fas fa-check me-1"></i>Подтверждено
+                            {% elif booking.status == 'pending' %}
+                                <i class="fas fa-clock me-1"></i>Ожидает
+                            {% else %}
+                                <i class="fas fa-times me-1"></i>Отменено
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="booking-body">
+                        <div class="cottage-info">
+                            <div class="cottage-image">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="cottage-details">
+                                <h5>{{ booking.cottage.name }}</h5>
+                                <p>{{ booking.cottage.address|truncatechars:50 }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="booking-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Дата заезда</div>
+                                <div class="detail-value">{{ booking.check_in|date:"d.m.Y" }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Дата выезда</div>
+                                <div class="detail-value">{{ booking.check_out|date:"d.m.Y" }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Количество гостей</div>
+                                <div class="detail-value">{{ booking.guests }} чел.</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Общая стоимость</div>
+                                <div class="detail-value">{{ booking.total_price }} ₽</div>
+                            </div>
+                        </div>
+                        
+                        <div class="booking-actions">
+                            <button class="btn btn-action btn-view" onclick="viewBooking({{ booking.id }})">
+                                <i class="fas fa-eye me-2"></i>Подробнее
+                            </button>
+                            {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                                <button class="btn btn-action btn-cancel" onclick="cancelBooking({{ booking.id }})">
+                                    <i class="fas fa-times me-2"></i>Отменить
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-bookings">
+                    <i class="fas fa-calendar-times"></i>
+                    <h3>У вас пока нет бронирований</h3>
+                    <p class="mb-4">Начните планировать свой отдых на Камчатке!</p>
+                    <a href="{% url 'cottages:page' %}" class="btn btn-new-booking">
+                        <i class="fas fa-plus me-2"></i>Найти коттедж
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Функция просмотра деталей бронирования
+function viewBooking(bookingId) {
+    window.location.href = `/bookings/${bookingId}/`;
+}
+
+// Функция отмены бронирования
+function cancelBooking(bookingId) {
+    if (confirm('Вы уверены, что хотите отменить это бронирование?')) {
+        // Создаем форму для отправки POST запроса
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/bookings/${bookingId}/cancel/`;
+        
+        // Добавляем CSRF токен
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        }
+        
+        // Добавляем форму в документ и отправляем
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Регистрация - Cottage Booking{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">📝 Регистрация</h3>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            {{ error }}
+                        </div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Имя пользователя</label>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   value="{{ username|default:'' }}" required>
+                            {% if errors.username %}
+                                <div class="text-danger">{{ errors.username }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   value="{{ email|default:'' }}" required>
+                            {% if errors.email %}
+                                <div class="text-danger">{{ errors.email }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="first_name" class="form-label">Имя</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name"
+                                           value="{{ first_name|default:'' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="last_name" class="form-label">Фамилия</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name"
+                                           value="{{ last_name|default:'' }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Телефон</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   value="{{ phone|default:'' }}" placeholder="+7 999 123 45 67">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password1" class="form-label">Пароль</label>
+                            <input type="password" class="form-control" id="password1" name="password1" required>
+                            {% if errors.password1 %}
+                                <div class="text-danger">{{ errors.password1 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password2" class="form-label">Подтверждение пароля</label>
+                            <input type="password" class="form-control" id="password2" name="password2" required>
+                            {% if errors.password2 %}
+                                <div class="text-danger">{{ errors.password2 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                🚀 Зарегистрироваться
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <p class="mb-0">Уже есть аккаунт? 
+                            <a href="/api/v1/auth/login/" class="text-decoration-none">Войти</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

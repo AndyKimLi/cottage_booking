@@ -1,0 +1,765 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Бронирование #{{ booking.id }} - Cottage Booking{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-detail {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .booking-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 20px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .booking-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .booking-id {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-bottom: 15px;
+    }
+    
+    .booking-status {
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+    
+    .status-confirmed {
+        background: #28a745;
+        color: white;
+    }
+    
+    .status-pending {
+        background: #ffc107;
+        color: #212529;
+    }
+    
+    .status-cancelled {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .status-completed {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    .booking-info {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .info-section {
+        margin-bottom: 30px;
+    }
+    
+    .info-section h3 {
+        color: #2c3e50;
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        background: #667eea;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 15px;
+        font-size: 1.2rem;
+    }
+    
+    .info-content {
+        flex: 1;
+    }
+    
+    .info-label {
+        font-weight: 500;
+        color: #6c757d;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    .edit-form {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        display: block;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .btn-edit {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 12px 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+    
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-cancel-edit {
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 12px 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .btn-cancel-edit:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    .btn-back {
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 12px 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 30px;
+    }
+    
+    .btn-back:hover {
+        background: #5a6268;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .btn-cancel-booking {
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 12px 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+    
+    .btn-cancel-booking:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+    
+    .actions-section {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    .edit-form {
+        display: none !important;
+    }
+    
+    .edit-mode .edit-form {
+        display: block !important;
+    }
+    
+    .edit-mode .info-value {
+        display: none;
+    }
+    
+    .view-mode .info-value {
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-detail">
+    {% csrf_token %}
+    
+    <!-- Кнопка назад -->
+    <a href="{% url 'users:bookings' %}" class="btn-back">
+        <i class="fas fa-arrow-left me-2"></i>Назад к бронированиям
+    </a>
+    
+    <!-- Заголовок бронирования -->
+    <div class="booking-header">
+        <h1 class="booking-title">{{ booking.cottage.name }}</h1>
+        <div class="booking-id">{{ booking.cottage.address }}</div>
+        <div class="booking-status status-{{ booking.status }}">
+            {% if booking.status == 'confirmed' %}
+                <i class="fas fa-check me-1"></i>Подтверждено
+            {% elif booking.status == 'pending' %}
+                <i class="fas fa-clock me-1"></i>Ожидает подтверждения
+            {% elif booking.status == 'cancelled' %}
+                <i class="fas fa-times me-1"></i>Отменено
+            {% elif booking.status == 'completed' %}
+                <i class="fas fa-check-circle me-1"></i>Завершено
+            {% else %}
+                <i class="fas fa-question me-1"></i>{{ booking.get_status_display }}
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Основная информация -->
+    <div class="booking-info">
+        <!-- Информация о коттедже -->
+        <div class="info-section">
+            <h3><i class="fas fa-home me-2"></i>Информация о коттедже</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Название</div>
+                        <div class="info-value">{{ booking.cottage.name }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Адрес</div>
+                        <div class="info-value">{{ booking.cottage.address }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-ruble-sign"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Цена за ночь</div>
+                        <div class="info-value">{{ booking.cottage.price_per_night }} ₽</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Детали бронирования -->
+        <div class="info-section">
+            <h3><i class="fas fa-calendar-alt me-2"></i>Детали бронирования</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Дата заезда</div>
+                        <div class="info-value">{{ booking.check_in|date:"d.m.Y" }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-calendar-times"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Дата выезда</div>
+                        <div class="info-value">{{ booking.check_out|date:"d.m.Y" }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Количество гостей</div>
+                        <div class="info-value">{{ booking.guests }} чел.</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-ruble-sign"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Общая стоимость</div>
+                        <div class="info-value">{{ booking.total_price }} ₽</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Особые пожелания -->
+        <div class="info-section">
+            <h3><i class="fas fa-comment-alt me-2"></i>Особые пожелания</h3>
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="fas fa-comment"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Пожелания</div>
+                    <div class="info-value view-mode">
+                        {% if booking.special_requests %}
+                            {{ booking.special_requests }}
+                        {% else %}
+                            Не указаны
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Форма редактирования -->
+        <div class="edit-form">
+            <h4>Редактировать бронирование</h4>
+            {% if booking.status == 'pending' %}
+                <p class="text-muted">Вы можете изменить даты заезда, выезда, количество гостей и особые пожелания.</p>
+            {% elif booking.status == 'confirmed' %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Внимание!</strong> Подтвержденные бронирования нельзя редактировать. 
+                    Вы можете отменить это бронирование и создать новое.
+                </div>
+            {% endif %}
+            
+            <div class="form-group">
+                <label class="form-label">Дата заезда</label>
+                <input type="date" class="form-control" name="edit_check_in" value="{{ booking.check_in|date:'Y-m-d' }}" min="{{ today|date:'Y-m-d' }}">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Дата выезда</label>
+                <input type="date" class="form-control" name="edit_check_out" value="{{ booking.check_out|date:'Y-m-d' }}" min="{{ tomorrow|date:'Y-m-d' }}">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Количество гостей</label>
+                <input type="number" class="form-control" name="edit_guests" value="{{ booking.guests }}" min="1" max="{{ booking.cottage.capacity }}">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Особые пожелания</label>
+                <textarea class="form-control" name="edit_special_requests" rows="3">{{ booking.special_requests }}</textarea>
+            </div>
+            
+            <div class="actions-section">
+                <button type="button" class="btn-edit" onclick="saveChanges()">
+                    <i class="fas fa-save me-2"></i>Сохранить изменения
+                </button>
+                <button type="button" class="btn-cancel-edit" onclick="cancelEdit()">
+                    <i class="fas fa-times me-2"></i>Отменить
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Действия -->
+    <div class="actions-section">
+        {% if booking.status == 'pending' %}
+            <button type="button" class="btn-edit" onclick="
+                if (typeof window.toggleEdit === 'function') {
+                    window.toggleEdit();
+                } else {
+                    // Fallback: direct toggle
+                    const container = document.querySelector('.booking-detail');
+                    if (container.classList.contains('edit-mode')) {
+                        container.classList.remove('edit-mode');
+                    } else {
+                        container.classList.add('edit-mode');
+                    }
+                }
+            ">
+                <i class="fas fa-edit me-2"></i>Редактировать
+            </button>
+            <button type="button" class="btn-cancel-booking" onclick="cancelBooking()">
+                <i class="fas fa-times me-2"></i>Отменить бронирование
+            </button>
+        {% elif booking.status == 'confirmed' %}
+            <div class="alert alert-info mb-3">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Подтвержденное бронирование</strong><br>
+                Это бронирование уже подтверждено и не может быть изменено. 
+                Вы можете отменить его и создать новое бронирование.
+            </div>
+            <a href="{% url 'users:bookings' %}" class="btn-back">
+                <i class="fas fa-arrow-left me-2"></i>Назад к бронированиям
+            </a>
+        {% elif booking.status == 'cancelled' %}
+            <div class="alert alert-secondary">
+                <i class="fas fa-ban me-2"></i>
+                <strong>Отмененное бронирование</strong><br>
+                Это бронирование было отменено и не может быть изменено.
+            </div>
+            <a href="{% url 'booking_create' %}?cottage={{ booking.cottage.id }}" class="btn-edit" style="text-decoration: none; display: inline-block;">
+                <i class="fas fa-plus me-2"></i>Создать новое бронирование
+            </a>
+        {% elif booking.status == 'completed' %}
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>Завершенное бронирование</strong><br>
+                Это бронирование было успешно завершено.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Глобальные переменные и функции
+window.isEditMode = false;
+
+window.toggleEdit = function() {
+    // Проверяем статус бронирования
+    {% if booking.status != 'pending' %}
+        alert('Это бронирование нельзя редактировать');
+        return;
+    {% endif %}
+    
+    console.log('toggleEdit called, current isEditMode:', window.isEditMode);
+    window.isEditMode = !window.isEditMode;
+    const container = document.querySelector('.booking-detail');
+    console.log('container found:', container);
+    
+    if (window.isEditMode) {
+        container.classList.add('edit-mode');
+        console.log('Added edit-mode class');
+    } else {
+        container.classList.remove('edit-mode');
+        console.log('Removed edit-mode class');
+    }
+}
+
+window.cancelEdit = function() {
+    window.isEditMode = false;
+    const container = document.querySelector('.booking-detail');
+    container.classList.remove('edit-mode');
+    
+    // Сбрасываем значения формы
+    document.querySelector('input[name="edit_check_in"]').value = '{{ booking.check_in|date:"Y-m-d" }}';
+    document.querySelector('input[name="edit_check_out"]').value = '{{ booking.check_out|date:"Y-m-d" }}';
+    document.querySelector('input[name="edit_guests"]').value = '{{ booking.guests }}';
+    document.querySelector('textarea[name="edit_special_requests"]').value = '{{ booking.special_requests }}';
+}
+
+window.saveChanges = function() {
+    // Проверяем статус бронирования
+    {% if booking.status != 'pending' %}
+        alert('Это бронирование нельзя редактировать');
+        return;
+    {% endif %}
+    
+    const checkIn = document.querySelector('input[name="edit_check_in"]').value;
+    const checkOut = document.querySelector('input[name="edit_check_out"]').value;
+    const guests = document.querySelector('input[name="edit_guests"]').value;
+    const specialRequests = document.querySelector('textarea[name="edit_special_requests"]').value;
+    
+    if (!checkIn || !checkOut || !guests) {
+        alert('Пожалуйста, заполните все обязательные поля');
+        return;
+    }
+    
+    if (new Date(checkOut) <= new Date(checkIn)) {
+        alert('Дата выезда должна быть позже даты заезда');
+        return;
+    }
+    
+    if (parseInt(guests) > {{ booking.cottage.capacity }}) {
+        alert('Максимальная вместимость коттеджа: {{ booking.cottage.capacity }} гостей');
+        return;
+    }
+    
+    // Создаем форму для отправки POST запроса
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/bookings/{{ booking.id }}/edit/`;
+    
+    // Добавляем CSRF токен
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken.value;
+        form.appendChild(csrfInput);
+    }
+    
+    // Добавляем поля формы
+    const fields = [
+        { name: 'check_in', value: checkIn },
+        { name: 'check_out', value: checkOut },
+        { name: 'guests', value: guests },
+        { name: 'special_requests', value: specialRequests }
+    ];
+    
+    fields.forEach(field => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = field.name;
+        input.value = field.value;
+        form.appendChild(input);
+    });
+    
+    // Отправляем форму
+    document.body.appendChild(form);
+    form.submit();
+}
+
+window.cancelBooking = function() {
+    if (confirm('Вы уверены, что хотите отменить это бронирование?')) {
+        // Создаем форму для отправки POST запроса
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/bookings/{{ booking.id }}/cancel/`;
+        
+        // Добавляем CSRF токен
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        }
+        
+        // Отправляем форму
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Устанавливаем минимальную дату выезда при изменении даты заезда
+document.addEventListener('DOMContentLoaded', function() {
+    const checkInInput = document.querySelector('input[name="edit_check_in"]');
+    const checkOutInput = document.querySelector('input[name="edit_check_out"]');
+    
+    if (checkInInput && checkOutInput) {
+        checkInInput.addEventListener('change', function() {
+            if (this.value) {
+                const checkInDate = new Date(this.value);
+                const minCheckOut = new Date(checkInDate);
+                minCheckOut.setDate(minCheckOut.getDate() + 1);
+                
+                checkOutInput.min = minCheckOut.toISOString().split('T')[0];
+                
+                // Если дата выезда меньше минимальной, сбрасываем её
+                if (checkOutInput.value && new Date(checkOutInput.value) <= checkInDate) {
+                    checkOutInput.value = '';
+                }
+            }
+        });
+    }
+    
+    // Блокируем забронированные даты
+    const bookedDates = {{ booked_dates|safe }};
+    const checkInInput = document.querySelector('input[name="edit_check_in"]');
+    const checkOutInput = document.querySelector('input[name="edit_check_out"]');
+    
+    if (checkInInput && checkOutInput && bookedDates.length > 0) {
+        // Функция для проверки, забронирована ли дата
+        function isDateBooked(date) {
+            return bookedDates.includes(date);
+        }
+        
+        // Добавляем обработчики для блокировки забронированных дат
+        checkInInput.addEventListener('change', function() {
+            if (this.value && isDateBooked(this.value)) {
+                alert('Эта дата уже забронирована. Пожалуйста, выберите другую дату.');
+                this.value = '';
+                return;
+            }
+        });
+        
+        checkOutInput.addEventListener('change', function() {
+            if (this.value && isDateBooked(this.value)) {
+                alert('Эта дата уже забронирована. Пожалуйста, выберите другую дату.');
+                this.value = '';
+                return;
+            }
+        });
+        
+        // Добавляем атрибут для отображения забронированных дат
+        checkInInput.setAttribute('data-booked-dates', JSON.stringify(bookedDates));
+        checkOutInput.setAttribute('data-booked-dates', JSON.stringify(bookedDates));
+    }
+});
+</script>
+
+<script>
+// Определяем функции сразу при загрузке страницы
+window.isEditMode = false;
+
+window.toggleEdit = function() {
+    window.isEditMode = !window.isEditMode;
+    const container = document.querySelector('.booking-detail');
+    
+    if (window.isEditMode) {
+        container.classList.add('edit-mode');
+    } else {
+        container.classList.remove('edit-mode');
+    }
+};
+
+window.cancelEdit = function() {
+    window.isEditMode = false;
+    const container = document.querySelector('.booking-detail');
+    container.classList.remove('edit-mode');
+    
+    // Сбрасываем значения формы
+    document.querySelector('input[name="edit_check_in"]').value = '{{ booking.check_in|date:"Y-m-d" }}';
+    document.querySelector('input[name="edit_check_out"]').value = '{{ booking.check_out|date:"Y-m-d" }}';
+    document.querySelector('input[name="edit_guests"]').value = '{{ booking.guests }}';
+    document.querySelector('textarea[name="edit_special_requests"]').value = '{{ booking.special_requests }}';
+};
+
+window.saveChanges = function() {
+    const checkIn = document.querySelector('input[name="edit_check_in"]').value;
+    const checkOut = document.querySelector('input[name="edit_check_out"]').value;
+    const guests = document.querySelector('input[name="edit_guests"]').value;
+    const specialRequests = document.querySelector('textarea[name="edit_special_requests"]').value;
+    
+    if (!checkIn || !checkOut || !guests) {
+        alert('Пожалуйста, заполните все обязательные поля');
+        return;
+    }
+    
+    if (parseInt(guests) > {{ booking.cottage.capacity }}) {
+        alert('Максимальная вместимость коттеджа: {{ booking.cottage.capacity }} гостей');
+        return;
+    }
+    
+    // Создаем форму для отправки POST запроса
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/bookings/{{ booking.id }}/edit/`;
+    
+    // Добавляем поля формы
+    const fields = {
+        'check_in': checkIn,
+        'check_out': checkOut,
+        'guests': guests,
+        'special_requests': specialRequests
+    };
+    
+    for (const [name, value] of Object.entries(fields)) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+    }
+    
+    // Добавляем CSRF токен
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken.value;
+        form.appendChild(csrfInput);
+    }
+    
+    // Отправляем форму
+    document.body.appendChild(form);
+    form.submit();
+};
+
+window.cancelBooking = function() {
+    if (confirm('Вы уверены, что хотите отменить это бронирование?')) {
+        // Создаем форму для отправки POST запроса
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/bookings/{{ booking.id }}/cancel/`;
+        
+        // Добавляем CSRF токен
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        }
+        
+        // Добавляем форму в документ и отправляем
+        document.body.appendChild(form);
+        form.submit();
+    }
+};
+</script>
+
+{% endblock %}

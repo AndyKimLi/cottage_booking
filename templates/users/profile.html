@@ -1,0 +1,447 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Мой профиль - Cottage Booking{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 50px;
+    }
+    
+    .profile-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 3rem;
+        color: white;
+        border: 5px solid white;
+    }
+    
+    .profile-body {
+        padding: 40px;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 20px;
+        font-size: 1.2rem;
+    }
+    
+    .info-content {
+        flex: 1;
+    }
+    
+    .info-label {
+        font-weight: 500;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+        color: #2c3e50;
+    }
+    
+    
+    .btn-edit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .admin-badge {
+        background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: inline-block;
+        margin-top: 10px;
+    }
+    
+    .profile-container .edit-form {
+        display: none !important;
+    }
+    
+    .profile-container.edit-mode .edit-form {
+        display: block !important;
+    }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Profile Header -->
+<section class="profile-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-4">Мой профиль</h1>
+                <p class="lead">Управляйте своими данными и настройками</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Profile Content -->
+<section class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto profile-container">
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h2 class="mb-3">{{ user.email }}</h2>
+                    {% if user.is_staff %}
+                        <div class="admin-badge">
+                            <i class="fas fa-crown me-2"></i>Администратор
+                        </div>
+                    {% else %}
+                        <p class="mb-0">Пользователь</p>
+                    {% endif %}
+                </div>
+                
+                <div class="profile-body">
+                    {% if user.first_name or user.last_name %}
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">Полное имя</div>
+                            <div class="info-value">
+                                {% if user.first_name %}{{ user.first_name }}{% endif %}
+                                {% if user.last_name %} {{ user.last_name }}{% endif %}
+                                {% if not user.first_name and not user.last_name %}
+                                    <span class="text-muted">Не указано</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">{{ user.email }}</div>
+                        </div>
+                    </div>
+                    
+                    {% if user.phone %}
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">Телефон</div>
+                            <div class="info-value">{{ user.phone }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.date_of_birth %}
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-birthday-cake"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">Дата рождения</div>
+                            <div class="info-value">{{ user.date_of_birth|date:"d.m.Y" }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">Дата регистрации</div>
+                            <div class="info-value">{{ user.date_joined|date:"d.m.Y" }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">Последний вход</div>
+                            <div class="info-value">
+                                {% if user.last_login %}
+                                    {{ user.last_login|date:"d.m.Y H:i" }}
+                                {% else %}
+                                    Никогда
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">Статус аккаунта</div>
+                            <div class="info-value">
+                                {% if user.is_active %}
+                                    <span class="text-success">
+                                        <i class="fas fa-check-circle me-2"></i>Активен
+                                    </span>
+                                {% else %}
+                                    <span class="text-danger">
+                                        <i class="fas fa-times-circle me-2"></i>Заблокирован
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <!-- Edit Profile Form -->
+            <div class="profile-card mt-4 edit-form" id="editForm">
+                <div class="profile-header">
+                    <h3 class="mb-0">Редактировать профиль</h3>
+                </div>
+                <div class="profile-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" id="profileForm">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                    Имя <span class="text-danger">*</span>
+                                </label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small">{{ form.first_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                    Фамилия <span class="text-danger">*</span>
+                                </label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small">{{ form.last_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label">
+                                    Телефон
+                                </label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                    <div class="text-danger small">{{ form.phone.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.username.id_for_label }}" class="form-label">
+                                    Имя пользователя
+                                </label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">
+                                    Дата рождения
+                                </label>
+                                {{ form.date_of_birth }}
+                                {% if form.date_of_birth.errors %}
+                                    <div class="text-danger small">{{ form.date_of_birth.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-edit me-3">
+                                <i class="fas fa-save me-2"></i>Сохранить изменения
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="window.cancelEdit()">
+                                <i class="fas fa-times me-2"></i>Отмена
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="text-center mt-4">
+                <button class="btn btn-edit me-3" onclick="window.showEditForm()">
+                    <i class="fas fa-edit me-2"></i>Редактировать профиль
+                </button>
+                <a href="{% url 'users:bookings' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-calendar-check me-2"></i>Мои бронирования
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Глобальные переменные и функции
+window.isEditMode = false;
+
+window.showEditForm = function() {
+    window.isEditMode = true;
+    const container = document.querySelector('.profile-container');
+    container.classList.add('edit-mode');
+    document.getElementById('editForm').scrollIntoView({ behavior: 'smooth' });
+};
+
+window.cancelEdit = function() {
+    window.isEditMode = false;
+    const container = document.querySelector('.profile-container');
+    container.classList.remove('edit-mode');
+    // Сбрасываем форму
+    document.getElementById('profileForm').reset();
+};
+
+// Проверяем, нужно ли показать форму редактирования при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем флаг из Django контекста
+    {% if show_edit_form %}
+        window.showEditForm();
+    {% endif %}
+});
+
+// Простая маска для телефона
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.querySelector('#id_phone');
+    
+    if (phoneInput) {
+        // Простое форматирование российского номера
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Если номер начинается с 7 или 8, заменяем на +7
+            if (value.startsWith('8')) {
+                value = '7' + value.substring(1);
+            }
+            if (value.startsWith('7')) {
+                value = '+' + value;
+            }
+            
+            // Форматируем как +7 (999) 123-45-67
+            if (value.startsWith('+7') && value.length > 2) {
+                const digits = value.substring(2);
+                if (digits.length >= 1) {
+                    let formatted = '+7';
+                    if (digits.length >= 1) {
+                        formatted += ' (' + digits.substring(0, 3);
+                    }
+                    if (digits.length >= 4) {
+                        formatted += ') ' + digits.substring(3, 6);
+                    }
+                    if (digits.length >= 7) {
+                        formatted += '-' + digits.substring(6, 8);
+                    }
+                    if (digits.length >= 9) {
+                        formatted += '-' + digits.substring(8, 10);
+                    }
+                    e.target.value = formatted;
+                }
+            } else if (value.length > 0 && !value.startsWith('+')) {
+                // Если ввели номер без +, добавляем +7
+                e.target.value = '+7 (' + value.substring(0, 3);
+                if (value.length >= 4) {
+                    e.target.value += ') ' + value.substring(3, 6);
+                }
+                if (value.length >= 7) {
+                    e.target.value += '-' + value.substring(6, 8);
+                }
+                if (value.length >= 9) {
+                    e.target.value += '-' + value.substring(8, 10);
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,416 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Коттеджи - Cottage Booking{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 50px;
+    }
+    
+    .cottage-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 30px;
+    }
+    
+    .cottage-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .cottage-image {
+        height: 250px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    
+    .cottage-image::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 100%);
+    }
+    
+    .price-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255,255,255,0.9);
+        color: #333;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+    
+    .amenities-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 15px;
+    }
+    
+    .amenity-badge {
+        background: #f8f9fa;
+        color: #6c757d;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.85em;
+        border: 1px solid #e9ecef;
+    }
+    
+    .search-section {
+        background: #f8f9fa;
+        padding: 40px 0;
+        margin-bottom: 50px;
+    }
+    
+    .search-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-outline-primary {
+        border: 2px solid #667eea;
+        color: #667eea;
+        border-radius: 25px;
+        padding: 10px 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .no-cottages {
+        text-align: center;
+        padding: 80px 20px;
+        color: #6c757d;
+    }
+    
+    .no-cottages i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 50px;
+    }
+    
+    .spinner-border {
+        color: #667eea;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-4">Наши Коттеджи</h1>
+                <p class="lead mb-4">Откройте для себя идеальное место для отдыха среди наших уютных коттеджей</p>
+                <a href="#search" class="btn btn-light btn-lg">Найти коттедж</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search Section -->
+<section id="search" class="search-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="search-card">
+                    <h3 class="text-center mb-4">Фильтр по цене</h3>
+                    <form id="searchForm">
+                        <div class="row g-3 justify-content-center">
+                            <div class="col-md-3">
+                                <label for="minPrice" class="form-label">Мин. цена за ночь</label>
+                                <input type="number" class="form-control" id="minPrice" placeholder="0" min="0">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="maxPrice" class="form-label">Макс. цена за ночь</label>
+                                <input type="number" class="form-control" id="maxPrice" placeholder="10000" min="0">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Применить</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cottages Section -->
+<section class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Доступные коттеджи</h2>
+                <div id="resultsCount" class="text-muted"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading State -->
+    <div id="loadingState" class="loading" style="display: none;">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="mt-3">Загружаем коттеджи...</p>
+    </div>
+    
+    <!-- No Results State -->
+    <div id="noResults" class="no-cottages" style="display: none;">
+        <i class="fas fa-home"></i>
+        <h3>Коттеджи не найдены</h3>
+        <p>Попробуйте изменить параметры поиска</p>
+    </div>
+    
+    <!-- Cottages Grid -->
+    <div id="cottagesGrid" class="row">
+        {% for cottage in cottages %}
+        <div class="col-lg-4 col-md-6">
+            <div class="cottage-card card h-100">
+                <div class="cottage-image" style="background-image: url('/static/images/default-cottage.jpg')">
+                    <div class="price-badge">
+                        {{ cottage.price_per_night }} ₽/ночь
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ cottage.name }}</h5>
+                    <p class="card-text text-muted">{{ cottage.description|truncatechars:100 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-users"></i> До {{ cottage.capacity }} гостей
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt"></i> {{ cottage.address|truncatechars:30 }}
+                        </small>
+                    </div>
+                    
+                    {% if cottage.amenities.all %}
+                        <div class="amenities-list">
+                            {% for amenity in cottage.amenities.all|slice:":3" %}
+                                <span class="amenity-badge">{{ amenity.amenity.name }}</span>
+                            {% endfor %}
+                            {% if cottage.amenities.count > 3 %}
+                                <span class="amenity-badge">+{{ cottage.amenities.count|add:"-3" }}</span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="viewCottage({{ cottage.id }})">
+                            Подробнее
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="bookCottage({{ cottage.id }})">
+                            Забронировать
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="no-cottages">
+                <i class="fas fa-home"></i>
+                <h3>Коттеджи не найдены</h3>
+                <p>Попробуйте изменить параметры поиска</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchForm = document.getElementById('searchForm');
+    const cottagesGrid = document.getElementById('cottagesGrid');
+    const loadingState = document.getElementById('loadingState');
+    const noResults = document.getElementById('noResults');
+    const resultsCount = document.getElementById('resultsCount');
+    
+    // Fill form fields from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    document.getElementById('minPrice').value = urlParams.get('min_price') || '';
+    document.getElementById('maxPrice').value = urlParams.get('max_price') || '';
+    
+    // Update results count
+    const cottageCount = document.querySelectorAll('#cottagesGrid .col-lg-4').length;
+    if (cottageCount > 0) {
+        resultsCount.textContent = `Найдено: ${cottageCount} коттеджей`;
+    }
+    
+    // Handle search form submission
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        performSearch();
+    });
+    
+    function performSearch() {
+        const minPrice = document.getElementById('minPrice').value;
+        const maxPrice = document.getElementById('maxPrice').value;
+        
+        const params = new URLSearchParams();
+        if (minPrice) params.append('min_price', minPrice);
+        if (maxPrice) params.append('max_price', maxPrice);
+        
+        // Reload page with search parameters
+        const url = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        window.location.href = url;
+    }
+    
+    function showLoading() {
+        loadingState.style.display = 'block';
+        cottagesGrid.style.display = 'none';
+        noResults.style.display = 'none';
+    }
+    
+    function hideLoading() {
+        loadingState.style.display = 'none';
+    }
+    
+    function displayCottages(cottages) {
+        cottagesGrid.innerHTML = '';
+        cottagesGrid.style.display = 'block';
+        
+        if (cottages.length === 0) {
+            noResults.style.display = 'block';
+            resultsCount.textContent = '';
+            return;
+        }
+        
+        resultsCount.textContent = `Найдено: ${cottages.length} коттеджей`;
+        
+        cottages.forEach(cottage => {
+            const cottageCard = createCottageCard(cottage);
+            cottagesGrid.appendChild(cottageCard);
+        });
+    }
+    
+    function createCottageCard(cottage) {
+        const col = document.createElement('div');
+        col.className = 'col-lg-4 col-md-6';
+        
+        // Get primary image or first image
+        const primaryImage = cottage.images && cottage.images.length > 0 
+            ? cottage.images[0].image 
+            : '/static/images/default-cottage.jpg';
+        
+        col.innerHTML = `
+            <div class="cottage-card card h-100">
+                <div class="cottage-image" style="background-image: url('${primaryImage}')">
+                    <div class="price-badge">
+                        ${cottage.price_per_night} ₽/ночь
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">${cottage.name}</h5>
+                    <p class="card-text text-muted">${cottage.description.substring(0, 100)}${cottage.description.length > 100 ? '...' : ''}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-users"></i> До ${cottage.capacity} гостей
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt"></i> ${cottage.address}
+                        </small>
+                    </div>
+                    
+                    ${cottage.amenities && cottage.amenities.length > 0 ? `
+                        <div class="amenities-list">
+                            ${cottage.amenities.slice(0, 3).map(amenity => 
+                                `<span class="amenity-badge">${amenity.amenity.name}</span>`
+                            ).join('')}
+                            ${cottage.amenities.length > 3 ? `<span class="amenity-badge">+${cottage.amenities.length - 3}</span>` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="viewCottage(${cottage.id})">
+                            Подробнее
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="bookCottage(${cottage.id})">
+                            Забронировать
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        return col;
+    }
+    
+    function showError() {
+        cottagesGrid.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-danger text-center">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Произошла ошибка при загрузке коттеджей. Попробуйте обновить страницу.
+                </div>
+            </div>
+        `;
+        cottagesGrid.style.display = 'block';
+        resultsCount.textContent = '';
+    }
+});
+
+// Global functions for buttons
+function viewCottage(cottageId) {
+    // Redirect to cottage detail page
+    console.log(`Переход к коттеджу с ID: ${cottageId}`);
+    window.location.href = `/cottages/${cottageId}/`;
+}
+
+function bookCottage(cottageId) {
+    // Redirect to booking page
+    window.location.href = `/booking/create/?cottage=${cottageId}`;
+}
+</script>
+
+<!-- Font Awesome for icons -->
+<script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+{% endblock %}

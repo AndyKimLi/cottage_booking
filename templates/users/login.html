@@ -1,0 +1,134 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Вход - Cottage Booking{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+    
+    .login-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .login-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+    }
+    
+    .login-body {
+        padding: 40px;
+    }
+    
+    .form-control {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 15px;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 15px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: white;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .btn-register {
+        background: transparent;
+        border: 2px solid #667eea;
+        color: #667eea;
+        border-radius: 10px;
+        padding: 15px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-register:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="login-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="login-card">
+                    <div class="login-header">
+                        <h2 class="mb-3">Добро пожаловать!</h2>
+                        <p class="mb-0">Войдите в свой аккаунт</p>
+                    </div>
+                    <div class="login-body">
+                        <form method="post" id="loginForm">
+                            {% csrf_token %}
+                            {% if error %}
+                                <div class="alert alert-danger mb-4">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                                </div>
+                            {% endif %}
+                            <div class="mb-4">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="password" class="form-label">Пароль</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="mb-4">
+                                <button type="submit" class="btn btn-login">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Войти
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="text-center">
+                            <p class="text-muted mb-3">Нет аккаунта?</p>
+                            <a href="{% url 'users:register' %}" class="btn btn-register">
+                                <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<!-- JavaScript не нужен - используем стандартную форму Django -->
+{% endblock %}

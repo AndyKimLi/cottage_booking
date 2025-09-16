@@ -1,0 +1,887 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Бронирование - {{ cottage.name }} - Cottage Booking{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Стили для валидации дат */
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .form-control.is-valid {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    .booked-dates-warning {
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+        color: #856404;
+    }
+    
+    .booked-dates-warning .fas {
+        color: #f39c12;
+    }
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 50px;
+    }
+    
+    .booking-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    
+    .cottage-info {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 30px;
+    }
+    
+    .cottage-image {
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .booking-form {
+        padding: 40px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+    
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 15px 40px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+        border-radius: 25px;
+        padding: 15px 40px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    .price-summary {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 30px;
+    }
+    
+    .price-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .price-item:last-child {
+        border-bottom: none;
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: #667eea;
+    }
+    
+    .amenities-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 15px;
+    }
+    
+    .amenity-badge {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.9rem;
+    }
+    
+    .alert {
+        border-radius: 15px;
+        border: none;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+    }
+    
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        color: #721c24;
+    }
+    
+    .text-danger {
+        color: #dc3545 !important;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+    
+    .required {
+        color: #dc3545;
+    }
+    
+    /* Стили для визуального календаря */
+    .calendar-container {
+        margin-top: 20px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 15px;
+        border: 2px solid #e9ecef;
+    }
+    
+    .calendar-header {
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+        margin-bottom: 15px;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+    
+    .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #dee2e6;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+        position: relative;
+    }
+    
+    .calendar-day:hover {
+        background: #e9ecef;
+    }
+    
+    .calendar-day:not(.booked):not([style*="pointer-events: none"]):hover {
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+    }
+    
+    .calendar-day.booked {
+        background: #dc3545;
+        color: white;
+        cursor: not-allowed;
+    }
+    
+    .calendar-day.booked:hover {
+        background: #c82333;
+    }
+    
+    .calendar-day.today {
+        background: #007bff;
+        color: white;
+    }
+    
+    .calendar-day.selected {
+        background: #28a745;
+        color: white;
+    }
+    
+    .calendar-day.other-month {
+        color: #6c757d;
+        background: #f8f9fa;
+    }
+    
+    .calendar-day.other-month.booked {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .calendar-legend {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.9rem;
+    }
+    
+    .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 3px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .legend-color.booked {
+        background: #dc3545;
+    }
+    
+    .legend-color.available {
+        background: white;
+    }
+    
+    .legend-color.today {
+        background: #007bff;
+    }
+    
+    .legend-color.selected {
+        background: #28a745;
+    }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-5 fw-bold mb-3">Бронирование коттеджа</h1>
+                <p class="lead">Заполните форму ниже для создания бронирования</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Booking Content -->
+<section class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="booking-card">
+                <!-- Cottage Info -->
+                <div class="cottage-info">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="cottage-image" style="background-image: url('/static/images/default-cottage.jpg')">
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h2 class="mb-3">{{ cottage.name }}</h2>
+                            <p class="mb-3">{{ cottage.description|truncatechars:150 }}</p>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                    <strong><i class="fas fa-users me-2"></i>Вместимость:</strong> {{ cottage.capacity }} гостей
+                                </div>
+                                <div class="col-sm-6">
+                                    <strong><i class="fas fa-ruble-sign me-2"></i>Цена за ночь:</strong> {{ cottage.price_per_night }} ₽
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <strong><i class="fas fa-map-marker-alt me-2"></i>Адрес:</strong> {{ cottage.address }}
+                                </div>
+                            </div>
+                            
+                            {% if cottage.amenities.all %}
+                                <div class="amenities-list">
+                                    {% for amenity in cottage.amenities.all %}
+                                        <span class="amenity-badge">{{ amenity.amenity.name }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Booking Form -->
+                <div class="booking-form">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <h3 class="mb-4">Данные бронирования</h3>
+                    
+                    <form method="post" id="bookingForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.check_in.id_for_label }}" class="form-label">
+                                        Дата заезда <span class="required">*</span>
+                                    </label>
+                                    {{ form.check_in }}
+                                    {% if form.check_in.errors %}
+                                        <div class="text-danger">{{ form.check_in.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.check_out.id_for_label }}" class="form-label">
+                                        Дата выезда <span class="required">*</span>
+                                    </label>
+                                    {{ form.check_out }}
+                                    {% if form.check_out.errors %}
+                                        <div class="text-danger">{{ form.check_out.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Визуальный календарь -->
+                        <div class="calendar-container" data-booked-dates="{% for date in booked_dates %}{{ date }}{% if not forloop.last %},{% endif %}{% endfor %}">
+                            <div class="calendar-header">
+                                <h5>Календарь доступности</h5>
+                                <p class="text-muted mb-0">Выберите даты для бронирования</p>
+                            </div>
+                            <div id="calendarGrid" class="calendar-grid">
+                                <!-- Календарь будет сгенерирован JavaScript -->
+                            </div>
+                            <div class="calendar-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color available"></div>
+                                    <span>Доступно</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color booked"></div>
+                                    <span>Забронировано</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color today"></div>
+                                    <span>Сегодня</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color selected"></div>
+                                    <span>Выбрано</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.guests.id_for_label }}" class="form-label">
+                                        Количество гостей <span class="required">*</span>
+                                    </label>
+                                    {{ form.guests }}
+                                    {% if form.guests.errors %}
+                                        <div class="text-danger">{{ form.guests.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.special_requests.id_for_label }}" class="form-label">
+                                Особые пожелания
+                            </label>
+                            {{ form.special_requests }}
+                            {% if form.special_requests.errors %}
+                                <div class="text-danger">{{ form.special_requests.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Price Summary -->
+                        <div class="price-summary">
+                            <h5 class="mb-3">Стоимость бронирования</h5>
+                            <div class="price-item">
+                                <span>Цена за ночь:</span>
+                                <span>{{ cottage.price_per_night }} ₽</span>
+                            </div>
+                            <div class="price-item">
+                                <span>Количество ночей:</span>
+                                <span id="nightsCount">-</span>
+                            </div>
+                            <div class="price-item">
+                                <span>Общая стоимость:</span>
+                                <span id="totalPrice">-</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary me-3">
+                                <i class="fas fa-calendar-check me-2"></i>Забронировать
+                            </button>
+                            <a href="{% url 'cottages:page' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Назад к коттеджам
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('JavaScript загружен');
+    
+    const checkInInput = document.querySelector('#id_check_in');
+    const checkOutInput = document.querySelector('#id_check_out');
+    const guestsInput = document.querySelector('#id_guests');
+    const nightsCount = document.getElementById('nightsCount');
+    const totalPrice = document.getElementById('totalPrice');
+    const cottagePrice = {{ cottage.price_per_night|default:"0" }};
+    
+    console.log('Переменные инициализированы, цена коттеджа:', cottagePrice);
+    // Получаем забронированные даты из data-атрибута
+    const calendarContainer = document.querySelector('.calendar-container');
+    let bookedDates = [];
+    
+    if (calendarContainer && calendarContainer.dataset.bookedDates) {
+        const datesString = calendarContainer.dataset.bookedDates;
+        console.log('Строка забронированных дат из data-атрибута:', datesString);
+        if (datesString.trim()) {
+            bookedDates = datesString.split(',').map(date => date.trim()).filter(date => date);
+        }
+    }
+    
+    console.log('Забронированные даты загружены:', bookedDates.length > 0 ? bookedDates : 'Нет забронированных дат');
+    
+    // Дополнительная отладка для проверки конкретных дат
+    if (bookedDates.length > 0) {
+        console.log('Проверка конкретных дат:');
+        bookedDates.forEach(date => {
+            console.log(`- ${date} забронирована`);
+        });
+    }
+    
+    
+    // Функция для проверки, забронирована ли дата
+    function isDateBooked(dateString) {
+        return bookedDates.includes(dateString);
+    }
+    
+    // Функция для валидации дат
+    function validateDates() {
+        const checkIn = checkInInput ? checkInInput.value : '';
+        const checkOut = checkOutInput ? checkOutInput.value : '';
+        
+        // Убираем предыдущие стили
+        if (checkInInput) {
+            checkInInput.classList.remove('is-invalid', 'is-valid');
+        }
+        if (checkOutInput) {
+            checkOutInput.classList.remove('is-invalid', 'is-valid');
+        }
+        
+        let isValid = true;
+        
+        if (checkIn && isDateBooked(checkIn)) {
+            if (checkInInput) {
+                checkInInput.classList.add('is-invalid');
+                checkInInput.setCustomValidity('Эта дата уже забронирована');
+            }
+            isValid = false;
+        } else if (checkIn && checkInInput) {
+            checkInInput.classList.add('is-valid');
+            checkInInput.setCustomValidity('');
+        }
+        
+        if (checkOut && isDateBooked(checkOut)) {
+            if (checkOutInput) {
+                checkOutInput.classList.add('is-invalid');
+                checkOutInput.setCustomValidity('Эта дата уже забронирована');
+            }
+            isValid = false;
+        } else if (checkOut && checkOutInput) {
+            checkOutInput.classList.add('is-valid');
+            checkOutInput.setCustomValidity('');
+        }
+        
+        return isValid;
+    }
+    
+    // Функция для показа предупреждения о забронированных датах
+    function showBookedDatesWarning() {
+        if (bookedDates.length > 0) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'alert alert-warning mt-3';
+            warningDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Внимание!</strong> Следующие даты уже забронированы: 
+                ${bookedDates.slice(0, 5).join(', ')}${bookedDates.length > 5 ? ' и другие...' : ''}
+            `;
+            
+            // Добавляем предупреждение после формы дат
+            const dateSection = document.querySelector('.row .col-md-6:first-child').parentElement;
+            if (dateSection && !document.querySelector('.booked-dates-warning')) {
+                warningDiv.classList.add('booked-dates-warning');
+                dateSection.parentElement.insertBefore(warningDiv, dateSection.nextSibling);
+            }
+        }
+    }
+    
+    // Вызываем расчет при загрузке страницы (на случай если даты уже заполнены)
+    calculatePrice();
+    
+    // Показываем предупреждение о забронированных датах
+    showBookedDatesWarning();
+    
+    // Добавляем атрибуты для блокировки забронированных дат в полях ввода
+    if (checkInInput && bookedDates.length > 0) {
+        checkInInput.setAttribute('data-booked-dates', JSON.stringify(bookedDates));
+    }
+    if (checkOutInput && bookedDates.length > 0) {
+        checkOutInput.setAttribute('data-booked-dates', JSON.stringify(bookedDates));
+    }
+    
+    // Создаем простой календарь для тестирования
+    createSimpleCalendar();
+    
+    function createSimpleCalendar() {
+        const calendarGrid = document.getElementById('calendarGrid');
+        if (!calendarGrid) return;
+        
+        // Очищаем календарь
+        calendarGrid.innerHTML = '';
+        
+        // Создаем календарь на 3 месяца (текущий + 2 следующих)
+        const today = new Date();
+        
+        for (let monthOffset = 0; monthOffset < 3; monthOffset++) {
+            const currentDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+            
+            // Заголовок месяца
+            const monthHeader = document.createElement('div');
+            monthHeader.style.gridColumn = '1 / -1';
+            monthHeader.style.textAlign = 'center';
+            monthHeader.style.fontWeight = 'bold';
+            monthHeader.style.padding = '10px';
+            monthHeader.style.backgroundColor = '#e9ecef';
+            monthHeader.style.borderRadius = '5px';
+            monthHeader.style.marginBottom = '10px';
+            monthHeader.style.marginTop = monthOffset > 0 ? '20px' : '0';
+            monthHeader.textContent = currentDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+            calendarGrid.appendChild(monthHeader);
+            
+            // Дни недели (только для первого месяца)
+            if (monthOffset === 0) {
+                const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+                dayNames.forEach(dayName => {
+                    const dayHeader = document.createElement('div');
+                    dayHeader.style.textAlign = 'center';
+                    dayHeader.style.fontWeight = 'bold';
+                    dayHeader.style.padding = '5px';
+                    dayHeader.style.backgroundColor = '#f8f9fa';
+                    dayHeader.textContent = dayName;
+                    calendarGrid.appendChild(dayHeader);
+                });
+            }
+            
+            // Создаем дни месяца
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1));
+            
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = date.getDate();
+                dayElement.setAttribute('data-date', date.toISOString().split('T')[0]);
+                
+                const dateString = date.toISOString().split('T')[0];
+                
+                // Проверяем, является ли дата забронированной
+                if (bookedDates.includes(dateString)) {
+                    dayElement.classList.add('booked');
+                    dayElement.title = 'Забронировано';
+                    dayElement.style.cursor = 'not-allowed';
+                    dayElement.style.pointerEvents = 'none'; // Полностью блокируем клики
+                } else if (date < today) {
+                    dayElement.style.opacity = '0.5';
+                    dayElement.style.cursor = 'not-allowed';
+                    dayElement.style.pointerEvents = 'none'; // Блокируем клики по прошедшим датам
+                    dayElement.title = 'Прошедшая дата';
+                } else {
+                    // Все остальные даты доступны для выбора
+                    if (date.toDateString() === today.toDateString()) {
+                        dayElement.classList.add('today');
+                        dayElement.title = 'Сегодня';
+                    } else if (date.getMonth() !== currentMonth) {
+                        dayElement.classList.add('other-month');
+                    }
+                    
+                    // Добавляем обработчик клика для всех доступных дат
+                    dayElement.addEventListener('click', function() {
+                        selectDate(dateString);
+                    });
+                }
+                
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+    }
+    
+    // Функция для выбора даты из календаря
+    function selectDate(dateString) {
+        console.log('Попытка выбрать дату:', dateString);
+        console.log('Забронированные даты:', bookedDates);
+        
+        if (bookedDates.includes(dateString)) {
+            alert('Эта дата уже забронирована. Пожалуйста, выберите другую дату.');
+            console.log('Дата заблокирована:', dateString);
+            return;
+        }
+        
+        const today = new Date();
+        const selectedDate = new Date(dateString);
+        
+        if (selectedDate < today) {
+            alert('Нельзя выбрать прошедшую дату.');
+            console.log('Дата в прошлом:', dateString);
+            return;
+        }
+        
+        console.log('Дата выбрана успешно:', dateString);
+        
+        // Если дата заезда не выбрана или выбранная дата раньше даты заезда
+        if (!checkInInput.value || new Date(dateString) < new Date(checkInInput.value)) {
+            checkInInput.value = dateString;
+            
+            // Сбрасываем дату выезда если она стала невалидной
+            if (checkOutInput.value && new Date(checkOutInput.value) <= selectedDate) {
+                checkOutInput.value = '';
+            }
+        } else {
+            // Выбираем дату выезда
+            checkOutInput.value = dateString;
+        }
+        
+        // Обновляем расчет цены и валидацию
+        validateDates();
+        calculatePrice();
+        
+        // Обновляем визуальное состояние календаря
+        updateCalendarSelection();
+    }
+    
+    
+    // Функция для обновления визуального состояния календаря
+    function updateCalendarSelection() {
+        const calendarDays = document.querySelectorAll('.calendar-day');
+        calendarDays.forEach(day => {
+            day.classList.remove('selected');
+        });
+        
+        if (checkInInput && checkInInput.value) {
+            const checkInDay = document.querySelector(`[data-date="${checkInInput.value}"]`);
+            if (checkInDay) {
+                checkInDay.classList.add('selected');
+            }
+        }
+        
+        if (checkOutInput && checkOutInput.value) {
+            const checkOutDay = document.querySelector(`[data-date="${checkOutInput.value}"]`);
+            if (checkOutDay) {
+                checkOutDay.classList.add('selected');
+            }
+        }
+    }
+    
+    
+    function calculatePrice() {
+        const checkIn = checkInInput ? checkInInput.value : '';
+        const checkOut = checkOutInput ? checkOutInput.value : '';
+        
+        console.log('Расчет цены:', { checkIn, checkOut });
+        
+        if (checkIn && checkOut) {
+            const checkInDate = new Date(checkIn);
+            const checkOutDate = new Date(checkOut);
+            
+            if (checkOutDate > checkInDate) {
+                const timeDiff = checkOutDate.getTime() - checkInDate.getTime();
+                const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                const total = nights * cottagePrice;
+                
+                console.log('Результат расчета:', { nights, total });
+                
+                if (nightsCount) nightsCount.textContent = nights;
+                if (totalPrice) totalPrice.textContent = total.toLocaleString() + ' ₽';
+            } else {
+                console.log('Дата выезда должна быть позже даты заезда');
+                if (nightsCount) nightsCount.textContent = '-';
+                if (totalPrice) totalPrice.textContent = '-';
+            }
+        } else {
+            console.log('Не все даты заполнены');
+            if (nightsCount) nightsCount.textContent = '-';
+            if (totalPrice) totalPrice.textContent = '-';
+        }
+    }
+    
+    // Добавляем обработчики событий для полей ввода дат
+    if (checkInInput) {
+        checkInInput.addEventListener('change', function() {
+            validateDates();
+            calculatePrice();
+            updateCalendarSelection();
+        });
+        checkInInput.addEventListener('input', function() {
+            validateDates();
+            calculatePrice();
+            updateCalendarSelection();
+        });
+    }
+    
+    if (checkOutInput) {
+        checkOutInput.addEventListener('change', function() {
+            validateDates();
+            calculatePrice();
+            updateCalendarSelection();
+        });
+        checkOutInput.addEventListener('input', function() {
+            validateDates();
+            calculatePrice();
+            updateCalendarSelection();
+        });
+    }
+    
+    // Устанавливаем минимальную дату выезда при выборе даты заезда
+    if (checkInInput && checkOutInput) {
+        checkInInput.addEventListener('change', function() {
+            if (this.value) {
+                const checkInDate = new Date(this.value);
+                const minCheckOut = new Date(checkInDate);
+                minCheckOut.setDate(minCheckOut.getDate() + 1);
+                
+                checkOutInput.min = minCheckOut.toISOString().split('T')[0];
+                
+                // Если дата выезда меньше минимальной, сбрасываем её
+                if (checkOutInput.value && new Date(checkOutInput.value) <= checkInDate) {
+                    checkOutInput.value = '';
+                    calculatePrice();
+                }
+            }
+        });
+    }
+    
+    // Валидация количества гостей
+    if (guestsInput) {
+        guestsInput.addEventListener('input', function() {
+            const maxGuests = {{ cottage.capacity }};
+            if (parseInt(this.value) > maxGuests) {
+                this.setCustomValidity(`Максимальная вместимость: ${maxGuests} гостей`);
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+    
+    // Предотвращаем отправку формы с ошибками
+    const bookingForm = document.getElementById('bookingForm');
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', function(e) {
+            const checkIn = checkInInput ? checkInInput.value : '';
+            const checkOut = checkOutInput ? checkOutInput.value : '';
+            const guests = guestsInput ? guestsInput.value : '';
+            
+            if (!checkIn || !checkOut || !guests) {
+                e.preventDefault();
+                alert('Пожалуйста, заполните все обязательные поля');
+                return false;
+            }
+            
+            if (new Date(checkOut) <= new Date(checkIn)) {
+                e.preventDefault();
+                alert('Дата выезда должна быть позже даты заезда');
+                return false;
+            }
+            
+            if (parseInt(guests) > {{ cottage.capacity }}) {
+                e.preventDefault();
+                alert(`Максимальная вместимость коттеджа: {{ cottage.capacity }} гостей`);
+                return false;
+            }
+            
+            // Проверяем, не забронированы ли выбранные даты
+            if (!validateDates()) {
+                e.preventDefault();
+                alert('Выбранные даты уже забронированы. Пожалуйста, выберите другие даты.');
+                return false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
