@@ -140,25 +140,34 @@
     }
     
     .sort-btn {
-        background: none;
-        border: none;
-        color: #6c757d;
-        font-size: 1.2rem;
-        padding: 8px;
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        color: #495057;
+        font-size: 1.4rem;
+        padding: 12px;
         border-radius: 50%;
         transition: all 0.3s ease;
         cursor: pointer;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .sort-btn:hover {
-        background: #f8f9fa;
-        color: #667eea;
-        transform: scale(1.1);
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
     
     .sort-btn.active {
-        color: #667eea;
-        background: #f8f9fa;
+        color: white;
+        background: #667eea;
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
     
     .sort-dropdown {
@@ -214,7 +223,6 @@
             <div class="col-lg-8 mx-auto text-center">
                 <h1 class="display-4 fw-bold mb-4">Наши Коттеджи</h1>
                 <p class="lead mb-4">Откройте для себя идеальное место для отдыха среди наших уютных коттеджей</p>
-                <a href="#search" class="btn btn-light btn-lg">Найти коттедж</a>
             </div>
         </div>
     </div>
@@ -667,6 +675,4 @@ function bookCottage(cottageId) {
 }
 </script>
 
-<!-- Font Awesome for icons -->
-<script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
 {% endblock %}
