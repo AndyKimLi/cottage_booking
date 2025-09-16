@@ -133,6 +133,76 @@
     .spinner-border {
         color: #667eea;
     }
+    
+    .sort-container {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .sort-btn {
+        background: none;
+        border: none;
+        color: #6c757d;
+        font-size: 1.2rem;
+        padding: 8px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .sort-btn:hover {
+        background: #f8f9fa;
+        color: #667eea;
+        transform: scale(1.1);
+    }
+    
+    .sort-btn.active {
+        color: #667eea;
+        background: #f8f9fa;
+    }
+    
+    .sort-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        min-width: 180px;
+        z-index: 1000;
+        display: none;
+    }
+    
+    .sort-dropdown.show {
+        display: block;
+    }
+    
+    .sort-option {
+        display: block;
+        width: 100%;
+        padding: 10px 15px;
+        border: none;
+        background: none;
+        text-align: left;
+        color: #495057;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    
+    .sort-option:hover {
+        background: #f8f9fa;
+    }
+    
+    .sort-option.active {
+        background: #667eea;
+        color: white;
+    }
+    
+    .sort-option i {
+        margin-right: 8px;
+        width: 16px;
+    }
 </style>
 {% endblock %}
 
@@ -184,7 +254,34 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Доступные коттеджи</h2>
-                <div id="resultsCount" class="text-muted"></div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="sort-container">
+                        <button class="sort-btn" id="sortBtn" title="Сортировка по цене">
+                            <i class="fas fa-sort-amount-down"></i>
+                        </button>
+                        <div class="sort-dropdown" id="sortDropdown">
+                            <button class="sort-option" data-sort="price_asc">
+                                <i class="fas fa-sort-amount-up"></i>Цена: по возрастанию
+                            </button>
+                            <button class="sort-option" data-sort="price_desc">
+                                <i class="fas fa-sort-amount-down"></i>Цена: по убыванию
+                            </button>
+                            <button class="sort-option" data-sort="name_asc">
+                                <i class="fas fa-sort-alpha-up"></i>Название: А-Я
+                            </button>
+                            <button class="sort-option" data-sort="name_desc">
+                                <i class="fas fa-sort-alpha-down"></i>Название: Я-А
+                            </button>
+                            <button class="sort-option" data-sort="capacity_desc">
+                                <i class="fas fa-users"></i>Вместимость: больше
+                            </button>
+                            <button class="sort-option" data-sort="capacity_asc">
+                                <i class="fas fa-user"></i>Вместимость: меньше
+                            </button>
+                        </div>
+                    </div>
+                    <div id="resultsCount" class="text-muted"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -271,6 +368,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const loadingState = document.getElementById('loadingState');
     const noResults = document.getElementById('noResults');
     const resultsCount = document.getElementById('resultsCount');
+    const sortBtn = document.getElementById('sortBtn');
+    const sortDropdown = document.getElementById('sortDropdown');
+    const sortOptions = document.querySelectorAll('.sort-option');
+    
+    let currentSort = 'price_desc'; // По умолчанию сортировка по цене по убыванию
+    let cottagesData = []; // Храним данные коттеджей для сортировки
     
     // Fill form fields from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -282,6 +385,44 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cottageCount > 0) {
         resultsCount.textContent = `Найдено: ${cottageCount} коттеджей`;
     }
+    
+    // Initialize cottages data from current page
+    initializeCottagesData();
+    
+    // Sort functionality
+    sortBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        sortDropdown.classList.toggle('show');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!sortBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
+            sortDropdown.classList.remove('show');
+        }
+    });
+    
+    // Handle sort option clicks
+    sortOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const sortType = this.dataset.sort;
+            applySorting(sortType);
+            
+            // Update active state
+            sortOptions.forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update button icon based on sort type
+            updateSortButtonIcon(sortType);
+            
+            // Close dropdown
+            sortDropdown.classList.remove('show');
+        });
+    });
+    
+    // Set initial active state
+    document.querySelector(`[data-sort="${currentSort}"]`).classList.add('active');
+    updateSortButtonIcon(currentSort);
     
     // Handle search form submission
     searchForm.addEventListener('submit', function(e) {
@@ -395,6 +536,121 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         cottagesGrid.style.display = 'block';
         resultsCount.textContent = '';
+    }
+    
+    function initializeCottagesData() {
+        // Extract cottage data from current page
+        const cottageCards = document.querySelectorAll('#cottagesGrid .col-lg-4');
+        cottagesData = [];
+        
+        cottageCards.forEach(card => {
+            const cottage = {
+                id: extractCottageId(card),
+                name: card.querySelector('.card-title').textContent,
+                description: card.querySelector('.card-text').textContent,
+                price_per_night: extractPrice(card),
+                capacity: extractCapacity(card),
+                address: extractAddress(card),
+                amenities: extractAmenities(card),
+                element: card
+            };
+            cottagesData.push(cottage);
+        });
+    }
+    
+    function extractCottageId(card) {
+        const button = card.querySelector('button[onclick*="viewCottage"]');
+        if (button) {
+            const match = button.getAttribute('onclick').match(/viewCottage\((\d+)\)/);
+            return match ? parseInt(match[1]) : 0;
+        }
+        return 0;
+    }
+    
+    function extractPrice(card) {
+        const priceText = card.querySelector('.price-badge').textContent;
+        const match = priceText.match(/(\d+)/);
+        return match ? parseInt(match[1]) : 0;
+    }
+    
+    function extractCapacity(card) {
+        const capacityText = card.querySelector('.fa-users').parentElement.textContent;
+        const match = capacityText.match(/(\d+)/);
+        return match ? parseInt(match[1]) : 0;
+    }
+    
+    function extractAddress(card) {
+        const addressElement = card.querySelector('.fa-map-marker-alt').parentElement;
+        return addressElement.textContent.trim();
+    }
+    
+    function extractAmenities(card) {
+        const amenities = [];
+        const amenityBadges = card.querySelectorAll('.amenity-badge');
+        amenityBadges.forEach(badge => {
+            if (!badge.textContent.startsWith('+')) {
+                amenities.push({ amenity: { name: badge.textContent } });
+            }
+        });
+        return amenities;
+    }
+    
+    function applySorting(sortType) {
+        currentSort = sortType;
+        
+        cottagesData.sort((a, b) => {
+            switch (sortType) {
+                case 'price_asc':
+                    return a.price_per_night - b.price_per_night;
+                case 'price_desc':
+                    return b.price_per_night - a.price_per_night;
+                case 'name_asc':
+                    return a.name.localeCompare(b.name, 'ru');
+                case 'name_desc':
+                    return b.name.localeCompare(a.name, 'ru');
+                case 'capacity_asc':
+                    return a.capacity - b.capacity;
+                case 'capacity_desc':
+                    return b.capacity - a.capacity;
+                default:
+                    return 0;
+            }
+        });
+        
+        // Re-render cottages in sorted order
+        cottagesGrid.innerHTML = '';
+        cottagesData.forEach(cottage => {
+            cottagesGrid.appendChild(cottage.element);
+        });
+    }
+    
+    function updateSortButtonIcon(sortType) {
+        const icon = sortBtn.querySelector('i');
+        switch (sortType) {
+            case 'price_asc':
+                icon.className = 'fas fa-sort-amount-up';
+                break;
+            case 'price_desc':
+                icon.className = 'fas fa-sort-amount-down';
+                break;
+            case 'name_asc':
+                icon.className = 'fas fa-sort-alpha-up';
+                break;
+            case 'name_desc':
+                icon.className = 'fas fa-sort-alpha-down';
+                break;
+            case 'capacity_asc':
+                icon.className = 'fas fa-user';
+                break;
+            case 'capacity_desc':
+                icon.className = 'fas fa-users';
+                break;
+            default:
+                icon.className = 'fas fa-sort-amount-down';
+        }
+        
+        // Add active state to button
+        sortBtn.classList.add('active');
     }
 });
 
