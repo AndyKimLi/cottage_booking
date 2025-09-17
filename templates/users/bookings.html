@@ -30,7 +30,7 @@
         color: white;
         padding: 20px 25px;
         display: flex;
-        justify-content: between;
+        justify-content: space-between;
         align-items: center;
     }
     
@@ -194,7 +194,6 @@
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
                 <h1 class="display-4 fw-bold mb-4">Мои бронирования</h1>
-                <p class="lead">Управляйте своими заказами и бронированиями</p>
             </div>
         </div>
     </div>
@@ -216,7 +215,7 @@
                             {% if booking.status == 'confirmed' %}
                                 <i class="fas fa-check me-1"></i>Подтверждено
                             {% elif booking.status == 'pending' %}
-                                <i class="fas fa-clock me-1"></i>Ожидает
+                                <i class="fas fa-clock me-1"></i>Ожидает подтверждения
                             {% else %}
                                 <i class="fas fa-times me-1"></i>Отменено
                             {% endif %}

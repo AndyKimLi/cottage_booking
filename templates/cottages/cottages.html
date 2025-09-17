@@ -18,7 +18,7 @@
         overflow: hidden;
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        margin-bottom: 30px;
+        margin-bottom: 40px;
     }
     
     .cottage-card:hover {
@@ -71,18 +71,6 @@
         border: 1px solid #e9ecef;
     }
     
-    .search-section {
-        background: #f8f9fa;
-        padding: 40px 0;
-        margin-bottom: 50px;
-    }
-    
-    .search-card {
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    }
     
     .btn-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -132,6 +120,10 @@
     
     .spinner-border {
         color: #667eea;
+    }
+    
+    .cottage-col {
+        margin-bottom: 20px;
     }
     
     .sort-container {
@@ -228,33 +220,6 @@
     </div>
 </section>
 
-<!-- Search Section -->
-<section id="search" class="search-section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="search-card">
-                    <h3 class="text-center mb-4">Фильтр по цене</h3>
-                    <form id="searchForm">
-                        <div class="row g-3 justify-content-center">
-                            <div class="col-md-3">
-                                <label for="minPrice" class="form-label">Мин. цена за ночь</label>
-                                <input type="number" class="form-control" id="minPrice" placeholder="0" min="0">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="maxPrice" class="form-label">Макс. цена за ночь</label>
-                                <input type="number" class="form-control" id="maxPrice" placeholder="10000" min="0">
-                            </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary w-100">Применить</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Cottages Section -->
 <section class="container">
@@ -262,33 +227,30 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Доступные коттеджи</h2>
-                <div class="d-flex align-items-center gap-3">
-                    <div class="sort-container">
-                        <button class="sort-btn" id="sortBtn" title="Сортировка по цене">
-                            <i class="fas fa-sort-amount-down"></i>
+                <div class="sort-container">
+                    <button class="sort-btn" id="sortBtn" title="Сортировка по цене">
+                        <i class="fas fa-sort-amount-down"></i>
+                    </button>
+                    <div class="sort-dropdown" id="sortDropdown">
+                        <button class="sort-option" data-sort="price_asc">
+                            <i class="fas fa-sort-amount-up"></i>Цена: по возрастанию
                         </button>
-                        <div class="sort-dropdown" id="sortDropdown">
-                            <button class="sort-option" data-sort="price_asc">
-                                <i class="fas fa-sort-amount-up"></i>Цена: по возрастанию
-                            </button>
-                            <button class="sort-option" data-sort="price_desc">
-                                <i class="fas fa-sort-amount-down"></i>Цена: по убыванию
-                            </button>
-                            <button class="sort-option" data-sort="name_asc">
-                                <i class="fas fa-sort-alpha-up"></i>Название: А-Я
-                            </button>
-                            <button class="sort-option" data-sort="name_desc">
-                                <i class="fas fa-sort-alpha-down"></i>Название: Я-А
-                            </button>
-                            <button class="sort-option" data-sort="capacity_desc">
-                                <i class="fas fa-users"></i>Вместимость: больше
-                            </button>
-                            <button class="sort-option" data-sort="capacity_asc">
-                                <i class="fas fa-user"></i>Вместимость: меньше
-                            </button>
-                        </div>
+                        <button class="sort-option" data-sort="price_desc">
+                            <i class="fas fa-sort-amount-down"></i>Цена: по убыванию
+                        </button>
+                        <button class="sort-option" data-sort="name_asc">
+                            <i class="fas fa-sort-alpha-up"></i>Название: А-Я
+                        </button>
+                        <button class="sort-option" data-sort="name_desc">
+                            <i class="fas fa-sort-alpha-down"></i>Название: Я-А
+                        </button>
+                        <button class="sort-option" data-sort="capacity_desc">
+                            <i class="fas fa-users"></i>Вместимость: больше
+                        </button>
+                        <button class="sort-option" data-sort="capacity_asc">
+                            <i class="fas fa-user"></i>Вместимость: меньше
+                        </button>
                     </div>
-                    <div id="resultsCount" class="text-muted"></div>
                 </div>
             </div>
         </div>
@@ -312,7 +274,7 @@
     <!-- Cottages Grid -->
     <div id="cottagesGrid" class="row">
         {% for cottage in cottages %}
-        <div class="col-lg-4 col-md-6">
+        <div class="col-lg-4 col-md-6 cottage-col">
             <div class="cottage-card card h-100">
                 <div class="cottage-image" style="background-image: url('/static/images/default-cottage.jpg')">
                     <div class="price-badge">
@@ -371,11 +333,9 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const searchForm = document.getElementById('searchForm');
     const cottagesGrid = document.getElementById('cottagesGrid');
     const loadingState = document.getElementById('loadingState');
     const noResults = document.getElementById('noResults');
-    const resultsCount = document.getElementById('resultsCount');
     const sortBtn = document.getElementById('sortBtn');
     const sortDropdown = document.getElementById('sortDropdown');
     const sortOptions = document.querySelectorAll('.sort-option');
@@ -383,16 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentSort = 'price_desc'; // По умолчанию сортировка по цене по убыванию
     let cottagesData = []; // Храним данные коттеджей для сортировки
     
-    // Fill form fields from URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    document.getElementById('minPrice').value = urlParams.get('min_price') || '';
-    document.getElementById('maxPrice').value = urlParams.get('max_price') || '';
     
-    // Update results count
-    const cottageCount = document.querySelectorAll('#cottagesGrid .col-lg-4').length;
-    if (cottageCount > 0) {
-        resultsCount.textContent = `Найдено: ${cottageCount} коттеджей`;
-    }
     
     // Initialize cottages data from current page
     initializeCottagesData();
@@ -432,24 +383,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector(`[data-sort="${currentSort}"]`).classList.add('active');
     updateSortButtonIcon(currentSort);
     
-    // Handle search form submission
-    searchForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        performSearch();
-    });
-    
-    function performSearch() {
-        const minPrice = document.getElementById('minPrice').value;
-        const maxPrice = document.getElementById('maxPrice').value;
-        
-        const params = new URLSearchParams();
-        if (minPrice) params.append('min_price', minPrice);
-        if (maxPrice) params.append('max_price', maxPrice);
-        
-        // Reload page with search parameters
-        const url = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-        window.location.href = url;
-    }
     
     function showLoading() {
         loadingState.style.display = 'block';
@@ -467,11 +400,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (cottages.length === 0) {
             noResults.style.display = 'block';
-            resultsCount.textContent = '';
             return;
         }
-        
-        resultsCount.textContent = `Найдено: ${cottages.length} коттеджей`;
         
         cottages.forEach(cottage => {
             const cottageCard = createCottageCard(cottage);
@@ -481,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function createCottageCard(cottage) {
         const col = document.createElement('div');
-        col.className = 'col-lg-4 col-md-6';
+        col.className = 'col-lg-4 col-md-6 cottage-col';
         
         // Get primary image or first image
         const primaryImage = cottage.images && cottage.images.length > 0 
@@ -543,7 +473,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         cottagesGrid.style.display = 'block';
-        resultsCount.textContent = '';
     }
     
     function initializeCottagesData() {

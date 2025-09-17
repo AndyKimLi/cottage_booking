@@ -122,9 +122,23 @@ class BookingAdmin(admin.ModelAdmin):
 
     # Переопределяем save для автоматического пересчета стоимости
     def save_model(self, request, obj, form, change):
-        if not change:  # Только при создании
+        if change:  # При редактировании существующего бронирования
+            # Получаем старые значения из базы
+            old_obj = Booking.objects.get(pk=obj.pk)
+            
+            # Проверяем, изменились ли даты или коттедж
+            dates_changed = (old_obj.check_in != obj.check_in or 
+                           old_obj.check_out != obj.check_out)
+            cottage_changed = old_obj.cottage != obj.cottage
+            
+            if dates_changed or cottage_changed:
+                # Пересчитываем стоимость
+                nights = (obj.check_out - obj.check_in).days
+                obj.total_price = obj.cottage.price_per_night * nights
+        else:  # При создании нового бронирования
             nights = (obj.check_out - obj.check_in).days
             obj.total_price = obj.cottage.price_per_night * nights
+            
         super().save_model(request, obj, form, change)
 
     # Добавляем кастомные фильтры в sidebar

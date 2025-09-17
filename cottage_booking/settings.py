@@ -135,6 +135,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
 
+# Authentication URLs
+LOGIN_URL = '/users/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+# Session settings
+SESSION_COOKIE_AGE = 7 * 24 * 60 * 60  # 7 дней в секундах
+
 # Site ID for allauth
 SITE_ID = 1
 

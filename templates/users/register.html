@@ -2,98 +2,255 @@
 
 {% block title %}Регистрация - Cottage Booking{% endblock %}
 
+{% block extra_css %}
+<style>
+    .register-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 50px;
+    }
+    
+    .register-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 40px;
+        margin-bottom: 30px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .register-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-register {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 15px 40px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .btn-register:active {
+        transform: translateY(0);
+    }
+    
+    .login-link {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    .login-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+    
+    .login-link a:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+    
+    .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .field-error {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+    
+    .input-icon {
+        position: relative;
+    }
+    
+    .input-icon i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        z-index: 2;
+    }
+    
+    .input-icon .form-control {
+        padding-left: 45px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
+<!-- Register Header -->
+<section class="register-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-4">Регистрация</h1>
+                <p class="lead">Создайте аккаунт и начните планировать свой отдых на Камчатке</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Register Form -->
+<section class="container">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">📝 Регистрация</h3>
-                </div>
-                <div class="card-body">
-                    {% if error %}
-                        <div class="alert alert-danger">
-                            {{ error }}
-                        </div>
-                    {% endif %}
+        <div class="col-lg-8 col-md-10">
+            <div class="register-card">
+                {% if error %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                    </div>
+                {% endif %}
+                
+                <form method="post">
+                    {% csrf_token %}
                     
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Имя пользователя</label>
-                            <input type="text" class="form-control" id="username" name="username" 
-                                   value="{{ username|default:'' }}" required>
-                            {% if errors.username %}
-                                <div class="text-danger">{{ errors.username }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" 
-                                   value="{{ email|default:'' }}" required>
-                            {% if errors.email %}
-                                <div class="text-danger">{{ errors.email }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="first_name" class="form-label">Имя</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="first_name" class="form-label">Имя</label>
+                                <div class="input-icon">
+                                    <i class="fas fa-user"></i>
                                     <input type="text" class="form-control" id="first_name" name="first_name"
-                                           value="{{ first_name|default:'' }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="last_name" class="form-label">Фамилия</label>
-                                    <input type="text" class="form-control" id="last_name" name="last_name"
-                                           value="{{ last_name|default:'' }}">
+                                           value="{{ first_name|default:'' }}" placeholder="Введите ваше имя">
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="phone" class="form-label">Телефон</label>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="last_name" class="form-label">Фамилия</label>
+                                <div class="input-icon">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" class="form-control" id="last_name" name="last_name"
+                                           value="{{ last_name|default:'' }}" placeholder="Введите вашу фамилию">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="username" class="form-label">Имя пользователя</label>
+                        <div class="input-icon">
+                            <i class="fas fa-at"></i>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   value="{{ username|default:'' }}" placeholder="Введите имя пользователя" required>
+                        </div>
+                        {% if errors.username %}
+                            <div class="field-error">{{ errors.username }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="input-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   value="{{ email|default:'' }}" placeholder="Введите ваш email" required>
+                        </div>
+                        {% if errors.email %}
+                            <div class="field-error">{{ errors.email }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Телефон</label>
+                        <div class="input-icon">
+                            <i class="fas fa-phone"></i>
                             <input type="tel" class="form-control" id="phone" name="phone" 
                                    value="{{ phone|default:'' }}" placeholder="+7 999 123 45 67">
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="password1" class="form-label">Пароль</label>
-                            <input type="password" class="form-control" id="password1" name="password1" required>
-                            {% if errors.password1 %}
-                                <div class="text-danger">{{ errors.password1 }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="password2" class="form-label">Подтверждение пароля</label>
-                            <input type="password" class="form-control" id="password2" name="password2" required>
-                            {% if errors.password2 %}
-                                <div class="text-danger">{{ errors.password2 }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                🚀 Зарегистрироваться
-                            </button>
-                        </div>
-                    </form>
-                    
-                    <hr>
-                    
-                    <div class="text-center">
-                        <p class="mb-0">Уже есть аккаунт? 
-                            <a href="/api/v1/auth/login/" class="text-decoration-none">Войти</a>
-                        </p>
                     </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="password1" class="form-label">Пароль</label>
+                                <div class="input-icon">
+                                    <i class="fas fa-lock"></i>
+                                    <input type="password" class="form-control" id="password1" name="password1" 
+                                           placeholder="Введите пароль" required>
+                                </div>
+                                {% if errors.password1 %}
+                                    <div class="field-error">{{ errors.password1 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="password2" class="form-label">Подтверждение пароля</label>
+                                <div class="input-icon">
+                                    <i class="fas fa-lock"></i>
+                                    <input type="password" class="form-control" id="password2" name="password2" 
+                                           placeholder="Подтвердите пароль" required>
+                                </div>
+                                {% if errors.password2 %}
+                                    <div class="field-error">{{ errors.password2 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-register">
+                            <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="login-link">
+                    <p class="mb-0">Уже есть аккаунт? 
+                        <a href="{% url 'users:login' %}">Войти в систему</a>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 {% endblock %}

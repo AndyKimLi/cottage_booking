@@ -174,121 +174,7 @@
         color: #dc3545;
     }
     
-    /* Стили для визуального календаря */
-    .calendar-container {
-        margin-top: 20px;
-        padding: 20px;
-        background: #f8f9fa;
-        border-radius: 15px;
-        border: 2px solid #e9ecef;
-    }
     
-    .calendar-header {
-        text-align: center;
-        margin-bottom: 20px;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-    
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 2px;
-        margin-bottom: 15px;
-        max-height: 600px;
-        overflow-y: auto;
-    }
-    
-    .calendar-day {
-        aspect-ratio: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #dee2e6;
-        background: white;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: 0.9rem;
-        position: relative;
-    }
-    
-    .calendar-day:hover {
-        background: #e9ecef;
-    }
-    
-    .calendar-day:not(.booked):not([style*="pointer-events: none"]):hover {
-        background: #007bff;
-        color: white;
-        cursor: pointer;
-    }
-    
-    .calendar-day.booked {
-        background: #dc3545;
-        color: white;
-        cursor: not-allowed;
-    }
-    
-    .calendar-day.booked:hover {
-        background: #c82333;
-    }
-    
-    .calendar-day.today {
-        background: #007bff;
-        color: white;
-    }
-    
-    .calendar-day.selected {
-        background: #28a745;
-        color: white;
-    }
-    
-    .calendar-day.other-month {
-        color: #6c757d;
-        background: #f8f9fa;
-    }
-    
-    .calendar-day.other-month.booked {
-        background: #f8d7da;
-        color: #721c24;
-    }
-    
-    .calendar-legend {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        flex-wrap: wrap;
-        margin-top: 15px;
-    }
-    
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 0.9rem;
-    }
-    
-    .legend-color {
-        width: 16px;
-        height: 16px;
-        border-radius: 3px;
-        border: 1px solid #dee2e6;
-    }
-    
-    .legend-color.booked {
-        background: #dc3545;
-    }
-    
-    .legend-color.available {
-        background: white;
-    }
-    
-    .legend-color.today {
-        background: #007bff;
-    }
-    
-    .legend-color.selected {
-        background: #28a745;
-    }
     
 </style>
 {% endblock %}
@@ -350,14 +236,6 @@
                 
                 <!-- Booking Form -->
                 <div class="booking-form">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
                     
                     <h3 class="mb-4">Данные бронирования</h3>
                     
@@ -389,34 +267,6 @@
                             </div>
                         </div>
                         
-                        <!-- Визуальный календарь -->
-                        <div class="calendar-container" data-booked-dates="{% for date in booked_dates %}{{ date }}{% if not forloop.last %},{% endif %}{% endfor %}">
-                            <div class="calendar-header">
-                                <h5>Календарь доступности</h5>
-                                <p class="text-muted mb-0">Выберите даты для бронирования</p>
-                            </div>
-                            <div id="calendarGrid" class="calendar-grid">
-                                <!-- Календарь будет сгенерирован JavaScript -->
-                            </div>
-                            <div class="calendar-legend">
-                                <div class="legend-item">
-                                    <div class="legend-color available"></div>
-                                    <span>Доступно</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color booked"></div>
-                                    <span>Забронировано</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color today"></div>
-                                    <span>Сегодня</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color selected"></div>
-                                    <span>Выбрано</span>
-                                </div>
-                            </div>
-                        </div>
                         
                         <div class="row">
                             <div class="col-md-6">
@@ -494,36 +344,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const guestsInput = document.querySelector('#id_guests');
     const nightsCount = document.getElementById('nightsCount');
     const totalPrice = document.getElementById('totalPrice');
-    const cottagePrice = {{ cottage.price_per_night|default:"0" }};
+    const cottagePrice = parseFloat('{{ cottage.price_per_night|default:"0" }}'.replace(',', '.')) || 0;
     
     console.log('Переменные инициализированы, цена коттеджа:', cottagePrice);
-    // Получаем забронированные даты из data-атрибута
-    const calendarContainer = document.querySelector('.calendar-container');
-    let bookedDates = [];
-    
-    if (calendarContainer && calendarContainer.dataset.bookedDates) {
-        const datesString = calendarContainer.dataset.bookedDates;
-        console.log('Строка забронированных дат из data-атрибута:', datesString);
-        if (datesString.trim()) {
-            bookedDates = datesString.split(',').map(date => date.trim()).filter(date => date);
-        }
-    }
-    
-    console.log('Забронированные даты загружены:', bookedDates.length > 0 ? bookedDates : 'Нет забронированных дат');
-    
-    // Дополнительная отладка для проверки конкретных дат
-    if (bookedDates.length > 0) {
-        console.log('Проверка конкретных дат:');
-        bookedDates.forEach(date => {
-            console.log(`- ${date} забронирована`);
-        });
-    }
-    
-    
-    // Функция для проверки, забронирована ли дата
-    function isDateBooked(dateString) {
-        return bookedDates.includes(dateString);
-    }
     
     // Функция для валидации дат
     function validateDates() {
@@ -540,24 +363,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let isValid = true;
         
-        if (checkIn && isDateBooked(checkIn)) {
-            if (checkInInput) {
-                checkInInput.classList.add('is-invalid');
-                checkInInput.setCustomValidity('Эта дата уже забронирована');
-            }
-            isValid = false;
-        } else if (checkIn && checkInInput) {
+        // Простая валидация - проверяем только что даты заполнены
+        if (checkIn && checkInInput) {
             checkInInput.classList.add('is-valid');
             checkInInput.setCustomValidity('');
         }
         
-        if (checkOut && isDateBooked(checkOut)) {
-            if (checkOutInput) {
-                checkOutInput.classList.add('is-invalid');
-                checkOutInput.setCustomValidity('Эта дата уже забронирована');
-            }
-            isValid = false;
-        } else if (checkOut && checkOutInput) {
+        if (checkOut && checkOutInput) {
             checkOutInput.classList.add('is-valid');
             checkOutInput.setCustomValidity('');
         }
@@ -586,205 +398,50 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Вызываем расчет при загрузке страницы (на случай если даты уже заполнены)
-    calculatePrice();
+    setTimeout(function() {
+        calculatePrice();
+    }, 100);
     
-    // Показываем предупреждение о забронированных датах
-    showBookedDatesWarning();
     
     // Добавляем атрибуты для блокировки забронированных дат в полях ввода
-    if (checkInInput && bookedDates.length > 0) {
-        checkInInput.setAttribute('data-booked-dates', JSON.stringify(bookedDates));
-    }
-    if (checkOutInput && bookedDates.length > 0) {
-        checkOutInput.setAttribute('data-booked-dates', JSON.stringify(bookedDates));
-    }
-    
-    // Создаем простой календарь для тестирования
-    createSimpleCalendar();
-    
-    function createSimpleCalendar() {
-        const calendarGrid = document.getElementById('calendarGrid');
-        if (!calendarGrid) return;
-        
-        // Очищаем календарь
-        calendarGrid.innerHTML = '';
-        
-        // Создаем календарь на 3 месяца (текущий + 2 следующих)
-        const today = new Date();
-        
-        for (let monthOffset = 0; monthOffset < 3; monthOffset++) {
-            const currentDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
-            const currentMonth = currentDate.getMonth();
-            const currentYear = currentDate.getFullYear();
-            
-            // Заголовок месяца
-            const monthHeader = document.createElement('div');
-            monthHeader.style.gridColumn = '1 / -1';
-            monthHeader.style.textAlign = 'center';
-            monthHeader.style.fontWeight = 'bold';
-            monthHeader.style.padding = '10px';
-            monthHeader.style.backgroundColor = '#e9ecef';
-            monthHeader.style.borderRadius = '5px';
-            monthHeader.style.marginBottom = '10px';
-            monthHeader.style.marginTop = monthOffset > 0 ? '20px' : '0';
-            monthHeader.textContent = currentDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
-            calendarGrid.appendChild(monthHeader);
-            
-            // Дни недели (только для первого месяца)
-            if (monthOffset === 0) {
-                const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-                dayNames.forEach(dayName => {
-                    const dayHeader = document.createElement('div');
-                    dayHeader.style.textAlign = 'center';
-                    dayHeader.style.fontWeight = 'bold';
-                    dayHeader.style.padding = '5px';
-                    dayHeader.style.backgroundColor = '#f8f9fa';
-                    dayHeader.textContent = dayName;
-                    calendarGrid.appendChild(dayHeader);
-                });
-            }
-            
-            // Создаем дни месяца
-            const firstDay = new Date(currentYear, currentMonth, 1);
-            const lastDay = new Date(currentYear, currentMonth + 1, 0);
-            const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1));
-            
-            for (let i = 0; i < 42; i++) {
-                const date = new Date(startDate);
-                date.setDate(startDate.getDate() + i);
-                
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day';
-                dayElement.textContent = date.getDate();
-                dayElement.setAttribute('data-date', date.toISOString().split('T')[0]);
-                
-                const dateString = date.toISOString().split('T')[0];
-                
-                // Проверяем, является ли дата забронированной
-                if (bookedDates.includes(dateString)) {
-                    dayElement.classList.add('booked');
-                    dayElement.title = 'Забронировано';
-                    dayElement.style.cursor = 'not-allowed';
-                    dayElement.style.pointerEvents = 'none'; // Полностью блокируем клики
-                } else if (date < today) {
-                    dayElement.style.opacity = '0.5';
-                    dayElement.style.cursor = 'not-allowed';
-                    dayElement.style.pointerEvents = 'none'; // Блокируем клики по прошедшим датам
-                    dayElement.title = 'Прошедшая дата';
-                } else {
-                    // Все остальные даты доступны для выбора
-                    if (date.toDateString() === today.toDateString()) {
-                        dayElement.classList.add('today');
-                        dayElement.title = 'Сегодня';
-                    } else if (date.getMonth() !== currentMonth) {
-                        dayElement.classList.add('other-month');
-                    }
-                    
-                    // Добавляем обработчик клика для всех доступных дат
-                    dayElement.addEventListener('click', function() {
-                        selectDate(dateString);
-                    });
-                }
-                
-                calendarGrid.appendChild(dayElement);
-            }
-        }
-    }
-    
-    // Функция для выбора даты из календаря
-    function selectDate(dateString) {
-        console.log('Попытка выбрать дату:', dateString);
-        console.log('Забронированные даты:', bookedDates);
-        
-        if (bookedDates.includes(dateString)) {
-            alert('Эта дата уже забронирована. Пожалуйста, выберите другую дату.');
-            console.log('Дата заблокирована:', dateString);
-            return;
-        }
-        
-        const today = new Date();
-        const selectedDate = new Date(dateString);
-        
-        if (selectedDate < today) {
-            alert('Нельзя выбрать прошедшую дату.');
-            console.log('Дата в прошлом:', dateString);
-            return;
-        }
-        
-        console.log('Дата выбрана успешно:', dateString);
-        
-        // Если дата заезда не выбрана или выбранная дата раньше даты заезда
-        if (!checkInInput.value || new Date(dateString) < new Date(checkInInput.value)) {
-            checkInInput.value = dateString;
-            
-            // Сбрасываем дату выезда если она стала невалидной
-            if (checkOutInput.value && new Date(checkOutInput.value) <= selectedDate) {
-                checkOutInput.value = '';
-            }
-        } else {
-            // Выбираем дату выезда
-            checkOutInput.value = dateString;
-        }
-        
-        // Обновляем расчет цены и валидацию
-        validateDates();
-        calculatePrice();
-        
-        // Обновляем визуальное состояние календаря
-        updateCalendarSelection();
-    }
     
     
-    // Функция для обновления визуального состояния календаря
-    function updateCalendarSelection() {
-        const calendarDays = document.querySelectorAll('.calendar-day');
-        calendarDays.forEach(day => {
-            day.classList.remove('selected');
-        });
-        
-        if (checkInInput && checkInInput.value) {
-            const checkInDay = document.querySelector(`[data-date="${checkInInput.value}"]`);
-            if (checkInDay) {
-                checkInDay.classList.add('selected');
-            }
-        }
-        
-        if (checkOutInput && checkOutInput.value) {
-            const checkOutDay = document.querySelector(`[data-date="${checkOutInput.value}"]`);
-            if (checkOutDay) {
-                checkOutDay.classList.add('selected');
-            }
-        }
-    }
     
     
     function calculatePrice() {
         const checkIn = checkInInput ? checkInInput.value : '';
         const checkOut = checkOutInput ? checkOutInput.value : '';
         
-        console.log('Расчет цены:', { checkIn, checkOut });
+        console.log('Расчет цены:', { checkIn, checkOut, cottagePrice });
         
         if (checkIn && checkOut) {
             const checkInDate = new Date(checkIn);
             const checkOutDate = new Date(checkOut);
+            
+            console.log('Даты:', { checkInDate, checkOutDate });
             
             if (checkOutDate > checkInDate) {
                 const timeDiff = checkOutDate.getTime() - checkInDate.getTime();
                 const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
                 const total = nights * cottagePrice;
                 
-                console.log('Результат расчета:', { nights, total });
+                console.log('Результат расчета:', { nights, total, cottagePrice });
                 
-                if (nightsCount) nightsCount.textContent = nights;
-                if (totalPrice) totalPrice.textContent = total.toLocaleString() + ' ₽';
+                if (nightsCount) {
+                    nightsCount.textContent = nights;
+                    console.log('Обновлен nightsCount:', nights);
+                }
+                if (totalPrice) {
+                    totalPrice.textContent = total.toLocaleString() + ' ₽';
+                    console.log('Обновлен totalPrice:', total.toLocaleString() + ' ₽');
+                }
             } else {
                 console.log('Дата выезда должна быть позже даты заезда');
                 if (nightsCount) nightsCount.textContent = '-';
                 if (totalPrice) totalPrice.textContent = '-';
             }
         } else {
-            console.log('Не все даты заполнены');
+            console.log('Не все даты заполнены:', { checkIn, checkOut });
             if (nightsCount) nightsCount.textContent = '-';
             if (totalPrice) totalPrice.textContent = '-';
         }
@@ -795,12 +452,10 @@ document.addEventListener('DOMContentLoaded', function() {
         checkInInput.addEventListener('change', function() {
             validateDates();
             calculatePrice();
-            updateCalendarSelection();
         });
         checkInInput.addEventListener('input', function() {
             validateDates();
             calculatePrice();
-            updateCalendarSelection();
         });
     }
     
@@ -808,12 +463,20 @@ document.addEventListener('DOMContentLoaded', function() {
         checkOutInput.addEventListener('change', function() {
             validateDates();
             calculatePrice();
-            updateCalendarSelection();
         });
         checkOutInput.addEventListener('input', function() {
             validateDates();
             calculatePrice();
-            updateCalendarSelection();
+        });
+    }
+    
+    // Добавляем обработчик для поля количества гостей
+    if (guestsInput) {
+        guestsInput.addEventListener('change', function() {
+            calculatePrice();
+        });
+        guestsInput.addEventListener('input', function() {
+            calculatePrice();
         });
     }
     

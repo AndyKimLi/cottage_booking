@@ -140,11 +140,6 @@ class BookingCreateView(LoginRequiredMixin, TemplateView):
         if form.is_valid():
             try:
                 booking = form.save()
-                messages.success(
-                    request, 
-                    f'Бронирование создано! Номер бронирования: #{booking.id}. '
-                    f'Ожидайте подтверждения от администратора.'
-                )
                 return redirect('users:bookings')
             except Exception as e:
                 messages.error(request, f'Ошибка при создании бронирования: {str(e)}')
@@ -286,7 +281,6 @@ class BookingEditView(LoginRequiredMixin, View):
             
             booking.save()
             
-            messages.success(request, 'Бронирование успешно обновлено')
             return redirect(f'/bookings/{booking.id}/')
             
         except Exception as e:
@@ -318,10 +312,6 @@ class CancelBookingView(LoginRequiredMixin, View):
             booking.status = 'cancelled'
             booking.save()
             
-            messages.success(
-                request, 
-                f'Бронирование #{booking.id} успешно отменено'
-            )
             
         except Exception as e:
             messages.error(

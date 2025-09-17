@@ -97,7 +97,6 @@ class RegisterPageView(TemplateView):
             from django.contrib.auth import login
             login(request, user)
             
-            messages.success(request, 'Регистрация прошла успешно!')
             return redirect('core:index')
             
         except Exception as e:
@@ -215,7 +214,6 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         
         if form.is_valid():
             form.save()
-            messages.success(request, 'Профиль успешно обновлен!')
             return redirect('users:profile')
         else:
             context = self.get_context_data()
