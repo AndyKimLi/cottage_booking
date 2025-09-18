@@ -16,12 +16,17 @@ def send_notification_async(booking, notification_type):
             import requests
             import time
             
-            # Получаем активных пользователей
-            active_users = TelegramUser.objects.filter(is_active=True)
+            # Получаем только активных пользователей с правами персонала
+            active_users = TelegramUser.objects.filter(
+                is_active=True,
+                user__is_staff=True
+            )
             
             if not active_users:
-                print("No active users for notifications")
+                print("No active staff users for notifications")
                 return
+            
+            print(f"Sending notifications to {len(active_users)} staff users")
             
             # Формируем сообщение
             if notification_type == "new":
