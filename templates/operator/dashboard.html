@@ -4,6 +4,7 @@
 {% block title %}Панель оператора{% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="container-fluid mt-4">
     <!-- Заголовок -->
     <div class="gradient-header mb-4">
@@ -153,15 +154,31 @@
                                         </td>
                                         <td>{{ booking.guests }}</td>
                                         <td>
-                                            <span class="badge status-{{ booking.status }}" title="Статус: {{ booking.status }} | Display: {{ booking.get_status_display }}">
-                                                {{ booking.get_status_display }}
-                                            </span>
+                                            <select class="form-select form-select-sm status-select" 
+                                                    data-booking-id="{{ booking.id }}" 
+                                                    data-original-status="{{ booking.status }}"
+                                                    style="width: auto; min-width: 140px;">
+                                                {% for status_value, status_display in status_choices %}
+                                                    <option value="{{ status_value }}" 
+                                                            {% if status_value == booking.status %}selected{% endif %}
+                                                            class="status-option-{{ status_value }}">
+                                                        {{ status_display }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
                                         </td>
                                         <td>
                                             <a href="/admin/bookings/booking/{{ booking.id }}/change/" 
-                                               class="btn btn-sm btn-outline-primary">
+                                               class="btn btn-sm btn-outline-primary me-1"
+                                               title="Редактировать">
                                                 <i class="fas fa-edit"></i>
                                             </a>
+                                            <button class="btn btn-sm btn-outline-success status-change-btn" 
+                                                    data-booking-id="{{ booking.id }}"
+                                                    title="Применить изменения статуса"
+                                                    style="display: none;">
+                                                <i class="fas fa-check"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -236,5 +253,159 @@
     color: white !important;
     border: none !important;
 }
+
+.status-select {
+    font-size: 0.8rem;
+}
+
+.status-change-btn {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Стили для цветных опций в dropdown */
+.status-option-pending {
+    background-color: #fff3cd !important;
+    color: #856404 !important;
+}
+
+.status-option-confirmed {
+    background-color: #d4edda !important;
+    color: #155724 !important;
+}
+
+.status-option-cancelled {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+}
+
+.status-option-completed {
+    background-color: #e2e3e5 !important;
+    color: #383d41 !important;
+}
+
+/* Стили для самого select в зависимости от статуса */
+.status-select.status-pending {
+    border-color: #ffc107 !important;
+    background-color: #fff3cd !important;
+}
+
+.status-select.status-confirmed {
+    border-color: #28a745 !important;
+    background-color: #d4edda !important;
+}
+
+.status-select.status-cancelled {
+    border-color: #dc3545 !important;
+    background-color: #f8d7da !important;
+}
+
+.status-select.status-completed {
+    border-color: #6c757d !important;
+    background-color: #e2e3e5 !important;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработка изменения статуса
+    const statusSelects = document.querySelectorAll('.status-select');
+    const changeButtons = document.querySelectorAll('.status-change-btn');
+    
+    statusSelects.forEach((select, index) => {
+        const originalValue = select.dataset.originalStatus;
+        const changeBtn = changeButtons[index];
+        
+        // Устанавливаем начальный цвет select
+        updateSelectColor(select);
+        
+        select.addEventListener('change', function() {
+            if (this.value !== originalValue) {
+                changeBtn.style.display = 'inline-block';
+            } else {
+                changeBtn.style.display = 'none';
+            }
+            // Обновляем цвет при изменении
+            updateSelectColor(this);
+        });
+        
+        changeBtn.addEventListener('click', function() {
+            const bookingId = this.dataset.bookingId;
+            const newStatus = select.value;
+            
+            // Показываем загрузку
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            this.disabled = true;
+            
+            // Отправляем AJAX запрос
+            fetch('{% url "operator:change_booking_status" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    booking_id: bookingId,
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Обновляем оригинальное значение
+                    select.dataset.originalStatus = newStatus;
+                    this.style.display = 'none';
+                    
+                    // Обновляем цвет select
+                    updateSelectColor(select);
+                    
+                    // Показываем уведомление
+                    showNotification('Статус успешно изменен!', 'success');
+                } else {
+                    showNotification('Ошибка: ' + data.error, 'error');
+                    // Возвращаем старое значение
+                    select.value = originalValue;
+                    updateSelectColor(select);
+                }
+            })
+            .catch(error => {
+                showNotification('Ошибка сети: ' + error.message, 'error');
+                select.value = originalValue;
+                updateSelectColor(select);
+            })
+            .finally(() => {
+                this.innerHTML = '<i class="fas fa-check"></i>';
+                this.disabled = false;
+            });
+        });
+    });
+    
+    function updateSelectColor(select) {
+        // Убираем все классы статуса
+        select.classList.remove('status-pending', 'status-confirmed', 'status-cancelled', 'status-completed');
+        // Добавляем класс для текущего статуса
+        select.classList.add(`status-${select.value}`);
+    }
+    
+    function showNotification(message, type) {
+        // Создаем уведомление
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Автоматически убираем через 3 секунды
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 3000);
+    }
+});
+</script>
 {% endblock %}

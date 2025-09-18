@@ -1,9 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import datetime, timedelta
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+import json
 
 from apps.cottages.models import Cottage
 from apps.bookings.models import Booking, BookingStatus
@@ -234,6 +237,7 @@ def operator_dashboard(request):
         'pending_bookings': pending_bookings,
         'total_cottages': total_cottages,
         'recent_bookings': recent_bookings,
+        'status_choices': BookingStatus.choices,
     }
     
     return render(request, 'operator/dashboard.html', context)
@@ -341,3 +345,43 @@ def _generate_month_calendar(month_start, month_end, booked_dates, today):
     
     calendar_html += '</div></div>'
     return calendar_html
+
+
+@login_required
+@user_passes_test(is_operator)
+@require_POST
+@csrf_exempt
+def change_booking_status(request):
+    """Изменение статуса бронирования через AJAX"""
+    try:
+        data = json.loads(request.body)
+        booking_id = data.get('booking_id')
+        new_status = data.get('status')
+        
+        if not booking_id or not new_status:
+            return JsonResponse({'success': False, 'error': 'Не указаны ID бронирования или статус'})
+        
+        # Получаем бронирование
+        booking = get_object_or_404(Booking, id=booking_id)
+        
+        # Проверяем, что статус валидный
+        valid_statuses = [choice[0] for choice in BookingStatus.choices]
+        if new_status not in valid_statuses:
+            return JsonResponse({'success': False, 'error': 'Неверный статус'})
+        
+        # Сохраняем старый статус для логирования
+        old_status = booking.status
+        booking.status = new_status
+        booking.save()
+        
+        return JsonResponse({
+            'success': True, 
+            'message': f'Статус изменен с {booking.get_status_display()} на {booking.get_status_display()}',
+            'new_status': new_status,
+            'new_status_display': booking.get_status_display()
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Неверный формат данных'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'Ошибка: {str(e)}'})
