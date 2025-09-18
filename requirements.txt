@@ -32,3 +32,6 @@ django-extensions==3.2.3
 # Production
 gunicorn==21.2.0
 python-decouple==3.8
+
+# Telegram Bot
+python-telegram-bot==22.4

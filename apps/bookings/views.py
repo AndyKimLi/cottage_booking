@@ -301,7 +301,7 @@ class CancelBookingView(LoginRequiredMixin, View):
             )
             
             # Проверяем, можно ли отменить бронирование
-            if booking.status not in ['pending', 'confirmed']:
+            if booking.status not in [BookingStatus.PENDING, BookingStatus.CONFIRMED]:
                 messages.error(
                     request, 
                     'Это бронирование нельзя отменить'
@@ -309,11 +309,15 @@ class CancelBookingView(LoginRequiredMixin, View):
                 return redirect('users:bookings')
             
             # Отменяем бронирование
-            booking.status = 'cancelled'
+            print(f"DEBUG: Cancelling booking {booking.id}, current status: {booking.status}")
+            booking.status = BookingStatus.CANCELLED
             booking.save()
+            print(f"DEBUG: Booking {booking.id} cancelled, new status: {booking.status}")
             
+            messages.success(request, 'Бронирование успешно отменено')
             
         except Exception as e:
+            print(f"DEBUG: Error cancelling booking: {e}")
             messages.error(
                 request, 
                 f'Ошибка при отмене бронирования: {str(e)}'

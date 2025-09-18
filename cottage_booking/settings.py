@@ -47,6 +47,7 @@ LOCAL_APPS = [
     'apps.payments',
     'apps.notifications',
     'apps.operator',
+    'apps.telegram_bot',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -200,6 +201,9 @@ CACHES = {
         }
     }
 }
+
+# Telegram Bot Settings
+TELEGRAM_BOT_TOKEN = config('TELEGRAM_BOT_TOKEN', default='')
 
 # Logging
 LOGGING = {
