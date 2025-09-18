@@ -6,6 +6,8 @@ class User(AbstractUser):
     """Кастомная модель пользователя"""
     
     email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=150, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     is_verified = models.BooleanField(default=False)

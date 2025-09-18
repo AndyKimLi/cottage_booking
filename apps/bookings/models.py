@@ -60,6 +60,11 @@ class Booking(models.Model):
     def __str__(self):
         return f"{self.user.email} - {self.cottage.name} ({self.check_in} - {self.check_out})"
     
+    @property
+    def nights(self):
+        """Количество ночей"""
+        return (self.check_out - self.check_in).days
+    
     def save(self, *args, **kwargs):
         # Автоматический расчет стоимости
         if not self.total_price:

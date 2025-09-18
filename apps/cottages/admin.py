@@ -57,13 +57,14 @@ class CottageAdmin(admin.ModelAdmin):
     
     def _generate_calendar_html(self, cottage, bookings, start_date, end_date):
         """Генерирует HTML календаря"""
-        # Создаем список занятых дат
+        # Создаем список занятых дат (включая последний день бронирования)
         booked_dates = set()
         for booking in bookings:
             current_date = booking.check_in
-            while current_date < booking.check_out:
+            while current_date <= booking.check_out:  # Включаем последний день
                 booked_dates.add(current_date)
                 current_date += timedelta(days=1)
+        
         
         # Уникальные ID для каждого коттеджа
         cottage_id = cottage.pk
@@ -157,7 +158,13 @@ class CottageAdmin(admin.ModelAdmin):
     
     def _generate_month_calendar(self, month_start, month_end, booked_dates, today):
         """Генерирует компактный календарь для одного месяца"""
-        month_name = month_start.strftime('%B %Y')
+        # Русские названия месяцев
+        russian_months = {
+            1: 'Январь', 2: 'Февраль', 3: 'Март', 4: 'Апрель',
+            5: 'Май', 6: 'Июнь', 7: 'Июль', 8: 'Август',
+            9: 'Сентябрь', 10: 'Октябрь', 11: 'Ноябрь', 12: 'Декабрь'
+        }
+        month_name = f"{russian_months[month_start.month]} {month_start.year}"
         
         # Начало недели (понедельник)
         calendar_start = month_start - timedelta(days=month_start.weekday())
@@ -168,10 +175,10 @@ class CottageAdmin(admin.ModelAdmin):
             <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; text-align: center;">
         '''
         
-        # Дни недели (компактные)
-        days_of_week = ['П', 'В', 'С', 'Ч', 'П', 'С', 'В']
+        # Дни недели (компактные) - русские сокращения
+        days_of_week = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
         for day in days_of_week:
-            calendar_html += '<div style="font-weight: bold; padding: 3px; background: #f8f9fa; font-size: 10px;">' + day + '</div>'
+            calendar_html += '<div style="font-weight: bold; padding: 3px; background: #f8f9fa; font-size: 10px; color: #000000;">' + day + '</div>'
         
         # Дни месяца
         current_date = calendar_start

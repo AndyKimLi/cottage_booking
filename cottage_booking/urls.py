@@ -22,6 +22,7 @@ urlpatterns = [
     path('cottages/', include('apps.cottages.urls')),
     path('bookings/', include('apps.bookings.web_urls')),
     path('users/', include('apps.users.urls')),
+    path('operator/', include('apps.operator.urls')),
     # Прямые веб-маршруты для бронирований
     path(
         'booking/create/', 

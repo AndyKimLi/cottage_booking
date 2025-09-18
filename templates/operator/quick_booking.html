@@ -1,0 +1,499 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Быстрое бронирование - Оператор{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Заголовок -->
+            <div class="gradient-header mb-4">
+                <h1 class="text-center text-white mb-0">
+                    <i class="fas fa-phone-alt me-2"></i>
+                    Быстрое бронирование
+                </h1>
+                <p class="text-center text-white-50 mb-0">Создание бронирования по телефону</p>
+            </div>
+
+            <!-- Форма быстрого бронирования -->
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <!-- Отображение сообщений об ошибках только для операторской панели -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if message.tags == 'error' %}
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border: 2px solid #dc3545; box-shadow: 0 0 10px rgba(220, 53, 69, 0.3);">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <strong>{{ message }}</strong>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" id="quickBookingForm">
+                        {% csrf_token %}
+                        
+                        <!-- Шаг 1: Данные клиента -->
+                        <div class="step" id="step1">
+                            <h4 class="mb-3 text-primary">
+                                <i class="fas fa-user me-2"></i>
+                                Данные клиента
+                            </h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="first_name" class="form-label">Имя *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="first_name" name="first_name" required 
+                                               value="{{ form_data.first_name }}" onchange="validateStep1()">
+                                    </div>
+                                    <div class="invalid-feedback" id="first_name_error"></div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="last_name" class="form-label">Фамилия *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="last_name" name="last_name" required 
+                                               value="{{ form_data.last_name }}" onchange="validateStep1()">
+                                    </div>
+                                    <div class="invalid-feedback" id="last_name_error"></div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">Телефон *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-phone"></i>
+                                        </span>
+                                        <input type="tel" class="form-control" id="phone" name="phone" required 
+                                               placeholder="+7 (999) 123-45-67" value="{{ form_data.phone }}" onchange="validateStep1()">
+                                    </div>
+                                    <div class="invalid-feedback" id="phone_error"></div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email (необязательно)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-envelope"></i>
+                                        </span>
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ form_data.email }}">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-primary" onclick="nextStep()">
+                                    Далее <i class="fas fa-arrow-right ms-1"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Шаг 2: Выбор коттеджа и создание бронирования -->
+                        <div class="step" id="step2" style="display: none;">
+                            <h4 class="mb-3 text-primary">
+                                <i class="fas fa-home me-2"></i>
+                                Выбор коттеджа и создание бронирования
+                            </h4>
+                            
+                            <div class="mb-3">
+                                <label for="cottage" class="form-label">Коттедж *</label>
+                                <select class="form-select" id="cottage" name="cottage" required onchange="loadCottageAvailability()">
+                                    <option value="">Выберите коттедж</option>
+                                    {% for cottage in cottages %}
+                                    <option value="{{ cottage.id }}" data-price="{{ cottage.price_per_night }}">
+                                        {{ cottage.name }} - {{ cottage.address }} ({{ cottage.price_per_night }}₽/ночь)
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Даты и детали бронирования -->
+                            <div id="bookingDetails" style="display: none;">
+                                <h5 class="mb-3 text-primary">
+                                    <i class="fas fa-calendar me-2"></i>
+                                    Даты и детали бронирования
+                                </h5>
+                                
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="check_in" class="form-label">Дата заезда *</label>
+                                        <input type="date" class="form-control" id="check_in" name="check_in" required 
+                                               onchange="validateDates()">
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <label for="check_out" class="form-label">Дата выезда *</label>
+                                        <input type="date" class="form-control" id="check_out" name="check_out" required 
+                                               onchange="validateDates()">
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <label for="guests" class="form-label">Количество гостей *</label>
+                                        <input type="number" class="form-control" id="guests" name="guests" min="1" max="20" required 
+                                               onchange="calculatePrice()">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="special_requests" class="form-label">Особые пожелания</label>
+                                    <textarea class="form-control" id="special_requests" name="special_requests" rows="3" 
+                                              placeholder="Дополнительные пожелания клиента..."></textarea>
+                                </div>
+                                
+                                <!-- Расчет стоимости -->
+                                <div class="alert alert-info" id="priceCalculation" style="display: none;">
+                                    <h6 class="mb-2">Расчет стоимости:</h6>
+                                    <div id="priceDetails"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Календарь доступности -->
+                            <div id="availabilityCalendar" style="display: none;">
+                                <hr class="my-4">
+                                <h5 class="mb-3">Доступность коттеджа</h5>
+                                <div id="calendarContainer" class="border rounded p-3 bg-light">
+                                    {% if calendar_html %}
+                                        {{ calendar_html|safe }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">
+                                    <i class="fas fa-arrow-left me-1"></i> Назад
+                                </button>
+                                <button type="submit" class="btn btn-success" id="createBookingBtn" disabled>
+                                    <i class="fas fa-check me-1"></i> Создать бронирование
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.step {
+    min-height: 400px;
+}
+
+.gradient-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.calendar-day {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.calendar-day.available {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.calendar-day.booked {
+    background-color: #f8d7da;
+    color: #721c24;
+    cursor: not-allowed;
+}
+
+.calendar-day.today {
+    background-color: #007bff;
+    color: white;
+}
+
+.calendar-day.selected {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Стили валидации */
+.form-control.is-valid {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+.valid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #28a745;
+}
+
+/* Стили для сообщений об ошибках */
+.alert {
+    border-radius: 0.5rem;
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    border-left: 4px solid #ff6b6b;
+    font-weight: 500;
+}
+
+.alert-danger .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+</style>
+
+<script>
+let currentStep = 1;
+let selectedCottage = null;
+let cottagePrice = 0;
+let bookedDates = [];
+
+function nextStep() {
+    if (currentStep === 1) {
+        // Валидируем первый шаг перед переходом
+        if (!validateStep1()) {
+            return;
+        }
+    }
+    
+    if (currentStep < 3) {
+        document.getElementById(`step${currentStep}`).style.display = 'none';
+        currentStep++;
+        document.getElementById(`step${currentStep}`).style.display = 'block';
+        
+        if (currentStep === 3) {
+            loadBookedDates();
+        }
+    }
+}
+
+function validateStep1() {
+    let isValid = true;
+    
+    // Валидация имени
+    const firstName = document.getElementById('first_name');
+    const firstNameError = document.getElementById('first_name_error');
+    if (!firstName.value.trim()) {
+        firstName.classList.add('is-invalid');
+        firstNameError.textContent = 'Имя обязательно для заполнения';
+        isValid = false;
+    } else {
+        firstName.classList.remove('is-invalid');
+        firstName.classList.add('is-valid');
+        firstNameError.textContent = '';
+    }
+    
+    // Валидация фамилии
+    const lastName = document.getElementById('last_name');
+    const lastNameError = document.getElementById('last_name_error');
+    if (!lastName.value.trim()) {
+        lastName.classList.add('is-invalid');
+        lastNameError.textContent = 'Фамилия обязательна для заполнения';
+        isValid = false;
+    } else {
+        lastName.classList.remove('is-invalid');
+        lastName.classList.add('is-valid');
+        lastNameError.textContent = '';
+    }
+    
+    // Валидация телефона
+    const phone = document.getElementById('phone');
+    const phoneError = document.getElementById('phone_error');
+    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+    
+    if (!phone.value.trim()) {
+        phone.classList.add('is-invalid');
+        phoneError.textContent = 'Телефон обязателен для заполнения';
+        isValid = false;
+    } else if (!phoneRegex.test(phone.value.trim())) {
+        phone.classList.add('is-invalid');
+        phoneError.textContent = 'Введите корректный номер телефона';
+        isValid = false;
+    } else {
+        phone.classList.remove('is-invalid');
+        phone.classList.add('is-valid');
+        phoneError.textContent = '';
+    }
+    
+    return isValid;
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        document.getElementById(`step${currentStep}`).style.display = 'none';
+        currentStep--;
+        document.getElementById(`step${currentStep}`).style.display = 'block';
+    }
+}
+
+function loadCottageAvailability() {
+    const cottageSelect = document.getElementById('cottage');
+    const calendarContainer = document.getElementById('availabilityCalendar');
+    const bookingDetails = document.getElementById('bookingDetails');
+    const createBtn = document.getElementById('createBookingBtn');
+    
+    if (cottageSelect.value) {
+        selectedCottage = cottageSelect.value;
+        cottagePrice = parseFloat(cottageSelect.selectedOptions[0].dataset.price) || 0;
+        calendarContainer.style.display = 'block';
+        bookingDetails.style.display = 'block';
+        createBtn.disabled = false;
+        
+        // Сохраняем данные формы перед перезагрузкой
+        const formData = {
+            first_name: document.getElementById('first_name').value,
+            last_name: document.getElementById('last_name').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value
+        };
+        
+        // Перезагружаем страницу с выбранным коттеджем и данными формы
+        const url = new URL(window.location);
+        url.searchParams.set('cottage', cottageSelect.value);
+        Object.keys(formData).forEach(key => {
+            if (formData[key]) {
+                url.searchParams.set(key, formData[key]);
+            }
+        });
+        window.location.href = url.toString();
+    } else {
+        calendarContainer.style.display = 'none';
+        bookingDetails.style.display = 'none';
+        createBtn.disabled = true;
+    }
+}
+
+
+function validateDates() {
+    const checkIn = document.getElementById('check_in').value;
+    const checkOut = document.getElementById('check_out').value;
+    const createBtn = document.getElementById('createBookingBtn');
+    
+    if (checkIn && checkOut) {
+        const checkInDate = new Date(checkIn);
+        const checkOutDate = new Date(checkOut);
+        
+        if (checkOutDate > checkInDate) {
+            createBtn.disabled = false;
+            calculatePrice();
+        } else {
+            createBtn.disabled = true;
+        }
+    } else {
+        createBtn.disabled = true;
+    }
+}
+
+function calculatePrice() {
+    const checkIn = document.getElementById('check_in').value;
+    const checkOut = document.getElementById('check_out').value;
+    const guests = document.getElementById('guests').value;
+    
+    if (checkIn && checkOut && cottagePrice > 0) {
+        const checkInDate = new Date(checkIn);
+        const checkOutDate = new Date(checkOut);
+        const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+        
+        const totalPrice = nights * cottagePrice;
+        
+        document.getElementById('priceCalculation').style.display = 'block';
+        document.getElementById('priceDetails').innerHTML = `
+            <div class="row">
+                <div class="col-6">Количество ночей:</div>
+                <div class="col-6"><strong>${nights} ночей</strong></div>
+                <div class="col-6">Цена за ночь:</div>
+                <div class="col-6">${cottagePrice}₽</div>
+                <div class="col-6"><strong>Итого:</strong></div>
+                <div class="col-6"><strong>${totalPrice}₽</strong></div>
+            </div>
+        `;
+    }
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    // Устанавливаем минимальную дату на сегодня
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('check_in').min = today;
+    document.getElementById('check_out').min = today;
+    
+    // Если есть выбранный коттедж, показываем календарь и детали бронирования
+    {% if selected_cottage_id %}
+        document.getElementById('cottage').value = '{{ selected_cottage_id }}';
+        document.getElementById('availabilityCalendar').style.display = 'block';
+        document.getElementById('bookingDetails').style.display = 'block';
+        document.getElementById('createBookingBtn').disabled = false;
+        selectedCottage = '{{ selected_cottage_id }}';
+        cottagePrice = parseFloat(document.getElementById('cottage').selectedOptions[0].dataset.price) || 0;
+        
+        // Автоматически переходим к шагу 2
+        nextStep();
+    {% endif %}
+    
+    // Если есть сообщения об ошибках, показываем их
+    {% if messages %}
+        // Прокручиваем к началу формы для показа ошибок
+        document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
+        
+        // Убеждаемся, что календарь остается видимым при ошибке
+        {% if selected_cottage_id %}
+            document.getElementById('availabilityCalendar').style.display = 'block';
+            document.getElementById('bookingDetails').style.display = 'block';
+        {% endif %}
+    {% endif %}
+});
+</script>
+{% endblock %}

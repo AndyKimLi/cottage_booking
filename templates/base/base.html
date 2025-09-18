@@ -197,6 +197,11 @@
                                 {% if user.is_staff %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
+                                    <a class="dropdown-item" href="{% url 'operator:dashboard' %}">
+                                        <i class="fas fa-tachometer-alt me-2"></i>Панель оператора
+                                    </a>
+                                </li>
+                                <li>
                                     <a class="dropdown-item admin-link" href="/admin/">
                                         <i class="fas fa-cog me-2"></i>Администрирование
                                     </a>
