@@ -215,7 +215,7 @@ def operator_dashboard(request):
     ).count()
     
     pending_bookings = Booking.objects.filter(
-        status='PENDING'
+        status=BookingStatus.PENDING
     ).count()
     
     # Количество доступных коттеджей
