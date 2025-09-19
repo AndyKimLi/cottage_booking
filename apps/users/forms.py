@@ -8,7 +8,7 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
         fields = [
-            'first_name', 'last_name', 'email', 'phone',
+            'first_name', 'last_name', 'middle_name', 'email', 'phone',
             'date_of_birth', 'username'
         ]
         widgets = {
@@ -19,6 +19,10 @@ class UserProfileForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Введите фамилию'
+            }),
+            'middle_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Введите отчество (необязательно)'
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',

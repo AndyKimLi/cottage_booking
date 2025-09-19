@@ -162,6 +162,11 @@
                 </ul>
                 
                 <ul class="navbar-nav">
+                    <li class="nav-item me-3">
+                        <a class="nav-link" href="{% url 'leads:callback_request' %}">
+                            <i class="fas fa-phone me-1"></i>Оставить заявку
+                        </a>
+                    </li>
                     {% if user.is_authenticated %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">

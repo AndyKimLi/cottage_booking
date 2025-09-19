@@ -34,7 +34,7 @@ class UserAdmin(BaseUserAdmin):
     """Админка для пользователей с расширенным функционалом"""
 
     list_display = [
-        'email', 'username', 'first_name', 'last_name',
+        'email', 'username', 'full_name',
         'phone', 'is_verified', 'is_active', 'is_staff',
         'date_joined', 'bookings_count'
     ]
@@ -43,7 +43,7 @@ class UserAdmin(BaseUserAdmin):
         'date_joined', 'date_of_birth'
     ]
     search_fields = [
-        'email', 'username', 'first_name', 'last_name', 'phone'
+        'email', 'username', 'first_name', 'last_name', 'middle_name', 'phone'
     ]
     ordering = ['-date_joined']
 
@@ -57,7 +57,7 @@ class UserAdmin(BaseUserAdmin):
         }),
         ('Персональная информация', {
             'fields': (
-                'first_name', 'last_name', 'phone', 'date_of_birth'
+                'first_name', 'last_name', 'middle_name', 'phone', 'date_of_birth'
             )
         }),
         ('Права доступа', {
@@ -82,7 +82,7 @@ class UserAdmin(BaseUserAdmin):
         }),
         ('Персональная информация', {
             'fields': (
-                'first_name', 'last_name', 'phone', 'date_of_birth'
+                'first_name', 'last_name', 'middle_name', 'phone', 'date_of_birth'
             )
         }),
         ('Права доступа', {

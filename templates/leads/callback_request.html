@@ -1,0 +1,315 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Заявка на обратный звонок - Cottage Booking{% endblock %}
+
+{% block extra_css %}
+<style>
+    .callback-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 50px;
+    }
+    
+    .callback-form {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 40px;
+        margin-bottom: 30px;
+    }
+    
+    .form-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    
+    .form-subtitle {
+        color: #6c757d;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 1.1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        display: block;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 15px 40px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .cottage-info {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .cottage-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+    
+    .cottage-price {
+        color: #28a745;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .advantages {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 30px;
+        margin-top: 30px;
+    }
+    
+    .advantages h3 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .advantage-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 10px;
+        background: white;
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+    }
+    
+    .advantage-icon {
+        width: 40px;
+        height: 40px;
+        background: #28a745;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 15px;
+        font-size: 1.2rem;
+    }
+    
+    .advantage-text {
+        color: #2c3e50;
+        font-weight: 500;
+    }
+    
+    .required {
+        color: #dc3545;
+    }
+    
+    .form-errors {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Callback Header -->
+<section class="callback-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-4">Заявка на обратный звонок</h1>
+                <p class="lead">Оставьте заявку и мы свяжемся с вами в удобное время</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Callback Form -->
+<section class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Информация о коттедже (если выбран) -->
+            {% if cottage %}
+            <div class="cottage-info">
+                <div class="cottage-name">{{ cottage.name }}</div>
+                <div class="cottage-price">{{ cottage.price_per_night }} ₽/ночь</div>
+                <p class="mb-0">{{ cottage.address }}</p>
+            </div>
+            {% endif %}
+            
+            <!-- Форма заявки -->
+            <div class="callback-form">
+                <h2 class="form-title">Оставить заявку</h2>
+                <p class="form-subtitle">Заполните форму и мы перезвоним вам</p>
+                
+                <!-- Ошибки формы -->
+                {% if form.errors %}
+                <div class="form-errors">
+                    <strong>Пожалуйста, исправьте следующие ошибки:</strong>
+                    <ul class="mb-0 mt-2">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <form method="post" id="callbackForm">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                    Фамилия <span class="required">*</span>
+                                </label>
+                                {{ form.last_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                    Имя <span class="required">*</span>
+                                </label>
+                                {{ form.first_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="{{ form.middle_name.id_for_label }}" class="form-label">
+                                    Отчество
+                                </label>
+                                {{ form.middle_name }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label">
+                                    Телефон <span class="required">*</span>
+                                </label>
+                                {{ form.phone }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    Email
+                                </label>
+                                {{ form.email }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="form-group">
+                        <label for="{{ form.cottage.id_for_label }}" class="form-label">
+                            Интересующий коттедж
+                        </label>
+                        {{ form.cottage }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.preferred_time.id_for_label }}" class="form-label">
+                            Удобное время для звонка
+                        </label>
+                        {{ form.preferred_time }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.message.id_for_label }}" class="form-label">
+                            Сообщение
+                        </label>
+                        {{ form.message }}
+                    </div>
+                    
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="fas fa-phone me-2"></i>Отправить заявку
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('callbackForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Валидация формы
+    form.addEventListener('submit', function(e) {
+        const firstName = document.querySelector('input[name="first_name"]').value.trim();
+        const lastName = document.querySelector('input[name="last_name"]').value.trim();
+        const phone = document.querySelector('input[name="phone"]').value.trim();
+        
+        if (!firstName || !lastName || !phone) {
+            e.preventDefault();
+            alert('Пожалуйста, заполните обязательные поля: Фамилия, Имя и Телефон');
+            return false;
+        }
+        
+        // Блокируем кнопку отправки
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Отправляем...';
+    });
+    
+});
+</script>
+{% endblock %}

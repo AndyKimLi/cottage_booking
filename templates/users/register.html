@@ -153,7 +153,17 @@
                     {% csrf_token %}
                     
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="last_name" class="form-label">Фамилия</label>
+                                <div class="input-icon">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" class="form-control" id="last_name" name="last_name"
+                                           value="{{ last_name|default:'' }}" placeholder="Введите вашу фамилию">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="first_name" class="form-label">Имя</label>
                                 <div class="input-icon">
@@ -163,13 +173,13 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label for="last_name" class="form-label">Фамилия</label>
+                                <label for="middle_name" class="form-label">Отчество</label>
                                 <div class="input-icon">
                                     <i class="fas fa-user"></i>
-                                    <input type="text" class="form-control" id="last_name" name="last_name"
-                                           value="{{ last_name|default:'' }}" placeholder="Введите вашу фамилию">
+                                    <input type="text" class="form-control" id="middle_name" name="middle_name"
+                                           value="{{ middle_name|default:'' }}" placeholder="Введите ваше отчество">
                                 </div>
                             </div>
                         </div>

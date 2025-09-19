@@ -48,6 +48,7 @@ class RegisterPageView(TemplateView):
         password2 = request.POST.get('password2')
         first_name = request.POST.get('first_name', '')
         last_name = request.POST.get('last_name', '')
+        middle_name = request.POST.get('middle_name', '')
         phone = request.POST.get('phone', '')
         
         # Валидация
@@ -78,6 +79,7 @@ class RegisterPageView(TemplateView):
                 'email': email,
                 'first_name': first_name,
                 'last_name': last_name,
+                'middle_name': middle_name,
                 'phone': phone,
             }
             return render(request, self.template_name, context)
@@ -93,9 +95,13 @@ class RegisterPageView(TemplateView):
                 phone=phone
             )
             
+            # Устанавливаем отчество отдельно, если оно указано
+            if middle_name:
+                user.middle_name = middle_name
+                user.save()
+            
             # Автоматически входим пользователя
-            from django.contrib.auth import login
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             
             return redirect('core:index')
             
@@ -106,6 +112,7 @@ class RegisterPageView(TemplateView):
                 'email': email,
                 'first_name': first_name,
                 'last_name': last_name,
+                'middle_name': middle_name,
                 'phone': phone,
             }
             return render(request, self.template_name, context)

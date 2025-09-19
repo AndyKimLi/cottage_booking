@@ -164,8 +164,7 @@
                         <div class="info-content">
                             <div class="info-label">Полное имя</div>
                             <div class="info-value">
-                                {% if user.first_name %}{{ user.first_name }}{% endif %}
-                                {% if user.last_name %} {{ user.last_name }}{% endif %}
+                                {{ user.full_name }}
                                 {% if not user.first_name and not user.last_name %}
                                     <span class="text-muted">Не указано</span>
                                 {% endif %}
@@ -233,7 +232,16 @@
                     <form method="post" id="profileForm">
                         {% csrf_token %}
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                    Фамилия <span class="text-danger">*</span>
+                                </label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small">{{ form.last_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
                                 <label for="{{ form.first_name.id_for_label }}" class="form-label">
                                     Имя <span class="text-danger">*</span>
                                 </label>
@@ -242,13 +250,13 @@
                                     <div class="text-danger small">{{ form.first_name.errors.0 }}</div>
                                 {% endif %}
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.last_name.id_for_label }}" class="form-label">
-                                    Фамилия <span class="text-danger">*</span>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.middle_name.id_for_label }}" class="form-label">
+                                    Отчество
                                 </label>
-                                {{ form.last_name }}
-                                {% if form.last_name.errors %}
-                                    <div class="text-danger small">{{ form.last_name.errors.0 }}</div>
+                                {{ form.middle_name }}
+                                {% if form.middle_name.errors %}
+                                    <div class="text-danger small">{{ form.middle_name.errors.0 }}</div>
                                 {% endif %}
                             </div>
                         </div>

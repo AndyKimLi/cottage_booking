@@ -11,6 +11,7 @@ import json
 from apps.cottages.models import Cottage
 from apps.bookings.models import Booking, BookingStatus
 from apps.users.models import User
+from apps.leads.models import CallbackRequest
 from django.utils.safestring import mark_safe
 
 
@@ -227,6 +228,12 @@ def operator_dashboard(request):
         created_at__gte=week_ago
     ).select_related('user', 'cottage').order_by('-created_at')[:20]
     
+    # Заявки на обратный звонок
+    new_callbacks = CallbackRequest.objects.filter(status='new').count()
+    recent_callbacks = CallbackRequest.objects.filter(
+        created_at__gte=week_ago
+    ).select_related('cottage').order_by('-created_at')[:20]
+    
     # Отладочная информация
     print(f"DEBUG: Найдено бронирований за 7 дней: {recent_bookings.count()}")
     for booking in recent_bookings:
@@ -238,9 +245,44 @@ def operator_dashboard(request):
         'total_cottages': total_cottages,
         'recent_bookings': recent_bookings,
         'status_choices': BookingStatus.choices,
+        'new_callbacks': new_callbacks,
+        'recent_callbacks': recent_callbacks,
+        'callback_status_choices': CallbackRequest.STATUS_CHOICES,
     }
     
     return render(request, 'operator/dashboard.html', context)
+
+
+@login_required
+@user_passes_test(is_operator)
+@require_POST
+@csrf_exempt
+def change_callback_status(request):
+    """Изменение статуса заявки на обратный звонок"""
+    try:
+        data = json.loads(request.body)
+        callback_id = data.get('callback_id')
+        new_status = data.get('status')
+        
+        if not callback_id or not new_status:
+            return JsonResponse({'success': False, 'error': 'Не указаны ID заявки или статус'})
+        
+        callback = get_object_or_404(CallbackRequest, id=callback_id)
+        callback.status = new_status
+        
+        # Устанавливаем время обработки для завершенных заявок
+        if new_status in ['completed', 'cancelled']:
+            callback.processed_at = timezone.now()
+        
+        callback.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Статус заявки #{callback_id} изменен на "{callback.get_status_display()}"'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 def generate_availability_calendar(cottage):

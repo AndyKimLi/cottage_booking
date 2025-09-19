@@ -6,6 +6,7 @@ from telegram.ext import (
 )
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from asgiref.sync import sync_to_async
 from .models import TelegramUser
 from apps.bookings.models import Booking, BookingStatus
 from datetime import datetime, timedelta
@@ -426,3 +427,73 @@ def get_bot():
     if bot_instance is None:
         bot_instance = CottageBookingBot()
     return bot_instance
+
+
+async def send_callback_notification(callback_request):
+    """Отправка уведомления о новой заявке на обратный звонок"""
+    try:
+        # Получаем активных пользователей с правами персонала
+        active_users = await sync_to_async(list)(
+            TelegramUser.objects.filter(
+                is_active=True,
+                user__is_staff=True
+            ).select_related('user')
+        )
+        
+        if not active_users:
+            print("No active staff users found for callback notification")
+            return False
+        
+        # Формируем сообщение
+        message = _format_callback_message(callback_request)
+        
+        # Получаем экземпляр бота
+        bot = get_bot()
+        
+        # Отправляем уведомления
+        sent_count = 0
+        for telegram_user in active_users:
+            try:
+                await bot.application.bot.send_message(
+                    chat_id=telegram_user.telegram_id,
+                    text=message,
+                    parse_mode='HTML'
+                )
+                sent_count += 1
+                print(f"Callback notification sent to user {telegram_user.telegram_id}")
+            except Exception as e:
+                print(f"Failed to send callback notification to {telegram_user.telegram_id}: {e}")
+        
+        print(f"Sent {sent_count} callback notifications")
+        return sent_count > 0
+        
+    except Exception as e:
+        print(f"Error sending callback notification: {e}")
+        return False
+
+
+def _format_callback_message(callback_request):
+    """Форматирование сообщения о заявке на обратный звонок"""
+    cottage_info = ""
+    if callback_request.cottage:
+        cottage_info = f"\n🏠 <b>Коттедж:</b> {callback_request.cottage.name}\n💰 <b>Цена:</b> {callback_request.cottage.price_per_night} ₽/ночь"
+    
+    preferred_time = ""
+    if callback_request.preferred_time:
+        preferred_time = f"\n⏰ <b>Удобное время:</b> {callback_request.preferred_time}"
+    
+    message = f"""
+🔔 <b>НОВАЯ ЗАЯВКА НА ОБРАТНЫЙ ЗВОНОК</b>
+
+👤 <b>Клиент:</b> {callback_request.full_name}
+📞 <b>Телефон:</b> {callback_request.phone}
+📧 <b>Email:</b> {callback_request.email or 'Не указан'}{cottage_info}{preferred_time}
+
+💬 <b>Сообщение:</b>
+{callback_request.message or 'Не указано'}
+
+📅 <b>Дата заявки:</b> {callback_request.created_at.strftime('%d.%m.%Y %H:%M')}
+🆔 <b>ID заявки:</b> #{callback_request.id}
+"""
+    
+    return message

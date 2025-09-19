@@ -47,6 +47,7 @@ LOCAL_APPS = [
     'apps.payments',
     'apps.notifications',
     'apps.operator',
+    'apps.leads',
     'apps.telegram_bot',
 ]
 
