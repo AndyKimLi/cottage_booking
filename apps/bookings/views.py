@@ -104,12 +104,12 @@ class BookingCreateView(LoginRequiredMixin, TemplateView):
     
     def get_booked_dates(self, cottage_id):
         """Получает забронированные даты для коттеджа"""
-        from datetime import date
+        from datetime import date, timedelta
         
         # Получаем активные бронирования для коттеджа
         bookings = Booking.objects.filter(
             cottage_id=cottage_id,
-            status__in=['confirmed', 'pending']
+            status__in=[BookingStatus.CONFIRMED, BookingStatus.PENDING]
         ).exclude(
             check_out__lte=date.today()  # Исключаем уже завершенные бронирования
         )
@@ -160,7 +160,13 @@ class BookingDetailView(LoginRequiredMixin, TemplateView):
         booking_id = kwargs.get('booking_id')
         
         try:
-            booking = get_object_or_404(Booking, id=booking_id)
+            # Получаем бронирование с предзагруженными данными коттеджа и удобств
+            booking = get_object_or_404(
+                Booking.objects.select_related('cottage').prefetch_related(
+                    'cottage__amenities__amenity'
+                ), 
+                id=booking_id
+            )
             
             # Проверяем права доступа
             if not (self.request.user == booking.user or self.request.user.is_staff):

@@ -174,6 +174,205 @@
         color: #dc3545;
     }
     
+    /* Стили для забронированных дат */
+    .booked-date {
+        background-color: #f8d7da !important;
+        border-color: #dc3545 !important;
+        color: #721c24 !important;
+        cursor: not-allowed !important;
+    }
+    
+    .booked-date:hover {
+        background-color: #f5c6cb !important;
+        border-color: #dc3545 !important;
+    }
+    
+    .booked-date:focus {
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    }
+    
+    .booked-dates-info {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        color: #856404;
+    }
+    
+    .booked-dates-info .fas {
+        color: #f39c12;
+        margin-right: 8px;
+    }
+    
+    
+    /* Стили для кастомных полей ввода дат */
+    .custom-date-input {
+        position: relative;
+        display: flex;
+        align-items: center; /* Выравниваем по центру */
+    }
+    
+    .custom-date-input .form-control {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: none;
+        height: 38px; /* Фиксированная высота */
+        line-height: 1.5;
+    }
+    
+    .date-picker-btn {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: 1px solid #ced4da;
+        height: 38px; /* Фиксированная высота как у поля ввода */
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0; /* Не сжимается */
+        line-height: 1.5;
+    }
+    
+    .date-picker-btn:hover {
+        background-color: #e9ecef;
+        border-color: #adb5bd;
+    }
+    
+    .date-picker-popup {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        margin-top: 4px;
+        display: none;
+    }
+    
+    .date-picker-popup.show {
+        display: block;
+    }
+    
+    .date-picker-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid #e9ecef;
+        background: #f8f9fa;
+    }
+    
+    .date-picker-nav {
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+    
+    .date-picker-nav:hover {
+        background: #e9ecef;
+    }
+    
+    .date-picker-month-year {
+        font-weight: 600;
+        font-size: 16px;
+    }
+    
+    .date-picker-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        background: #e9ecef;
+        padding: 8px;
+    }
+    
+    .date-picker-day-header {
+        padding: 8px 4px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6c757d;
+        background: #f8f9fa;
+    }
+    
+    .date-picker-day {
+        padding: 8px 4px;
+        text-align: center;
+        cursor: pointer;
+        background: white;
+        border: none;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+    
+    .date-picker-day:hover {
+        background: #e9ecef;
+    }
+    
+    .date-picker-day.booked {
+        background: #f8d7da !important;
+        color: #721c24 !important;
+        cursor: not-allowed;
+        position: relative;
+    }
+    
+    .date-picker-day.booked:hover {
+        background: #f5c6cb !important;
+    }
+    
+    .date-picker-day.booked::after {
+        content: '✕';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 10px;
+        color: #dc3545;
+    }
+    
+    .date-picker-day.today {
+        background: #d4edda;
+        color: #155724;
+        font-weight: bold;
+    }
+    
+    .date-picker-day.selected {
+        background: #28a745;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .date-picker-day.selected:hover {
+        background: #218838;
+    }
+    
+    .date-picker-day.other-month {
+        color: #adb5bd;
+        background: #f8f9fa;
+    }
+    
+    .date-picker-day.past {
+        color: #6c757d;
+        background: #f8f9fa;
+        cursor: not-allowed;
+    }
+    
+    /* Стили для полей ввода с выбранной датой */
+    .custom-date-input .form-control:not(:placeholder-shown) {
+        border-color: #28a745;
+        background-color: #f8fff9;
+    }
+    
+    .custom-date-input .form-control:not(:placeholder-shown):focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
     
     
 </style>
@@ -242,13 +441,20 @@
                     <form method="post" id="bookingForm">
                         {% csrf_token %}
                         
+                        
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="{{ form.check_in.id_for_label }}" class="form-label">
+                                    <label for="check_in_custom" class="form-label">
                                         Дата заезда <span class="required">*</span>
                                     </label>
-                                    {{ form.check_in }}
+                                    <div class="custom-date-input">
+                                        <input type="text" id="check_in_custom" class="form-control" placeholder="Выберите дату заезда" readonly>
+                                        <input type="hidden" id="id_check_in" name="check_in">
+                                        <button type="button" class="btn btn-outline-secondary date-picker-btn" data-target="check_in">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </button>
+                                    </div>
                                     {% if form.check_in.errors %}
                                         <div class="text-danger">{{ form.check_in.errors.0 }}</div>
                                     {% endif %}
@@ -256,10 +462,16 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="{{ form.check_out.id_for_label }}" class="form-label">
+                                    <label for="check_out_custom" class="form-label">
                                         Дата выезда <span class="required">*</span>
                                     </label>
-                                    {{ form.check_out }}
+                                    <div class="custom-date-input">
+                                        <input type="text" id="check_out_custom" class="form-control" placeholder="Выберите дату выезда" readonly>
+                                        <input type="hidden" id="id_check_out" name="check_out">
+                                        <button type="button" class="btn btn-outline-secondary date-picker-btn" data-target="check_out">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </button>
+                                    </div>
                                     {% if form.check_out.errors %}
                                         <div class="text-danger">{{ form.check_out.errors.0 }}</div>
                                     {% endif %}
@@ -341,12 +553,44 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const checkInInput = document.querySelector('#id_check_in');
     const checkOutInput = document.querySelector('#id_check_out');
+    const checkInCustom = document.querySelector('#check_in_custom');
+    const checkOutCustom = document.querySelector('#check_out_custom');
     const guestsInput = document.querySelector('#id_guests');
     const nightsCount = document.getElementById('nightsCount');
     const totalPrice = document.getElementById('totalPrice');
     const cottagePrice = parseFloat('{{ cottage.price_per_night|default:"0" }}'.replace(',', '.')) || 0;
     
+    // Забронированные даты из Django
+    const bookedDates = {{ booked_dates|safe }};
+    console.log('=== ОТЛАДКА КАЛЕНДАРЯ ===');
+    console.log('Забронированные даты:', bookedDates);
+    console.log('Количество забронированных дат:', bookedDates.length);
+    
     console.log('Переменные инициализированы, цена коттеджа:', cottagePrice);
+    
+    // Функция для проверки забронированных дат
+    function isDateBooked(dateString) {
+        return bookedDates.includes(dateString);
+    }
+    
+    // Функция для проверки пересечения с забронированными датами
+    function checkBookingConflict(checkIn, checkOut) {
+        if (!checkIn || !checkOut) return false;
+        
+        const startDate = new Date(checkIn);
+        const endDate = new Date(checkOut);
+        
+        // Проверяем каждую дату в диапазоне
+        const currentDate = new Date(startDate);
+        while (currentDate < endDate) {
+            const dateString = currentDate.toISOString().split('T')[0];
+            if (isDateBooked(dateString)) {
+                return true;
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        return false;
+    }
     
     // Функция для валидации дат
     function validateDates() {
@@ -363,15 +607,39 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let isValid = true;
         
-        // Простая валидация - проверяем только что даты заполнены
-        if (checkIn && checkInInput) {
-            checkInInput.classList.add('is-valid');
-            checkInInput.setCustomValidity('');
-        }
-        
-        if (checkOut && checkOutInput) {
-            checkOutInput.classList.add('is-valid');
-            checkOutInput.setCustomValidity('');
+        // Проверяем забронированные даты
+        if (checkIn && checkOut) {
+            if (checkBookingConflict(checkIn, checkOut)) {
+                if (checkInInput) {
+                    checkInInput.classList.add('is-invalid');
+                    checkInInput.setCustomValidity('Выбранные даты пересекаются с забронированными');
+                }
+                if (checkOutInput) {
+                    checkOutInput.classList.add('is-invalid');
+                    checkOutInput.setCustomValidity('Выбранные даты пересекаются с забронированными');
+                }
+                isValid = false;
+            } else {
+                if (checkInInput) {
+                    checkInInput.classList.add('is-valid');
+                    checkInInput.setCustomValidity('');
+                }
+                if (checkOutInput) {
+                    checkOutInput.classList.add('is-valid');
+                    checkOutInput.setCustomValidity('');
+                }
+            }
+        } else {
+            // Простая валидация - проверяем только что даты заполнены
+            if (checkIn && checkInInput) {
+                checkInInput.classList.add('is-valid');
+                checkInInput.setCustomValidity('');
+            }
+            
+            if (checkOut && checkOutInput) {
+                checkOutInput.classList.add('is-valid');
+                checkOutInput.setCustomValidity('');
+            }
         }
         
         return isValid;
@@ -397,9 +665,220 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Функция для добавления атрибутов к полям ввода дат
+    function addBookedDatesAttributes() {
+        if (bookedDates.length > 0) {
+            // Добавляем атрибуты для блокировки забронированных дат
+            if (checkInInput) {
+                checkInInput.addEventListener('change', function() {
+                    if (this.value && isDateBooked(this.value)) {
+                        this.classList.add('booked-date');
+                        this.setCustomValidity('Эта дата уже забронирована');
+                    } else {
+                        this.classList.remove('booked-date');
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+            
+            if (checkOutInput) {
+                checkOutInput.addEventListener('change', function() {
+                    if (this.value && isDateBooked(this.value)) {
+                        this.classList.add('booked-date');
+                        this.setCustomValidity('Эта дата уже забронирована');
+                    } else {
+                        this.classList.remove('booked-date');
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+        }
+    }
+    
+    
+    
+    // Функция для создания кастомного date picker
+    function createCustomDatePicker(targetField, displayField) {
+        console.log(`=== СОЗДАНИЕ DATE PICKER ДЛЯ ${targetField} ===`);
+        const pickerBtn = document.querySelector(`[data-target="${targetField}"]`);
+        console.log('Кнопка найдена:', pickerBtn);
+        if (!pickerBtn) {
+            console.log('Кнопка не найдена!');
+            return;
+        }
+        
+        // Находим соответствующие поля
+        const hiddenField = document.getElementById(`id_${targetField}`);
+        console.log('Скрытое поле найдено:', hiddenField);
+        
+        // Создаем popup для date picker
+        const popup = document.createElement('div');
+        popup.className = 'date-picker-popup';
+        popup.innerHTML = `
+            <div class="date-picker-header">
+                <button type="button" class="date-picker-nav" data-action="prev">‹</button>
+                <div class="date-picker-month-year"></div>
+                <button type="button" class="date-picker-nav" data-action="next">›</button>
+            </div>
+            <div class="date-picker-grid">
+                <div class="date-picker-day-header">Пн</div>
+                <div class="date-picker-day-header">Вт</div>
+                <div class="date-picker-day-header">Ср</div>
+                <div class="date-picker-day-header">Чт</div>
+                <div class="date-picker-day-header">Пт</div>
+                <div class="date-picker-day-header">Сб</div>
+                <div class="date-picker-day-header">Вс</div>
+            </div>
+        `;
+        
+        // Добавляем popup к контейнеру
+        pickerBtn.parentElement.appendChild(popup);
+        
+        let currentDate = new Date();
+        let selectedDate = null;
+        
+        // Функция для обновления календаря
+        function updateCalendar() {
+            const monthYear = popup.querySelector('.date-picker-month-year');
+            const grid = popup.querySelector('.date-picker-grid');
+            
+            // Обновляем заголовок
+            const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+                              'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+            monthYear.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            // Очищаем дни (кроме заголовков)
+            const dayHeaders = grid.querySelectorAll('.date-picker-day-header');
+            grid.innerHTML = '';
+            dayHeaders.forEach(header => grid.appendChild(header));
+            
+            // Получаем первый день месяца и количество дней
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            const startDate = new Date(firstDay);
+            
+            // Находим первый понедельник
+            const dayOfWeek = firstDay.getDay();
+            const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            startDate.setDate(startDate.getDate() - mondayOffset);
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Создаем 6 недель (42 дня)
+            for (let i = 0; i < 42; i++) {
+                const currentDay = new Date(startDate);
+                currentDay.setDate(startDate.getDate() + i);
+                
+                // Создаем строку даты вручную, чтобы избежать проблем с временными зонами
+                const year = currentDay.getFullYear();
+                const month = String(currentDay.getMonth() + 1).padStart(2, '0');
+                const day = String(currentDay.getDate()).padStart(2, '0');
+                const dateString = `${year}-${month}-${day}`;
+                const dayNumber = currentDay.getDate();
+                const isCurrentMonth = currentDay.getMonth() === currentDate.getMonth();
+                const isBooked = bookedDates.includes(dateString);
+                const isToday = currentDay.getTime() === today.getTime();
+                const isPast = currentDay < today;
+                
+                const dayElement = document.createElement('button');
+                dayElement.type = 'button';
+                dayElement.className = 'date-picker-day';
+                dayElement.textContent = dayNumber;
+                dayElement.dataset.date = dateString;
+                
+                if (isBooked) dayElement.classList.add('booked');
+                if (isToday) dayElement.classList.add('today');
+                if (isPast) dayElement.classList.add('past');
+                if (!isCurrentMonth) dayElement.classList.add('other-month');
+                
+                // Обработчик клика
+                dayElement.addEventListener('click', function() {
+                    if (this.classList.contains('booked') || this.classList.contains('past')) {
+                        if (this.classList.contains('booked')) {
+                            alert('Эта дата уже забронирована');
+                        } else {
+                            alert('Нельзя выбрать прошедшую дату');
+                        }
+                        return;
+                    }
+                    
+                    // Убираем выделение с других дней
+                    grid.querySelectorAll('.date-picker-day.selected').forEach(day => {
+                        day.classList.remove('selected');
+                    });
+                    
+                    // Выделяем выбранный день
+                    this.classList.add('selected');
+                    selectedDate = this.dataset.date;
+                    
+                    // Обновляем поля
+                    // Простое отображение даты без преобразований
+                    const [year, month, day] = selectedDate.split('-');
+                    const formattedDate = `${day}.${month}.${year}`;
+                    
+                    console.log('=== ОТЛАДКА ДАТЫ ===');
+                    console.log('Выбранная дата (строка):', selectedDate);
+                    console.log('Разбор даты - год:', year, 'месяц:', month, 'день:', day);
+                    console.log('Отформатированная дата:', formattedDate);
+                    console.log('Значение в displayField:', displayField.value);
+                    console.log('Значение в hiddenField:', hiddenField.value);
+                    
+                    displayField.value = formattedDate;
+                    hiddenField.value = selectedDate;
+                    
+                    // Добавляем класс валидности к полю ввода
+                    displayField.classList.add('is-valid');
+                    displayField.classList.remove('is-invalid');
+                    
+                    // Закрываем popup
+                    popup.classList.remove('show');
+                    
+                    // Валидируем и рассчитываем цену
+                    validateDates();
+                    calculatePrice();
+                });
+                
+                grid.appendChild(dayElement);
+            }
+        }
+        
+        // Обработчики навигации
+        popup.querySelector('[data-action="prev"]').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendar();
+        });
+        
+        popup.querySelector('[data-action="next"]').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendar();
+        });
+        
+        // Обработчик клика по кнопке
+        pickerBtn.addEventListener('click', function(e) {
+            console.log('Кнопка календаря нажата!');
+            e.stopPropagation();
+            popup.classList.toggle('show');
+            console.log('Popup показан:', popup.classList.contains('show'));
+            updateCalendar();
+        });
+        
+        // Закрытие при клике вне popup
+        document.addEventListener('click', function(e) {
+            if (!popup.contains(e.target) && !pickerBtn.contains(e.target)) {
+                popup.classList.remove('show');
+            }
+        });
+    }
+    
     // Вызываем расчет при загрузке страницы (на случай если даты уже заполнены)
     setTimeout(function() {
         calculatePrice();
+        addBookedDatesAttributes();
+        
+        // Создаем кастомные date picker'ы
+        createCustomDatePicker('check_in', checkInCustom);
+        createCustomDatePicker('check_out', checkOutCustom);
     }, 100);
     
     
@@ -538,9 +1017,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Проверяем, не забронированы ли выбранные даты
-            if (!validateDates()) {
+            if (checkBookingConflict(checkIn, checkOut)) {
                 e.preventDefault();
-                alert('Выбранные даты уже забронированы. Пожалуйста, выберите другие даты.');
+                alert('Выбранные даты пересекаются с уже забронированными датами. Пожалуйста, выберите другие даты.');
                 return false;
             }
         });

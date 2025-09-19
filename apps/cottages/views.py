@@ -157,14 +157,20 @@ class CottageDetailView(TemplateView):
         cottage_id = kwargs.get('cottage_id')
         
         try:
-            # Получаем коттедж
-            cottage = Cottage.objects.get(id=cottage_id, is_active=True)
+            # Получаем коттедж с изображениями и удобствами
+            cottage = Cottage.objects.prefetch_related(
+                'images', 'amenities__amenity'
+            ).get(id=cottage_id, is_active=True)
+            
+            # Получаем изображения, отсортированные по порядку
+            images = cottage.images.all().order_by('order', 'id')
             
             # Получаем удобства
             amenities = cottage.amenities.all()
             
             context.update({
                 'cottage': cottage,
+                'images': images,
                 'amenities': amenities,
             })
             

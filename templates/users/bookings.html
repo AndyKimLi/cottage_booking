@@ -184,6 +184,76 @@
         box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
         color: white;
     }
+    
+    /* Стили для удобств */
+    .amenities-section {
+        margin-top: 20px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid #28a745;
+    }
+    
+    .amenities-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .amenities-title i {
+        margin-right: 8px;
+        color: #28a745;
+    }
+    
+    .amenities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+    }
+    
+    .amenity-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .amenity-item:hover {
+        background: #e9ecef;
+        transform: translateY(-1px);
+    }
+    
+    .amenity-icon {
+        width: 20px;
+        height: 20px;
+        background: #28a745;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 10px;
+        font-size: 0.8rem;
+    }
+    
+    .amenity-name {
+        font-size: 0.9rem;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+    
+    .no-amenities {
+        text-align: center;
+        color: #6c757d;
+        font-style: italic;
+        padding: 15px;
+    }
 </style>
 {% endblock %}
 
@@ -251,6 +321,7 @@
                                 <div class="detail-value">{{ booking.total_price }} ₽</div>
                             </div>
                         </div>
+                        
                         
                         <div class="booking-actions">
                             <button class="btn btn-action btn-view" onclick="viewBooking({{ booking.id }})">

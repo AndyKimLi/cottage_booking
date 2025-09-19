@@ -235,7 +235,9 @@ class MyBookingsPageView(LoginRequiredMixin, TemplateView):
             user=self.request.user
         ).exclude(
             status='cancelled'
-        ).select_related('cottage').order_by('-created_at')
+        ).select_related('cottage').prefetch_related(
+            'cottage__amenities__amenity'
+        ).order_by('-created_at')
         
         context['bookings'] = bookings
         return context
