@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -51,7 +50,6 @@ def quick_booking_view(request):
             
             # Валидация данных
             if not all([first_name, last_name, phone, cottage_id, check_in, check_out]):
-                messages.error(request, 'Заполните все обязательные поля')
                 return render(request, 'operator/quick_booking.html', {'cottages': cottages})
             
             # Проверяем, существует ли пользователь с таким телефоном
@@ -103,8 +101,6 @@ def quick_booking_view(request):
                     conflict_dates.append(f"{booking.check_in} - {booking.check_out}")
                     print(f"DEBUG: Конфликт с бронированием {booking.id}: {booking.check_in} - {booking.check_out} (статус: {booking.status})")
                 
-                messages.error(request, f'Выбранные даты уже заняты! Конфликтующие бронирования: {", ".join(conflict_dates)}')
-                
                 # Восстанавливаем данные формы для отображения ошибки
                 form_data = {
                     'first_name': first_name,
@@ -139,11 +135,10 @@ def quick_booking_view(request):
             print(f"DEBUG: Создано бронирование {booking.id} со статусом '{booking.status}' в {booking.created_at}")
             print(f"DEBUG: get_status_display() = '{booking.get_status_display()}'")
             
-            messages.success(request, f'Бронирование #{booking.id} успешно создано для {user.get_full_name()}')
             return redirect('operator:dashboard')
             
         except Exception as e:
-            messages.error(request, f'Ошибка при создании бронирования: {str(e)}')
+            pass
     
     # Восстанавливаем данные формы из URL параметров
     form_data = {
