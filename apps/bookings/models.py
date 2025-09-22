@@ -19,7 +19,20 @@ class Booking(models.Model):
         User, 
         on_delete=models.CASCADE, 
         related_name='bookings',
-        verbose_name='Пользователь'
+        verbose_name='Пользователь',
+        null=True,
+        blank=True
+    )
+    guest_email = models.EmailField(
+        blank=True,
+        null=True,
+        verbose_name='Email гостя'
+    )
+    guest_name = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name='Имя гостя'
     )
     cottage = models.ForeignKey(
         Cottage, 
@@ -58,12 +71,33 @@ class Booking(models.Model):
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"{self.user.email} - {self.cottage.name} ({self.check_in} - {self.check_out})"
+        if self.user:
+            return f"{self.user.email} - {self.cottage.name} ({self.check_in} - {self.check_out})"
+        else:
+            return f"{self.guest_email or 'Гость'} - {self.cottage.name} ({self.check_in} - {self.check_out})"
     
     @property
     def nights(self):
         """Количество ночей"""
         return (self.check_out - self.check_in).days
+    
+    @property
+    def email_address(self):
+        """Email адрес для отправки уведомлений"""
+        if self.user and self.user.email:
+            return self.user.email
+        elif self.guest_email:
+            return self.guest_email
+        return None
+    
+    @property
+    def guest_full_name(self):
+        """Полное имя гостя"""
+        if self.user:
+            return self.user.full_name
+        elif self.guest_name:
+            return self.guest_name
+        return "Уважаемый клиент"
     
     def save(self, *args, **kwargs):
         # Автоматический расчет стоимости

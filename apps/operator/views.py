@@ -52,26 +52,49 @@ def quick_booking_view(request):
             if not all([first_name, last_name, phone, cottage_id, check_in, check_out]):
                 return render(request, 'operator/quick_booking.html', {'cottages': cottages})
             
-            # Проверяем, существует ли пользователь с таким телефоном
+            # Проверяем, существует ли пользователь с таким телефоном или email
             user = None
             try:
+                # Сначала ищем по телефону
                 user = User.objects.get(phone=phone)
                 # Обновляем данные пользователя
                 user.first_name = first_name
                 user.last_name = last_name
-                if email:
-                    user.email = email
+                if email and user.email != email:
+                    # Проверяем, не занят ли новый email
+                    if not User.objects.filter(email=email).exists():
+                        user.email = email
                 user.save()
             except User.DoesNotExist:
-                # Создаем нового пользователя
-                username = f"client_{phone.replace('+', '').replace(' ', '').replace('-', '')}"
-                user = User.objects.create(
-                    username=username,
-                    first_name=first_name,
-                    last_name=last_name,
-                    email=email if email else f"{username}@example.com",
-                    phone=phone
-                )
+                # Если пользователь не найден по телефону, ищем по email
+                if email:
+                    try:
+                        user = User.objects.get(email=email)
+                        # Обновляем данные пользователя
+                        user.first_name = first_name
+                        user.last_name = last_name
+                        user.phone = phone
+                        user.save()
+                    except User.DoesNotExist:
+                        # Создаем нового пользователя
+                        username = f"client_{phone.replace('+', '').replace(' ', '').replace('-', '')}"
+                        user = User.objects.create(
+                            username=username,
+                            first_name=first_name,
+                            last_name=last_name,
+                            email=email,
+                            phone=phone
+                        )
+                else:
+                    # Создаем нового пользователя без email
+                    username = f"client_{phone.replace('+', '').replace(' ', '').replace('-', '')}"
+                    user = User.objects.create(
+                        username=username,
+                        first_name=first_name,
+                        last_name=last_name,
+                        email=f"{username}@example.com",
+                        phone=phone
+                    )
             
             # Получаем коттедж
             cottage = Cottage.objects.get(id=cottage_id)
@@ -127,7 +150,9 @@ def quick_booking_view(request):
                 check_out=check_out_date,
                 guests=guests,
                 special_requests=special_requests,
-                status=BookingStatus.CONFIRMED  # Оператор сразу подтверждает бронирование
+                status=BookingStatus.CONFIRMED,  # Оператор сразу подтверждает бронирование
+                guest_email=email if email else None,
+                guest_name=f"{first_name} {last_name}" if not user else None
             )
             
             # Отладочная информация
@@ -138,7 +163,9 @@ def quick_booking_view(request):
             return redirect('operator:dashboard')
             
         except Exception as e:
-            pass
+            print(f"ERROR: Ошибка при создании бронирования: {str(e)}")
+            import traceback
+            traceback.print_exc()
     
     # Восстанавливаем данные формы из URL параметров
     form_data = {
