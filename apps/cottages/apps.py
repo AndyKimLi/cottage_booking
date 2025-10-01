@@ -5,3 +5,6 @@ class CottagesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'apps.cottages'
     verbose_name = 'Коттеджи'
+    
+    def ready(self):
+        import apps.cottages.signals

@@ -9,8 +9,10 @@ psycopg2-binary==2.9.9
 
 # Кеширование и очереди
 redis==5.0.1
+django-redis==5.4.0
 celery==5.3.4
 django-celery-beat==2.5.0
+kombu==5.3.4  # RabbitMQ поддержка для Celery
 
 # WebSocket для уведомлений
 channels==4.0.0

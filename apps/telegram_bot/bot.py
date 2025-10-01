@@ -11,7 +11,6 @@ from .models import TelegramUser
 from apps.bookings.models import Booking, BookingStatus
 from datetime import datetime, timedelta
 
-# Настройка логирования
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
@@ -217,10 +216,8 @@ class CottageBookingBot:
                 tg_user.save()
                 return tg_user
             except TelegramUser.DoesNotExist:
-                # Создаем нового пользователя БЕЗ прав персонала
                 print(f"DEBUG: Creating new TelegramUser {telegram_user.id} WITHOUT staff privileges")
                 
-                # Создаем пользователя Django с явным указанием is_staff=False
                 print(f"DEBUG: About to create user with is_staff=False")
                 user = User.objects.create(
                     username=f"tg_{telegram_user.id}",
@@ -234,11 +231,9 @@ class CottageBookingBot:
                 
                 print(f"DEBUG: User created! username={user.username}, is_staff={user.is_staff}, is_superuser={user.is_superuser}")
                 
-                # Проверяем еще раз из базы данных
                 user_from_db = User.objects.get(id=user.id)
                 print(f"DEBUG: User from DB: username={user_from_db.username}, is_staff={user_from_db.is_staff}, is_superuser={user_from_db.is_superuser}")
                 
-                # Создаем TelegramUser
                 tg_user = TelegramUser.objects.create(
                     user=user,
                     telegram_id=telegram_user.id,

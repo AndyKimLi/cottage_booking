@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Q
+from django.core.cache import cache
 from datetime import datetime, date
 from .models import Cottage
 from .serializers import CottageSerializer, CottageDetailSerializer
@@ -21,6 +22,33 @@ class CottageViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == 'retrieve':
             return CottageDetailSerializer
         return CottageSerializer
+    
+    def list(self, request, *args, **kwargs):
+        """Список коттеджей с кэшированием"""
+        cache_key = 'cottages_list_api'
+        cottages_data = cache.get(cache_key)
+        
+        if cottages_data is None:
+            cottages = self.get_queryset()
+            serializer = self.get_serializer(cottages, many=True)
+            cottages_data = serializer.data
+            cache.set(cache_key, cottages_data, 300)
+        
+        return Response(cottages_data)
+    
+    def retrieve(self, request, *args, **kwargs):
+        """Детали коттеджа с кэшированием"""
+        cottage_id = kwargs.get('pk')
+        cache_key = f'cottage_detail_{cottage_id}'
+        cottage_data = cache.get(cache_key)
+        
+        if cottage_data is None:
+            cottage = self.get_object()
+            serializer = self.get_serializer(cottage)
+            cottage_data = serializer.data
+            cache.set(cache_key, cottage_data, 600)
+        
+        return Response(cottage_data)
     
     @action(detail=True, methods=['get'])
     def images(self, request, pk=None):
@@ -111,31 +139,34 @@ class cottages_page(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Получаем коттеджи из базы данных
-        cottages = Cottage.objects.filter(is_active=True).prefetch_related(
-            'images', 'amenities__amenity'
-        )
-        
-        # Получаем параметры фильтрации
         min_price = self.request.GET.get('min_price')
         max_price = self.request.GET.get('max_price')
         
-        # Применяем фильтры
-        if min_price:
-            try:
-                cottages = cottages.filter(
-                    price_per_night__gte=float(min_price)
-                )
-            except ValueError:
-                pass
+        cache_key = f'cottages_html_{min_price}_{max_price}'
+        cottages = cache.get(cache_key)
         
-        if max_price:
-            try:
-                cottages = cottages.filter(
-                    price_per_night__lte=float(max_price)
-                )
-            except ValueError:
-                pass
+        if cottages is None:
+            cottages = Cottage.objects.filter(is_active=True).prefetch_related(
+                'images', 'amenities__amenity'
+            )
+            
+            if min_price:
+                try:
+                    cottages = cottages.filter(
+                        price_per_night__gte=float(min_price)
+                    )
+                except ValueError:
+                    pass
+            
+            if max_price:
+                try:
+                    cottages = cottages.filter(
+                        price_per_night__lte=float(max_price)
+                    )
+                except ValueError:
+                    pass
+            
+            cache.set(cache_key, cottages, 300)
         
         context.update({
             'cottages': cottages,
@@ -156,28 +187,36 @@ class CottageDetailView(TemplateView):
         # Получаем ID коттеджа из URL
         cottage_id = kwargs.get('cottage_id')
         
-        try:
-            # Получаем коттедж с изображениями и удобствами
-            cottage = Cottage.objects.prefetch_related(
-                'images', 'amenities__amenity'
-            ).get(id=cottage_id, is_active=True)
-            
-            # Получаем изображения, отсортированные по порядку
-            images = cottage.images.all().order_by('order', 'id')
-            
-            # Получаем удобства
-            amenities = cottage.amenities.all()
-            
-            context.update({
-                'cottage': cottage,
-                'images': images,
-                'amenities': amenities,
-            })
-            
-        except Cottage.DoesNotExist:
-            from django.http import Http404
-            raise Http404(f"Коттедж с ID {cottage_id} не найден или неактивен")
+        # Кэшируем детали коттеджа
+        cache_key = f'cottage_detail_html_{cottage_id}'
+        cottage_data = cache.get(cache_key)
         
+        if cottage_data is None:
+            try:
+                # Получаем коттедж с изображениями и удобствами
+                cottage = Cottage.objects.prefetch_related(
+                    'images', 'amenities__amenity'
+                ).get(id=cottage_id, is_active=True)
+                
+                # Получаем изображения, отсортированные по порядку
+                images = cottage.images.all().order_by('order', 'id')
+                
+                # Получаем удобства
+                amenities = cottage.amenities.all()
+                
+                cottage_data = {
+                    'cottage': cottage,
+                    'images': images,
+                    'amenities': amenities,
+                }
+                
+                cache.set(cache_key, cottage_data, 600)
+                
+            except Cottage.DoesNotExist:
+                from django.http import Http404
+                raise Http404(f"Коттедж с ID {cottage_id} не найден или неактивен")
+        
+        context.update(cottage_data)
         return context
 
 

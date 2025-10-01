@@ -28,10 +28,8 @@ class TelegramUserAdmin(admin.ModelAdmin):
     )
     
     def get_queryset(self, request):
-        """Показываем только пользователей персонала"""
-        return super().get_queryset(request).filter(
-            user__is_staff=True
-        )
+        """Показываем всех пользователей"""
+        return super().get_queryset(request)
     
     def has_add_permission(self, request):
         """Только суперпользователи могут добавлять новых пользователей"""

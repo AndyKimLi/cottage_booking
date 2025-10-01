@@ -62,17 +62,14 @@ class CallbackRequestView(TemplateView):
             return render(request, self.template_name, context)
     
     def send_telegram_notification(self, callback_request):
-        """Отправка уведомления в Telegram"""
+        """Отправка уведомления в Telegram через Celery"""
         try:
-            print(f"Попытка отправить уведомление для заявки #{callback_request.id}")
-            import asyncio
-            from apps.telegram_bot.bot import send_callback_notification
-            
-            # Запускаем асинхронную функцию
-            result = asyncio.run(send_callback_notification(callback_request))
-            print(f"Результат отправки уведомления: {result}")
+            from apps.notifications.tasks import send_callback_request_notification
+            # Отправляем задачу в очередь RabbitMQ
+            send_callback_request_notification.delay(callback_request.id)
+            print(f"Callback notification queued for request #{callback_request.id}")
         except Exception as e:
-            print(f"Ошибка отправки уведомления в Telegram: {e}")
+            print(f"Ошибка постановки уведомления в очередь: {e}")
             import traceback
             traceback.print_exc()
 
@@ -93,12 +90,13 @@ class CallbackRequestAjaxView(TemplateView):
         if form.is_valid():
             callback_request = form.save()
             
-            # Отправляем уведомление в Telegram
+            # Отправляем уведомление в Telegram через Celery
             try:
-                from apps.telegram_bot.bot import send_callback_notification
-                send_callback_notification(callback_request)
+                from apps.notifications.tasks import send_callback_request_notification
+                send_callback_request_notification.delay(callback_request.id)
+                print(f"Callback notification queued for request #{callback_request.id}")
             except Exception as e:
-                print(f"Ошибка отправки уведомления в Telegram: {e}")
+                print(f"Ошибка постановки уведомления в очередь: {e}")
             
             return JsonResponse({
                 'success': True,

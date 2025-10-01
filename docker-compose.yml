@@ -16,6 +16,19 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 
   web:
     build: .
@@ -27,10 +40,61 @@ services:
     depends_on:
       - db
       - redis
+      - rabbitmq
     environment:
       - DEBUG=1
-      - DATABASE_URL=postgresql://postgres:password@db:5432/cottage_booking
+      - DB_HOST=db
+      - DB_NAME=cottage_booking
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_PORT=5432
       - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=amqp://admin:password@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  celery:
+    build: .
+    command: celery -A cottage_booking worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+      - rabbitmq
+    environment:
+      - DEBUG=1
+      - DB_HOST=db
+      - DB_NAME=cottage_booking
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=amqp://admin:password@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+
+  telegram_bot:
+    build: .
+    command: python manage.py run_telegram_bot
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+      - rabbitmq
+    environment:
+      - DEBUG=1
+      - DB_HOST=db
+      - DB_NAME=cottage_booking
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=amqp://admin:password@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
 
 volumes:
   postgres_data:
+  redis_data:
+  rabbitmq_data:
