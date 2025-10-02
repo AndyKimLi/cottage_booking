@@ -3,6 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from django_ratelimit.decorators import ratelimit
+from django.utils.decorators import method_decorator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -15,6 +17,11 @@ from .forms import BookingForm
 from apps.cottages.models import Cottage
 
 
+@method_decorator(ratelimit(key='ip', rate='100/h', method='GET'), name='list')
+@method_decorator(ratelimit(key='ip', rate='10/h', method='POST'), name='create')
+@method_decorator(ratelimit(key='ip', rate='20/h', method='PUT'), name='update')
+@method_decorator(ratelimit(key='ip', rate='20/h', method='PATCH'), name='partial_update')
+@method_decorator(ratelimit(key='ip', rate='5/h', method='DELETE'), name='destroy')
 class BookingViewSet(viewsets.ModelViewSet):
     """API для бронирований"""
     queryset = Booking.objects.all()

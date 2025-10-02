@@ -52,6 +52,20 @@ services:
       - CELERY_BROKER_URL=amqp://admin:password@rabbitmq:5672//
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
 
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./static:/app/static
+      - ./media:/app/media
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - web
+
   celery:
     build: .
     command: celery -A cottage_booking worker -l info
@@ -94,7 +108,106 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
 
+  backup:
+    image: postgres:15
+    volumes:
+      - ./backups:/backups
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - PGPASSWORD=password
+    command: >
+      sh -c "
+      while true; do
+        echo '🔄 Создание резервной копии...'
+        BACKUP_FILE=/backups/backup_$$(date +%Y%m%d_%H%M%S).sql
+        pg_dump -h db -U postgres -d cottage_booking > $$BACKUP_FILE
+        
+        if [ $$? -eq 0 ]; then
+          echo '✅ Резервная копия создана: '$$BACKUP_FILE
+          
+          # Сжимаем файл
+          gzip $$BACKUP_FILE
+          echo '📦 Файл сжат: '$$BACKUP_FILE'.gz'
+          
+          # Ротация бэкапов - оставляем только последние 7 дней
+          echo '🗑️  Удаление старых бэкапов...'
+          find /backups -name 'backup_*.sql.gz' -mtime +7 -delete
+          
+          # Показываем количество бэкапов
+          BACKUP_COUNT=$$(ls /backups/backup_*.sql.gz 2>/dev/null | wc -l)
+          echo '📊 Всего бэкапов: '$$BACKUP_COUNT
+        else
+          echo '❌ Ошибка создания резервной копии!'
+        fi
+        
+        echo '⏰ Следующий бэкап через 24 часа...'
+        sleep 86400
+      done
+      "
+    depends_on:
+      - db
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/monitoring/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./config/monitoring/loki.yml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./logs:/var/log
+      - ./config/monitoring/promtail.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./config/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+
 volumes:
   postgres_data:
   redis_data:
   rabbitmq_data:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:

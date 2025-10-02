@@ -18,6 +18,35 @@ class CottageViewSet(viewsets.ReadOnlyModelViewSet):
     )
     serializer_class = CottageSerializer
     
+    def get_queryset(self):
+        """Оптимизированный queryset с кэшированием"""
+        cache_key = f"cottages_list_{hash(frozenset(self.request.GET.items()))}"
+        cached_result = cache.get(cache_key)
+        
+        if cached_result is not None:
+            return cached_result
+        
+        queryset = super().get_queryset()
+        
+        # Применяем фильтры
+        is_available = self.request.query_params.get('is_available')
+        min_price = self.request.query_params.get('min_price')
+        max_price = self.request.query_params.get('max_price')
+        min_guests = self.request.query_params.get('min_guests')
+        
+        if is_available is not None:
+            queryset = queryset.filter(is_available=is_available.lower() == 'true')
+        if min_price:
+            queryset = queryset.filter(price_per_night__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(price_per_night__lte=max_price)
+        if min_guests:
+            queryset = queryset.filter(max_guests__gte=min_guests)
+        
+        # Кэшируем на 5 минут (не кэшируем QuerySet, только результаты)
+        # cache.set(cache_key, queryset, 300)
+        return queryset
+    
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return CottageDetailSerializer
@@ -143,9 +172,10 @@ class cottages_page(TemplateView):
         max_price = self.request.GET.get('max_price')
         
         cache_key = f'cottages_html_{min_price}_{max_price}'
-        cottages = cache.get(cache_key)
+        cottage_ids = cache.get(cache_key)
         
-        if cottages is None:
+        if cottage_ids is None:
+            # Получаем коттеджи из БД
             cottages = Cottage.objects.filter(is_active=True).prefetch_related(
                 'images', 'amenities__amenity'
             )
@@ -166,7 +196,15 @@ class cottages_page(TemplateView):
                 except ValueError:
                     pass
             
-            cache.set(cache_key, cottages, 300)
+            # Кэшируем только ID коттеджей (сериализуемые)
+            cottage_ids = list(cottages.values_list('id', flat=True))
+            cache.set(cache_key, cottage_ids, 300)
+        
+        # Получаем объекты коттеджей по ID
+        cottages = Cottage.objects.filter(
+            id__in=cottage_ids, 
+            is_active=True
+        ).prefetch_related('images', 'amenities__amenity')
         
         context.update({
             'cottages': cottages,

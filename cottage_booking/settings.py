@@ -21,7 +21,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-producti
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,web,nginx').split(',')
 
 # Application definition
 DJANGO_APPS = [
@@ -43,7 +43,12 @@ THIRD_PARTY_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'channels',
+    'axes',
 ]
+
+# Добавляем django-prometheus только если мониторинг включен
+if config('MONITORING_ENABLED', default=False, cast=bool):
+    THIRD_PARTY_APPS.append('django_prometheus')
 
 LOCAL_APPS = [
     'apps.core',
@@ -70,7 +75,13 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',
 ]
+
+# Добавляем Prometheus middleware только если мониторинг включен
+if config('MONITORING_ENABLED', default=False, cast=bool):
+    MIDDLEWARE.insert(0, 'django_prometheus.middleware.PrometheusBeforeMiddleware')
+    MIDDLEWARE.append('django_prometheus.middleware.PrometheusAfterMiddleware')
 
 ROOT_URLCONF = 'cottage_booking.urls'
 
@@ -94,16 +105,25 @@ WSGI_APPLICATION = 'cottage_booking.wsgi.application'
 ASGI_APPLICATION = 'cottage_booking.asgi.application'
 
 # Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='cottage_booking'),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD', default='password'),
-        'HOST': config('DB_HOST', default='db'),  # Используем имя сервиса Docker
-        'PORT': config('DB_PORT', default='5432'),
+# Для CI можно переключиться на SQLite, установив переменную окружения USE_SQLITE=1
+if config('USE_SQLITE', default=False, cast=bool):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME', default='cottage_booking'),
+            'USER': config('DB_USER', default='postgres'),
+            'PASSWORD': config('DB_PASSWORD', default='password'),
+            'HOST': config('DB_HOST', default='db'),  # Используем имя сервиса Docker
+            'PORT': config('DB_PORT', default='5432'),
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -127,11 +147,20 @@ TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, Images) с оптимизацией
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
+]
+
+# Оптимизация статических файлов
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Настройки для статики
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
 # Media files
@@ -201,14 +230,23 @@ CHANNEL_LAYERS = {
     },
 }
 
-# Cache
+# Cache с оптимизацией
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': config('REDIS_URL', default='redis://localhost:6379/1'),
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 50,
+                'retry_on_timeout': True,
+            },
+            'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
+            'SERIALIZER': 'django_redis.serializers.json.JSONSerializer',
+        },
+        'TIMEOUT': 300,  # 5 минут
+        'VERSION': 1,
+        'KEY_PREFIX': 'cottage_booking',
     }
 }
 
@@ -263,6 +301,29 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
+# CORS настройки
+CORS_ALLOWED_ORIGINS = [
+    "https://yourdomain.com",
+    "https://www.yourdomain.com",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # Только для разработки
+
+# Дополнительные CORS настройки
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
 # Security settings (для production)
 if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
@@ -271,6 +332,10 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Celery Configuration
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='amqp://admin:password@localhost:5672//')
@@ -289,3 +354,37 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@cottage-booking.com')
+
+# Django Axes (защита от брутфорса)
+AXES_ENABLED = not DEBUG
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = 1  # час
+AXES_LOCKOUT_CALLABLE = 'axes.lockout.database_lockout'
+AXES_LOCKOUT_TEMPLATE = 'users/lockout.html'
+AXES_VERBOSE = True
+
+# Rate limiting настройки
+RATELIMIT_ENABLE = True
+RATELIMIT_USE_CACHE = 'default'
+
+# Дополнительные настройки безопасности
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
+
+# Настройки для продакшена
+if not DEBUG:
+    # Отключаем DEBUG toolbar в продакшене
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TEMPLATE_CONTEXT': False,
+    }
+    
+    # Настройки для статических файлов
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Prometheus настройки (отключено для локального тестирования)
+PROMETHEUS_EXPORT_MIGRATIONS = False
+PROMETHEUS_EXPORT_USE_SETTINGS = False  # Отключаем для локального тестирования
+
+# Мониторинг настройки
+MONITORING_ENABLED = config('MONITORING_ENABLED', default=False, cast=bool)  # Отключаем по умолчанию
+PROMETHEUS_METRICS_EXPORT_PORT = config('PROMETHEUS_METRICS_EXPORT_PORT', default=8001, cast=int)
