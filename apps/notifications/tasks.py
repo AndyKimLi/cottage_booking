@@ -44,8 +44,6 @@ def send_telegram_notification(self, booking_id, notification_type):
 📅 **Даты:** {booking.check_in} - {booking.check_out}
 👥 **Гостей:** {booking.guests}
 💰 **Стоимость:** {booking.total_price} ₽
-
-🔗 **Ссылка:** [Открыть в админке](http://localhost:8000/admin/bookings/booking/{booking.id}/)
             """
         elif notification_type == "cancelled":
             message = f"""
@@ -54,8 +52,6 @@ def send_telegram_notification(self, booking_id, notification_type):
 🏠 **Коттедж:** {booking.cottage.name}
 👤 **Клиент:** {booking.user.get_full_name() or booking.user.email}
 📅 **Даты:** {booking.check_in} - {booking.check_out}
-
-🔗 **Ссылка:** [Открыть в админке](http://localhost:8000/admin/bookings/booking/{booking.id}/)
             """
         else:  # status_change
             message = f"""
@@ -65,8 +61,6 @@ def send_telegram_notification(self, booking_id, notification_type):
 👤 **Клиент:** {booking.user.get_full_name() or booking.user.email}
 📅 **Даты:** {booking.check_in} - {booking.check_out}
 📝 **Новый статус:** {booking.get_status_display()}
-
-🔗 **Ссылка:** [Открыть в админке](http://localhost:8000/admin/bookings/booking/{booking.id}/)
             """
         
         # Отправляем сообщения

@@ -272,10 +272,8 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="{{ form.phone.id_for_label }}" class="form-label">
-                                    Телефон
-                                </label>
-                                {{ form.phone }}
+                                <label class="form-label">Телефон</label>
+                                <div id="profile_phone_input" class="phone-input"></div>
                                 {% if form.phone.errors %}
                                     <div class="text-danger small">{{ form.phone.errors.0 }}</div>
                                 {% endif %}
@@ -300,6 +298,11 @@
                                 {% if form.date_of_birth.errors %}
                                     <div class="text-danger small">{{ form.date_of_birth.errors.0 }}</div>
                                 {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end">
+                                <button type="button" class="btn btn-outline-warning" onclick="showPasswordChange()">
+                                    <i class="fas fa-key me-1"></i>Сменить пароль
+                                </button>
                             </div>
                         </div>
                         
@@ -357,57 +360,123 @@ document.addEventListener('DOMContentLoaded', function() {
     {% endif %}
 });
 
-// Простая маска для телефона
+// Инициализация компонента телефона с существующим значением
 document.addEventListener('DOMContentLoaded', function() {
-    const phoneInput = document.querySelector('#id_phone');
-    
-    if (phoneInput) {
-        // Простое форматирование российского номера
-        phoneInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            
-            // Если номер начинается с 7 или 8, заменяем на +7
-            if (value.startsWith('8')) {
-                value = '7' + value.substring(1);
-            }
-            if (value.startsWith('7')) {
-                value = '+' + value;
-            }
-            
-            // Форматируем как +7 (999) 123-45-67
-            if (value.startsWith('+7') && value.length > 2) {
-                const digits = value.substring(2);
-                if (digits.length >= 1) {
-                    let formatted = '+7';
-                    if (digits.length >= 1) {
-                        formatted += ' (' + digits.substring(0, 3);
-                    }
-                    if (digits.length >= 4) {
-                        formatted += ') ' + digits.substring(3, 6);
-                    }
-                    if (digits.length >= 7) {
-                        formatted += '-' + digits.substring(6, 8);
-                    }
-                    if (digits.length >= 9) {
-                        formatted += '-' + digits.substring(8, 10);
-                    }
-                    e.target.value = formatted;
+    const phoneContainer = document.getElementById('profile_phone_input');
+    if (phoneContainer) {
+        const existingPhone = '{{ user.phone|default:"" }}';
+        if (existingPhone) {
+            // Ждем инициализации компонента и устанавливаем значение
+            setTimeout(() => {
+                const phoneInput = phoneContainer.querySelector('#profile_phone_input_full');
+                if (phoneInput) {
+                    phoneInput.value = existingPhone;
+                    // Триггерим событие для обновления компонента
+                    phoneInput.dispatchEvent(new Event('input'));
                 }
-            } else if (value.length > 0 && !value.startsWith('+')) {
-                // Если ввели номер без +, добавляем +7
-                e.target.value = '+7 (' + value.substring(0, 3);
-                if (value.length >= 4) {
-                    e.target.value += ') ' + value.substring(3, 6);
-                }
-                if (value.length >= 7) {
-                    e.target.value += '-' + value.substring(6, 8);
-                }
-                if (value.length >= 9) {
-                    e.target.value += '-' + value.substring(8, 10);
-                }
-            }
-        });
+            }, 100);
+        }
     }
 });
+
+// Функция для показа модального окна смены пароля
+function showPasswordChange() {
+    const modal = document.getElementById('passwordChangeModal');
+    if (modal) {
+        // Сброс формы модалки перед показом
+        const input = document.getElementById('customNewPassword');
+        if (input) input.value = '';
+        const box = document.getElementById('generatedPasswordBox');
+        if (box) {
+            box.style.display = 'none';
+            const code = document.getElementById('generatedPassword');
+            if (code) code.textContent = '';
+        }
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    }
+}
+
+// Функция для смены пароля
+function changePassword() {
+    // Генерация нового пароля или использование введенного пользователем
+    const userNew = document.getElementById('customNewPassword')?.value || '';
+    console.log('DEBUG: Отправляем пароль:', userNew, 'длина:', userNew.length);
+    
+    if (userNew && userNew.length < 8) {
+        alert('Пароль должен быть не короче 8 символов');
+        return;
+    }
+    fetch('{% url "users:change_password" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ new_password: userNew })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.new_password) {
+                const newPass = data.new_password;
+                const box = document.getElementById('generatedPasswordBox');
+                const code = document.getElementById('generatedPassword');
+                box.style.display = 'block';
+                code.textContent = newPass;
+                const range = document.createRange();
+                range.selectNodeContents(code);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            } else {
+                alert('Пароль успешно изменен. Сейчас вы будете перенаправлены на страницу входа.');
+            }
+            if (data.logout_required) {
+                setTimeout(() => {
+                    window.location.href = '{% url "users:login" %}';
+                }, 1500);
+            }
+        } else {
+            alert(data.error || 'Ошибка при смене пароля');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Произошла ошибка при смене пароля');
+    });
+}
 </script>
+
+<!-- Modal для смены пароля -->
+<div class="modal fade" id="passwordChangeModal" tabindex="-1" aria-labelledby="passwordChangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passwordChangeModalLabel">
+                    <i class="fas fa-key me-2"></i>Смена пароля
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">Вы можете сгенерировать одноразовый пароль или задать свой новый пароль.</p>
+                <div class="mb-3">
+                    <label for="customNewPassword" class="form-label">Новый пароль (необязательно)</label>
+                    <input type="password" class="form-control" id="customNewPassword" placeholder="Введите свой новый пароль (мин. 8 символов)">
+                    <div class="form-text">Оставьте пустым, чтобы сгенерировать пароль автоматически.</div>
+                </div>
+                <div id="generatedPasswordBox" class="p-3 bg-light rounded border" style="display:none">
+                    <strong>Новый пароль:</strong>
+                    <code id="generatedPassword" style="font-size:1.1rem"></code>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-primary" onclick="changePassword()">
+                    <i class="fas fa-key me-1"></i>Применить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

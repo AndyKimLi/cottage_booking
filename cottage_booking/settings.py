@@ -46,10 +46,6 @@ THIRD_PARTY_APPS = [
     'axes',
 ]
 
-# Добавляем django-prometheus только если мониторинг включен
-if config('MONITORING_ENABLED', default=False, cast=bool):
-    THIRD_PARTY_APPS.append('django_prometheus')
-
 LOCAL_APPS = [
     'apps.core',
     'apps.users',
@@ -77,11 +73,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'axes.middleware.AxesMiddleware',
 ]
-
-# Добавляем Prometheus middleware только если мониторинг включен
-if config('MONITORING_ENABLED', default=False, cast=bool):
-    MIDDLEWARE.insert(0, 'django_prometheus.middleware.PrometheusBeforeMiddleware')
-    MIDDLEWARE.append('django_prometheus.middleware.PrometheusAfterMiddleware')
 
 ROOT_URLCONF = 'cottage_booking.urls'
 
@@ -274,7 +265,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
+            'filename': str(BASE_DIR / 'logs' / 'django.log'),
             'formatter': 'verbose',
             'encoding': 'utf-8',
         },
@@ -284,14 +275,27 @@ LOGGING = {
             'formatter': 'simple',
         },
     },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'apps': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
     'root': {
-        'handlers': ['console', 'file'],
+        'handlers': ['console'],
         'level': 'INFO',
     },
 }
 
 # Django Allauth settings
 AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',  # Axes должен быть первым
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
@@ -302,14 +306,19 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
 # CORS настройки
-CORS_ALLOWED_ORIGINS = [
-    "https://yourdomain.com",
-    "https://www.yourdomain.com",
-]
-
-CORS_ALLOW_CREDENTIALS = True
-
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Только для разработки
+if DEBUG:
+    # Для разработки - разрешаем все источники
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_CREDENTIALS = True
+else:
+    # Для production - только разрешенные домены
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        "https://yourdomain.com",
+        "https://www.yourdomain.com",
+        "https://api.yourdomain.com",
+    ]
+    CORS_ALLOW_CREDENTIALS = True
 
 # Дополнительные CORS настройки
 CORS_ALLOW_HEADERS = [
@@ -326,16 +335,32 @@ CORS_ALLOW_HEADERS = [
 
 # Security settings (для production)
 if not DEBUG:
+    # Основные настройки безопасности
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
-    SECURE_HSTS_SECONDS = 31536000
+    
+    # HTTPS настройки
+    SECURE_HSTS_SECONDS = 31536000  # 1 год
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
+    # Дополнительные настройки безопасности
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+    SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
+    
+else:
+    # Настройки для разработки (менее строгие)
+    SECURE_BROWSER_XSS_FILTER = False
+    SECURE_CONTENT_TYPE_NOSNIFF = False
+    X_FRAME_OPTIONS = 'SAMEORIGIN'
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 
 # Celery Configuration
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='amqp://admin:password@localhost:5672//')
@@ -356,12 +381,19 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@cottage-booking.com')
 
 # Django Axes (защита от брутфорса)
-AXES_ENABLED = not DEBUG
-AXES_FAILURE_LIMIT = 5
-AXES_COOLOFF_TIME = 1  # час
+AXES_ENABLED = True  # Включено: ведем учет попыток, но без блокировок
+AXES_LOCK_OUT_AT_FAILURE = False  # Отключаем блокировку — попытки не ограничены
+AXES_FAILURE_LIMIT = 999999  # Не влияет при выключенной блокировке, но оставим большой предел
+AXES_COOLOFF_TIME = None  # Нет периода блокировки
 AXES_LOCKOUT_CALLABLE = 'axes.lockout.database_lockout'
 AXES_LOCKOUT_TEMPLATE = 'users/lockout.html'
 AXES_VERBOSE = True
+AXES_LOCKOUT_BY_COMBINATION_USER_AND_IP = False
+AXES_LOCKOUT_BY_USER_OR_IP = False
+AXES_LOCKOUT_BY_USER = False
+AXES_LOCKOUT_BY_IP = False
+AXES_USE_USER_AGENT = True
+AXES_USE_CELERY = True  # Используем Celery для асинхронной обработки при необходимости
 
 # Rate limiting настройки
 RATELIMIT_ENABLE = True
@@ -381,10 +413,11 @@ if not DEBUG:
     # Настройки для статических файлов
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Prometheus настройки (отключено для локального тестирования)
-PROMETHEUS_EXPORT_MIGRATIONS = False
-PROMETHEUS_EXPORT_USE_SETTINGS = False  # Отключаем для локального тестирования
+# Prometheus настройки (включено для production)
+PROMETHEUS_EXPORT_MIGRATIONS = True
+PROMETHEUS_EXPORT_USE_SETTINGS = True
+PROMETHEUS_EXPORT_URL = '/metrics'  # Включаем экспорт метрик
 
 # Мониторинг настройки
-MONITORING_ENABLED = config('MONITORING_ENABLED', default=False, cast=bool)  # Отключаем по умолчанию
+MONITORING_ENABLED = config('MONITORING_ENABLED', default=True, cast=bool)
 PROMETHEUS_METRICS_EXPORT_PORT = config('PROMETHEUS_METRICS_EXPORT_PORT', default=8001, cast=int)

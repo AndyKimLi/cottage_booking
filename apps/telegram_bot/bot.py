@@ -371,8 +371,6 @@ class CottageBookingBot:
 💰 **Стоимость:** {booking.total_price} ₽
 📝 **Пожелания:** {booking.special_requests or 'Нет'}
 
-🔗 **Ссылка:** [Открыть в админке](http://localhost:8000/admin/bookings/booking/{booking.id}/)
-
 ⏰ **Создано:** {booking.created_at.strftime('%d.%m.%Y %H:%M')}
         """
     
@@ -386,8 +384,6 @@ class CottageBookingBot:
 📅 **Даты:** {booking.check_in} - {booking.check_out}
 
 📝 **Новый статус:** {booking.get_status_display()}
-
-🔗 **Ссылка:** [Открыть в админке](http://localhost:8000/admin/bookings/booking/{booking.id}/)
         """
     
     def _format_cancelled_booking_message(self, booking: Booking) -> str:
@@ -402,8 +398,6 @@ class CottageBookingBot:
 🏠 **Коттедж:** {cottage_name}
 👤 **Клиент:** {user_name}
 📅 **Даты:** {booking.check_in} - {booking.check_out}
-
-🔗 **Ссылка:** [Открыть в админке](http://localhost:8000/admin/bookings/booking/{booking.id}/)
         """
     
     def run(self):

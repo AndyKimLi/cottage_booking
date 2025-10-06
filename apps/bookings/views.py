@@ -123,11 +123,13 @@ class BookingCreateView(LoginRequiredMixin, TemplateView):
         
         booked_dates = []
         for booking in bookings:
-            # Добавляем все даты в диапазоне бронирования
+            # Добавляем все даты в диапазоне бронирования (включая дату заезда И дату выезда)
             current_date = booking.check_in
-            while current_date < booking.check_out:
+            while current_date <= booking.check_out:
                 booked_dates.append(current_date.strftime('%Y-%m-%d'))
                 current_date += timedelta(days=1)
+        
+        print(f"DEBUG: Забронированные даты для коттеджа {cottage_id}: {booked_dates}")
         return booked_dates
     
     def post(self, request, *args, **kwargs):

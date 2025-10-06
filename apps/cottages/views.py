@@ -75,7 +75,7 @@ class CottageViewSet(viewsets.ReadOnlyModelViewSet):
             cottage = self.get_object()
             serializer = self.get_serializer(cottage)
             cottage_data = serializer.data
-            cache.set(cache_key, cottage_data, 600)
+            # cache.set(cache_key, cottage_data, 600)
         
         return Response(cottage_data)
     
@@ -243,12 +243,13 @@ class CottageDetailView(TemplateView):
                 amenities = cottage.amenities.all()
                 
                 cottage_data = {
+                    "cottage_id": cottage.id,
                     'cottage': cottage,
-                    'images': images,
-                    'amenities': amenities,
+                    'images': list(images),  # Конвертируем QuerySet в список
+                    'amenities': list(amenities),  # Конвертируем QuerySet в список
                 }
                 
-                cache.set(cache_key, cottage_data, 600)
+                # cache.set(cache_key, cottage_data, 600)
                 
             except Cottage.DoesNotExist:
                 from django.http import Http404

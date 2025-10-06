@@ -362,6 +362,38 @@
         cursor: not-allowed;
     }
     
+    .date-picker-day.selected-checkin {
+        background: #17a2b8 !important;
+        color: white !important;
+        font-weight: bold;
+        position: relative;
+    }
+    
+    .date-picker-day.selected-checkin::after {
+        content: '✓';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 10px;
+        color: white;
+    }
+    
+    .date-picker-day.selected-checkout {
+        background: #17a2b8 !important;
+        color: white !important;
+        font-weight: bold;
+        position: relative;
+    }
+    
+    .date-picker-day.selected-checkout::after {
+        content: '✓';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 10px;
+        color: white;
+    }
+    
     /* Стили для полей ввода с выбранной датой */
     .custom-date-input .form-control:not(:placeholder-shown) {
         border-color: #28a745;
@@ -565,6 +597,8 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('=== ОТЛАДКА КАЛЕНДАРЯ ===');
     console.log('Забронированные даты:', bookedDates);
     console.log('Количество забронированных дат:', bookedDates.length);
+    console.log('Тип данных:', typeof bookedDates);
+    console.log('Содержит ли 2025-10-10:', bookedDates.includes('2025-10-10'));
     
     console.log('Переменные инициализированы, цена коттеджа:', cottagePrice);
     
@@ -777,7 +811,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 const dateString = `${year}-${month}-${day}`;
                 const dayNumber = currentDay.getDate();
                 const isCurrentMonth = currentDay.getMonth() === currentDate.getMonth();
+                // Проверяем, забронирована ли дата
                 const isBooked = bookedDates.includes(dateString);
+                
+                // Отладочная информация для даты 10 октября
+                if (dateString === '2025-10-10') {
+                    console.log('DEBUG: Проверяем дату 10 октября:', {
+                        dateString: dateString,
+                        isBooked: isBooked,
+                        bookedDates: bookedDates
+                    });
+                }
                 const isToday = currentDay.getTime() === today.getTime();
                 const isPast = currentDay < today;
                 
@@ -791,6 +835,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (isToday) dayElement.classList.add('today');
                 if (isPast) dayElement.classList.add('past');
                 if (!isCurrentMonth) dayElement.classList.add('other-month');
+                
+                // Выделяем выбранные даты заезда и выезда светло-синим цветом
+                const checkInField = document.getElementById('id_check_in');
+                const checkOutField = document.getElementById('id_check_out');
+                
+                if (checkInField && checkInField.value === dateString) {
+                    dayElement.classList.add('selected-checkin');
+                }
+                if (checkOutField && checkOutField.value === dateString) {
+                    dayElement.classList.add('selected-checkout');
+                }
                 
                 // Обработчик клика
                 dayElement.addEventListener('click', function() {

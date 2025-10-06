@@ -145,6 +145,7 @@
                                         <th>Коттедж</th>
                                         <th>Даты</th>
                                         <th>Гости</th>
+                                        <th>Пожелания</th>
                                         <th>Статус</th>
                                         <th>Действия</th>
                                     </tr>
@@ -169,6 +170,18 @@
                                             <small class="text-muted">{{ booking.nights }} ночей</small>
                                         </td>
                                         <td>{{ booking.guests }}</td>
+                                        <td>
+                                            {% if booking.special_requests %}
+                                                <button class="btn btn-sm btn-outline-info" 
+                                                        onclick="showWishes({{ booking.id }}, '{{ booking.special_requests|escapejs }}')"
+                                                        title="Нажмите для просмотра пожеланий">
+                                                    <i class="fas fa-comment me-1"></i>
+                                                    Показать
+                                                </button>
+                                            {% else %}
+                                                <span class="text-muted">Нет</span>
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             <select class="form-select form-select-sm status-select" 
                                                     data-booking-id="{{ booking.id }}" 
@@ -615,5 +628,42 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// Функция для показа пожеланий
+function showWishes(bookingId, wishes) {
+    const modal = document.getElementById('wishesModal');
+    const wishesContent = document.getElementById('wishesContent');
+    
+    if (wishesContent) {
+        wishesContent.innerHTML = wishes || 'Пожелания не указаны';
+    }
+    
+    if (modal) {
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    }
+}
 </script>
+
+<!-- Modal для просмотра пожеланий -->
+<div class="modal fade" id="wishesModal" tabindex="-1" aria-labelledby="wishesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="wishesModalLabel">
+                    <i class="fas fa-comment me-2"></i>Пожелания клиента
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="wishesContent" class="p-3 bg-light rounded">
+                    Загрузка...
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

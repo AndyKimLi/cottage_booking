@@ -145,3 +145,7 @@ Thumbs.db
 
 # Backeups
 BACKUP.md
+backups/
+
+# Certbot ACME и сертификаты (не храним в репозитории)
+certbot/

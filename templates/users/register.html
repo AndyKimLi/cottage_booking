@@ -210,41 +210,35 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="phone" class="form-label">Телефон</label>
-                        <div class="input-icon">
-                            <i class="fas fa-phone"></i>
-                            <input type="tel" class="form-control" id="phone" name="phone" 
-                                   value="{{ phone|default:'' }}" placeholder="+7 999 123 45 67">
-                        </div>
+                        <label class="form-label">Телефон</label>
+                        <div id="phone_input" class="phone-input"></div>
+                        {% if errors.phone %}
+                            <div class="field-error">{{ errors.phone }}</div>
+                        {% endif %}
                     </div>
                     
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="password1" class="form-label">Пароль</label>
-                                <div class="input-icon">
-                                    <i class="fas fa-lock"></i>
-                                    <input type="password" class="form-control" id="password1" name="password1" 
-                                           placeholder="Введите пароль" required>
-                                </div>
-                                {% if errors.password1 %}
-                                    <div class="field-error">{{ errors.password1 }}</div>
-                                {% endif %}
-                            </div>
+                    <div class="form-group">
+                        <label for="password1" class="form-label">Пароль</label>
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" id="password1" name="password1" 
+                                   placeholder="Введите пароль" required>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="password2" class="form-label">Подтверждение пароля</label>
-                                <div class="input-icon">
-                                    <i class="fas fa-lock"></i>
-                                    <input type="password" class="form-control" id="password2" name="password2" 
-                                           placeholder="Подтвердите пароль" required>
-                                </div>
-                                {% if errors.password2 %}
-                                    <div class="field-error">{{ errors.password2 }}</div>
-                                {% endif %}
-                            </div>
+                        {% if errors.password1 %}
+                            <div class="field-error">{{ errors.password1 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password2" class="form-label">Подтверждение пароля</label>
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" id="password2" name="password2" 
+                                   placeholder="Подтвердите пароль" required>
                         </div>
+                        {% if errors.password2 %}
+                            <div class="field-error">{{ errors.password2 }}</div>
+                        {% endif %}
                     </div>
                     
                     <div class="form-group">

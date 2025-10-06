@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.forms import PasswordResetForm
 from .models import User
 
 
@@ -93,3 +94,31 @@ class UserProfileForm(forms.ModelForm):
                         'Пользователь с таким email уже существует'
                     )
         return email
+
+
+class PasswordChangeForm(forms.Form):
+    """Форма для смены пароля"""
+    email = forms.EmailField(
+        label='Email',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Введите ваш email'
+        })
+    )
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if not User.objects.filter(email=email).exists():
+            raise forms.ValidationError('Пользователь с таким email не найден')
+        return email
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    """Кастомная форма восстановления пароля"""
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Введите ваш email'
+        })

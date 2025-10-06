@@ -143,6 +143,9 @@
                 
                 <form method="post" id="loginForm">
                     {% csrf_token %}
+                    {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                    {% endif %}
                     
                     <div class="form-group">
                         <label for="email" class="form-label">Email</label>
@@ -170,7 +173,9 @@
                 </form>
                 
                 <div class="text-center mt-4">
-                    <p class="text-muted mb-3">Нет аккаунта?</p>
+                    <a href="{% url 'users:password_reset' %}" class="text-decoration-none">
+                        <i class="fas fa-key me-1"></i>Забыли пароль?
+                    </a><p class="text-muted mb-3">Нет аккаунта?</p>
                     <a href="{% url 'users:register' %}" class="btn btn-register">
                         <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
                     </a>

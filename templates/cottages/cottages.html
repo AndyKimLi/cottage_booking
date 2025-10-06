@@ -291,7 +291,7 @@
         {% for cottage in cottages %}
         <div class="col-lg-4 col-md-6 cottage-col">
             <div class="cottage-card card h-100">
-                <div class="cottage-image" style="background-image: url('/static/images/default-cottage.jpg')">
+                <div class="cottage-image" style="background-image: url('{% if cottage.images.first %}{{ cottage.images.first.image.url }}{% else %}/static/images/default-cottage.jpg{% endif %}')">
                     <div class="price-badge">
                         {{ cottage.price_per_night }} ₽/ночь
                     </div>
@@ -429,9 +429,9 @@ document.addEventListener('DOMContentLoaded', function() {
         col.className = 'col-lg-4 col-md-6 cottage-col';
         
         // Get primary image or first image
-        const primaryImage = cottage.images && cottage.images.length > 0 
-            ? cottage.images[0].image 
-            : '/static/images/default-cottage.jpg';
+        const primaryImage = cottage.primary_image || 
+            (cottage.images && cottage.images.length > 0 ? cottage.images[0].image : null) ||
+            '/static/images/default-cottage.jpg';
         
         col.innerHTML = `
             <div class="cottage-card card h-100">

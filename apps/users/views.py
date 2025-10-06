@@ -5,12 +5,14 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from .models import User
 from .serializers import UserSerializer, UserRegistrationSerializer
-from .forms import UserProfileForm
+from .forms import UserProfileForm, PasswordChangeForm, CustomPasswordResetForm
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
@@ -140,7 +142,14 @@ class LoginView(TemplateView):
         if request.user.is_authenticated:
             from django.shortcuts import redirect
             return redirect('core:index')
-        return render(request, self.template_name)
+        # поддержка возврата на предыдущую страницу через next и Referer
+        next_url = request.GET.get('next')
+        if not next_url:
+            referer = request.META.get('HTTP_REFERER')
+            # избегаем зацикливания на странице логина
+            if referer and '/users/login' not in referer:
+                next_url = referer
+        return render(request, self.template_name, {'next': next_url} )
     
     def post(self, request):
         """Обработка формы входа"""
@@ -151,8 +160,13 @@ class LoginView(TemplateView):
             user = authenticate(request, username=email, password=password)
             if user:
                 login(request, user)
-                from django.shortcuts import redirect
-                return redirect('core:index')
+                # безопасный редирект обратно
+                next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
+                # в качестве дефолта — главная
+                fallback = reverse('core:index')
+                if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+                    return redirect(next_url)
+                return redirect(fallback)
             else:
                 # Неверные учетные данные
                 context = {'error': 'Неверный email или пароль'}
@@ -227,6 +241,88 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             context['form'] = form
             context['show_edit_form'] = True  # Флаг для показа формы
             return render(request, self.template_name, context)
+
+
+class PasswordResetRequestView(TemplateView):
+    """Страница запроса смены пароля"""
+    template_name = 'users/password_reset_request.html'
+    
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('users:profile')
+        form = PasswordChangeForm()
+        return render(request, self.template_name, {'form': form})
+    
+    def post(self, request):
+        form = PasswordChangeForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = User.objects.get(email=email)
+                # Защита: запрет восстановления пароля этим способом для персонала и администраторов
+                if getattr(user, 'is_staff', False) or getattr(user, 'is_superuser', False):
+                    form.add_error('email', 'Этот способ восстановления недоступен для этой учетной записи')
+                    return render(request, self.template_name, {'form': form})
+                # Генерируем новый пароль и сразу показываем на странице
+                import secrets
+                import string
+                new_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+                user.set_password(new_password)
+                user.save()
+
+                context = {
+                    'form': PasswordChangeForm(),
+                    'new_password': new_password,
+                    'email_shown': email,
+                }
+                return render(request, self.template_name, context)
+            except User.DoesNotExist:
+                form.add_error('email', 'Пользователь с таким email не найден')
+        return render(request, self.template_name, {'form': form})
+
+
+class ChangePasswordView(LoginRequiredMixin, APIView):
+    """API для смены пароля без ввода текущего пароля (по активной сессии)"""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # Позволяем либо сгенерировать пароль, либо установить свой (если передан в запросе)
+        import json
+        import secrets
+        import string
+
+        # Надежно читаем данные через DRF парсеры (JSON/Form)
+        try:
+            data = request.data or {}
+        except Exception:
+            data = {}
+
+        raw_new_password = (data.get('new_password') or '').strip()
+        
+        # Отладочная информация
+        print(f"DEBUG ChangePasswordView: new_password present={bool(raw_new_password)} length={len(raw_new_password)}")
+
+        if raw_new_password:
+            # Пользователь задал свой пароль — валидируем минимальные требования
+            if len(raw_new_password) < 8:
+                return Response({'success': False, 'error': 'Пароль должен быть не короче 8 символов'}, status=status.HTTP_400_BAD_REQUEST)
+            new_password = raw_new_password
+            echo_password = False
+        else:
+            # Генерируем одноразовый пароль
+            new_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+            echo_password = True
+
+        request.user.set_password(new_password)
+        request.user.save()
+
+        # Принудительно разлогиниваем пользователя после смены пароля
+        logout(request)
+
+        resp = {'success': True, 'logout_required': True}
+        if echo_password:
+            resp['new_password'] = new_password
+        return Response(resp)
 
 
 class MyBookingsPageView(LoginRequiredMixin, TemplateView):

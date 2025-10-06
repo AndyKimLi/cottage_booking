@@ -1,10 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Cottage Booking{% endblock %}</title>
+    <title>{% block title %}Kamchatka Village{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
@@ -141,7 +142,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #000000;">
         <div class="container">
             <a class="navbar-brand" href="{% url 'core:index' %}">
-                Камчатка вилладж
+                Kamchatka Village
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -241,12 +242,21 @@
     <!-- Footer -->
     <footer class="bg-light text-center text-muted py-3 mt-5">
         <div class="container">
-            <p>&copy; 2025 Cottage Booking. Все права защищены.</p>
+            <p>&copy; 2025 Kamchatka-Village. Все права защищены.</p>
         </div>
     </footer>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    
+    <!-- Phone Input Component -->
+    <script src="{% static 'js/phone-input.js' %}"></script>
+    
+    <!-- Password Toggle Component -->
+    <script src="{% static 'js/password-toggle.js' %}"></script>
+    
+    <!-- Back to Top Component -->
+    <script src="{% static 'js/back-to-top.js' %}"></script>
     
     {% block extra_js %}{% endblock %}
 </body>
