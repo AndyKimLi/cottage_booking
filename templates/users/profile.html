@@ -399,52 +399,77 @@ function showPasswordChange() {
 
 // Функция для смены пароля
 function changePassword() {
-    // Генерация нового пароля или использование введенного пользователем
-    const userNew = document.getElementById('customNewPassword')?.value || '';
-    console.log('DEBUG: Отправляем пароль:', userNew, 'длина:', userNew.length);
+    const currentPassword = document.getElementById('currentPassword').value.trim();
+    const newPassword = document.getElementById('customNewPassword').value.trim();
+    const confirmPassword = document.getElementById('confirmNewPassword').value.trim();
+    const errorDiv = document.getElementById('passwordError');
     
-    if (userNew && userNew.length < 8) {
-        alert('Пароль должен быть не короче 8 символов');
+    // Скрываем предыдущие ошибки
+    errorDiv.style.display = 'none';
+    
+    // Валидация
+    if (!currentPassword) {
+        showPasswordError('Введите текущий пароль');
         return;
     }
+    
+    if (!newPassword) {
+        showPasswordError('Введите новый пароль');
+        return;
+    }
+    
+    if (newPassword.length < 8) {
+        showPasswordError('Новый пароль должен быть не короче 8 символов');
+        return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+        showPasswordError('Новые пароли не совпадают');
+        return;
+    }
+    
+    if (currentPassword === newPassword) {
+        showPasswordError('Новый пароль должен отличаться от текущего');
+        return;
+    }
+    
+    // Отправляем запрос
     fetch('{% url "users:change_password" %}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
         },
-        body: JSON.stringify({ new_password: userNew })
+        body: JSON.stringify({ 
+            current_password: currentPassword,
+            new_password: newPassword 
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            if (data.new_password) {
-                const newPass = data.new_password;
-                const box = document.getElementById('generatedPasswordBox');
-                const code = document.getElementById('generatedPassword');
-                box.style.display = 'block';
-                code.textContent = newPass;
-                const range = document.createRange();
-                range.selectNodeContents(code);
-                const sel = window.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(range);
-            } else {
-                alert('Пароль успешно изменен. Сейчас вы будете перенаправлены на страницу входа.');
-            }
-            if (data.logout_required) {
-                setTimeout(() => {
-                    window.location.href = '{% url "users:login" %}';
-                }, 1500);
-            }
+            alert('Пароль успешно изменен!');
+            // Очищаем форму
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('customNewPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+            // Закрываем модалку
+            document.getElementById('passwordChangeModal').querySelector('.btn-close').click();
         } else {
-            alert(data.error || 'Ошибка при смене пароля');
+            showPasswordError(data.error || 'Неизвестная ошибка');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Произошла ошибка при смене пароля');
+        showPasswordError('Ошибка при смене пароля');
     });
+}
+
+// Функция для показа ошибок
+function showPasswordError(message) {
+    const errorDiv = document.getElementById('passwordError');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
 }
 </script>
 
@@ -459,16 +484,21 @@ function changePassword() {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="mb-2">Вы можете сгенерировать одноразовый пароль или задать свой новый пароль.</p>
+                <p class="mb-3">Для смены пароля введите текущий пароль и новый пароль.</p>
                 <div class="mb-3">
-                    <label for="customNewPassword" class="form-label">Новый пароль (необязательно)</label>
-                    <input type="password" class="form-control" id="customNewPassword" placeholder="Введите свой новый пароль (мин. 8 символов)">
-                    <div class="form-text">Оставьте пустым, чтобы сгенерировать пароль автоматически.</div>
+                    <label for="currentPassword" class="form-label">Текущий пароль *</label>
+                    <input type="password" class="form-control" id="currentPassword" placeholder="Введите текущий пароль" required>
                 </div>
-                <div id="generatedPasswordBox" class="p-3 bg-light rounded border" style="display:none">
-                    <strong>Новый пароль:</strong>
-                    <code id="generatedPassword" style="font-size:1.1rem"></code>
+                <div class="mb-3">
+                    <label for="customNewPassword" class="form-label">Новый пароль *</label>
+                    <input type="password" class="form-control" id="customNewPassword" placeholder="Введите новый пароль (мин. 8 символов)" required>
+                    <div class="form-text">Пароль должен содержать минимум 8 символов.</div>
                 </div>
+                <div class="mb-3">
+                    <label for="confirmNewPassword" class="form-label">Подтвердите новый пароль *</label>
+                    <input type="password" class="form-control" id="confirmNewPassword" placeholder="Повторите новый пароль" required>
+                </div>
+                <div id="passwordError" class="alert alert-danger" style="display:none"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>

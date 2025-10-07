@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новое бронирование</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .title {
+            color: #28a745;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .booking-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .info-value {
+            color: #6c757d;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .contact-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🏔️ Kamchatka Village</div>
+            <h1 class="title">Новое бронирование</h1>
+        </div>
+
+        <p>Здравствуйте, {{ booking.user.first_name|default:"Уважаемый клиент" }}!</p>
+
+        <p>Спасибо за выбор наших коттеджей! Ваше бронирование создано и ожидает подтверждения.</p>
+
+        <div class="booking-info">
+            <div class="info-row">
+                <span class="info-label">Номер бронирования:</span>
+                <span class="info-value">#{{ booking.id }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Коттедж:</span>
+                <span class="info-value">{{ booking.cottage.name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Дата заезда:</span>
+                <span class="info-value">{{ booking.check_in|date:"d.m.Y" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Дата выезда:</span>
+                <span class="info-value">{{ booking.check_out|date:"d.m.Y" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Количество гостей:</span>
+                <span class="info-value">{{ booking.guests_count }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Сумма:</span>
+                <span class="info-value">{{ booking.total_price }} ₽</span>
+            </div>
+        </div>
+
+        <div class="status-pending">
+            ⏳ СТАТУС: ОЖИДАЕТ ПОДТВЕРЖДЕНИЯ
+        </div>
+
+        <div class="contact-info">
+            <h3>📞 Что дальше?</h3>
+            <p>Наш менеджер свяжется с вами в ближайшее время для подтверждения бронирования и уточнения деталей.</p>
+            <p>📧 Email: info@kamchatka-village.ru</p>
+            <p>📱 Телефон: +7 (999) 123-45-67</p>
+        </div>
+
+        <p>Мы рады возможности принять вас в нашем уютном коттедже на Камчатке!</p>
+
+        <div class="footer">
+            <p>С уважением,<br>Команда Kamchatka Village</p>
+            <p>🌐 Сайт: <a href="http://localhost:8000">kamchatka-village.ru</a></p>
+        </div>
+        <p style="margin-top: 20px; font-size: 12px; color: #adb5bd;">
+            Это автоматическое сообщение, пожалуйста, не отвечайте на него.
+        </p>
+    </div>
+</body>
+</html>

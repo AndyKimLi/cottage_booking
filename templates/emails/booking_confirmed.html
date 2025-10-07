@@ -22,24 +22,32 @@
             overflow: hidden;
         }
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
-            padding: 30px;
+            padding: 40px 30px;
             text-align: center;
         }
         .header h1 {
             margin: 0;
-            font-size: 28px;
-            font-weight: 600;
+            font-size: 32px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .header .subtitle {
+            margin-top: 10px;
+            font-size: 16px;
+            opacity: 0.9;
         }
         .content {
             padding: 30px;
         }
         .booking-info {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         .info-row {
             display: flex;
@@ -110,6 +118,7 @@
     <div class="email-container">
         <div class="header">
             <h1>🎉 Бронирование подтверждено!</h1>
+            <div class="subtitle">Ваш отдых на Камчатке ждет вас!</div>
         </div>
         
         <div class="content">
@@ -122,11 +131,6 @@
             
             <div class="booking-info">
                 <h3 style="margin-top: 0; color: #495057;">Детали бронирования</h3>
-                
-                <div class="info-row">
-                    <span class="info-label">Номер бронирования:</span>
-                    <span class="info-value">#{{ booking.id }}</span>
-                </div>
                 
                 <div class="info-row">
                     <span class="info-label">Дата заезда:</span>
@@ -170,11 +174,11 @@
         </div>
         
         <div class="footer">
-            <p><strong>Cottage Booking</strong></p>
+            <p><strong>🏔️ Kamchatka Village</strong></p>
             <div class="contact-info">
-                <p>📞 Телефон: <a href="tel:+7-XXX-XXX-XXXX">+7-XXX-XXX-XXXX</a></p>
-                <p>📧 Email: <a href="mailto:info@cottagebooking.com">info@cottagebooking.com</a></p>
-                <p>🌐 Сайт: <a href="http://localhost:8000">cottagebooking.com</a></p>
+                <p>📞 Телефон: <a href="tel:+7-999-123-45-67">+7 (999) 123-45-67</a></p>
+                <p>📧 Email: <a href="mailto:info@kamchatka-village.ru">info@kamchatka-village.ru</a></p>
+                <p>🌐 Сайт: <a href="https://kamchatka-village.ru">kamchatka-village.ru</a></p>
             </div>
             <p style="margin-top: 20px; font-size: 12px; color: #adb5bd;">
                 Это автоматическое сообщение, пожалуйста, не отвечайте на него.

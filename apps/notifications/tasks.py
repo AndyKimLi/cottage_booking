@@ -112,13 +112,13 @@ def send_email_notification(self, booking_id, notification_type):
         
         # Формируем сообщение
         if notification_type == "confirmed":
-            subject = f'✅ Бронирование #{booking.id} подтверждено - {booking.cottage.name}'
+            subject = f'🎉 Бронирование подтверждено - {booking.cottage.name}'
             template = 'emails/booking_confirmed.html'
         elif notification_type == "cancelled":
-            subject = f'❌ Бронирование #{booking.id} отменено - {booking.cottage.name}'
+            subject = f'❌ Бронирование отменено - {booking.cottage.name}'
             template = 'emails/booking_cancelled.html'
         else:  # status_change
-            subject = f'🔄 Статус бронирования #{booking.id} изменен - {booking.cottage.name}'
+            subject = f'🔄 Статус бронирования изменен - {booking.cottage.name}'
             template = 'emails/booking_status_changed.html'
         
         # Рендерим HTML шаблон

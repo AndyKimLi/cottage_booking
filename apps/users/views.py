@@ -213,17 +213,20 @@ class LoginView(TemplateView):
 
 class LogoutView(APIView):
     """Выход пользователя"""
-    permission_classes = [IsAuthenticated]
     
     def post(self, request):
-        logout(request)
-        return Response({'message': 'Успешный выход'})
+        """API выход"""
+        if request.user.is_authenticated:
+            logout(request)
+            return Response({'message': 'Успешный выход'})
+        return Response({'error': 'Пользователь не аутентифицирован'}, status=status.HTTP_401_UNAUTHORIZED)
     
     def get(self, request):
         """Выход через GET запрос (для веб-интерфейса)"""
-        logout(request)
+        if request.user.is_authenticated:
+            logout(request)
         from django.shortcuts import redirect
-        return redirect('core:index')
+        return redirect('core_web:index')
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
@@ -256,7 +259,7 @@ class PasswordResetRequestView(TemplateView):
     
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('users:profile')
+            return redirect('users_web:profile')
         form = PasswordChangeForm()
         return render(request, self.template_name, {'form': form})
     
@@ -270,66 +273,92 @@ class PasswordResetRequestView(TemplateView):
                 if getattr(user, 'is_staff', False) or getattr(user, 'is_superuser', False):
                     form.add_error('email', 'Этот способ восстановления недоступен для этой учетной записи')
                     return render(request, self.template_name, {'form': form})
-                # Генерируем новый пароль и сразу показываем на странице
+                
+                # Генерируем новый пароль
                 import secrets
                 import string
                 new_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
                 user.set_password(new_password)
                 user.save()
 
+                # Отправляем письмо с новым паролем
+                from django.core.mail import send_mail
+                from django.template.loader import render_to_string
+                
+                try:
+                    html_message = render_to_string('emails/password_reset.html', {
+                        'user': user,
+                        'new_password': new_password
+                    })
+                    
+                    send_mail(
+                        subject='Новый пароль - Kamchatka Village',
+                        message=f'Ваш новый пароль: {new_password}',
+                        from_email=None,  # Использует DEFAULT_FROM_EMAIL
+                        recipient_list=[email],
+                        html_message=html_message,
+                        fail_silently=False
+                    )
+                    
+                    messages.success(request, f'Новый пароль отправлен на email {email}. Проверьте почту и войдите в систему.')
+                    logger.info(f"Password reset email sent to {email}")
+                    
+                except Exception as e:
+                    logger.error(f"Failed to send password reset email to {email}: {str(e)}")
+                    messages.error(request, 'Ошибка отправки письма. Попробуйте позже или обратитесь в поддержку.')
+                    return render(request, self.template_name, {'form': form})
+
+                # Показываем страницу успеха
                 context = {
                     'form': PasswordChangeForm(),
-                    'new_password': new_password,
+                    'email_sent': True,
                     'email_shown': email,
                 }
                 return render(request, self.template_name, context)
+                
             except User.DoesNotExist:
                 form.add_error('email', 'Пользователь с таким email не найден')
         return render(request, self.template_name, {'form': form})
 
 
 class ChangePasswordView(LoginRequiredMixin, APIView):
-    """API для смены пароля без ввода текущего пароля (по активной сессии)"""
+    """API для смены пароля с проверкой текущего пароля"""
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        # Позволяем либо сгенерировать пароль, либо установить свой (если передан в запросе)
-        import json
-        import secrets
-        import string
-
-        # Надежно читаем данные через DRF парсеры (JSON/Form)
+        from django.contrib.auth import authenticate
+        
+        # Читаем данные
         try:
             data = request.data or {}
         except Exception:
             data = {}
 
-        raw_new_password = (data.get('new_password') or '').strip()
+        current_password = (data.get('current_password') or '').strip()
+        new_password = (data.get('new_password') or '').strip()
         
-        # Отладочная информация
-        logger.debug(f"ChangePasswordView: new_password present={bool(raw_new_password)} length={len(raw_new_password)}")
-
-        if raw_new_password:
-            # Пользователь задал свой пароль — валидируем минимальные требования
-            if len(raw_new_password) < 8:
-                return Response({'success': False, 'error': 'Пароль должен быть не короче 8 символов'}, status=status.HTTP_400_BAD_REQUEST)
-            new_password = raw_new_password
-            echo_password = False
-        else:
-            # Генерируем одноразовый пароль
-            new_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
-            echo_password = True
-
+        # Валидация
+        if not current_password:
+            return Response({'success': False, 'error': 'Введите текущий пароль'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not new_password:
+            return Response({'success': False, 'error': 'Введите новый пароль'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if len(new_password) < 8:
+            return Response({'success': False, 'error': 'Новый пароль должен быть не короче 8 символов'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Проверяем текущий пароль
+        user = authenticate(request, username=request.user.email, password=current_password)
+        if not user or user != request.user:
+            return Response({'success': False, 'error': 'Неверный текущий пароль'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Устанавливаем новый пароль
         request.user.set_password(new_password)
         request.user.save()
-
-        # Принудительно разлогиниваем пользователя после смены пароля
-        logout(request)
-
-        resp = {'success': True, 'logout_required': True}
-        if echo_password:
-            resp['new_password'] = new_password
-        return Response(resp)
+        
+        logger.info(f"Password changed for user {request.user.email}")
+        
+        return Response({'success': True})
 
 
 class MyBookingsPageView(LoginRequiredMixin, TemplateView):

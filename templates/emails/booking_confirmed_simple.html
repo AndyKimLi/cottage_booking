@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бронирование подтверждено</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: #28a745;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .booking-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .info-value {
+            color: #212529;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Бронирование подтверждено</h1>
+        </div>
+        
+        <div class="content">
+            <p>Здравствуйте, {{ booking.guest_full_name }}!</p>
+            
+            <p>Ваше бронирование успешно подтверждено.</p>
+            
+            <div class="booking-info">
+                <h3>Детали бронирования</h3>
+                
+                <div class="info-row">
+                    <span class="info-label">Дата заезда:</span>
+                    <span class="info-value">{{ booking.check_in|date:"d.m.Y" }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Дата выезда:</span>
+                    <span class="info-value">{{ booking.check_out|date:"d.m.Y" }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Коттедж:</span>
+                    <span class="info-value">{{ booking.cottage.name }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Количество гостей:</span>
+                    <span class="info-value">{{ booking.guests }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Общая стоимость:</span>
+                    <span class="info-value">{{ booking.total_price }} руб.</span>
+                </div>
+            </div>
+            
+            <p>Спасибо за выбор Kamchatka Village!</p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Kamchatka Village</strong></p>
+            <p>Телефон: +7 (999) 123-45-67</p>
+            <p>Email: info@kamchatka-village.ru</p>
+            <p>Сайт: kamchatka-village.ru</p>
+        </div>
+    </div>
+</body>
+</html>
