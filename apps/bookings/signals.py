@@ -31,12 +31,12 @@ def booking_notification_signal(sender, instance, created, **kwargs):
         
         # Отправляем email уведомление через Celery (только для подтвержденных)
         # ВРЕМЕННО ОТКЛЮЧЕНО из-за блокировки Yandex как спам
-        # if instance.status == 'confirmed':
-        #     from apps.notifications.tasks import send_email_notification
-        #     send_email_notification.delay(instance.id, "confirmed")
-        # elif instance.status == BookingStatus.CANCELLED:
-        #     from apps.notifications.tasks import send_email_notification
-        #     send_email_notification.delay(instance.id, "cancelled")
+        if instance.status == 'confirmed':
+            from apps.notifications.tasks import send_email_notification
+            send_email_notification.delay(instance.id, "confirmed")
+        elif instance.status == BookingStatus.CANCELLED:
+            from apps.notifications.tasks import send_email_notification
+            send_email_notification.delay(instance.id, "cancelled")
             
         logger.info(f"Notifications queued for booking {instance.id}")
         
