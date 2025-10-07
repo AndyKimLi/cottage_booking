@@ -5,6 +5,7 @@ Django settings for cottage_booking project.
 import os
 import sys
 from pathlib import Path
+from datetime import timedelta
 from decouple import config
 
 if sys.platform == 'win32':
@@ -203,13 +204,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@cottagebooking.com')
 SERVER_EMAIL = config('SERVER_EMAIL', default='noreply@cottagebooking.com')
 
-# Celery Configuration
-CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
+# Celery Configuration (основные настройки)
 
 # Channels
 CHANNEL_LAYERS = {
@@ -371,29 +366,24 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
-# Email settings
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST = config('EMAIL_HOST', default='localhost')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@cottage-booking.com')
+# Email settings (дополнительные настройки)
 
 # Django Axes (защита от брутфорса)
-AXES_ENABLED = True  # Включено: ведем учет попыток, но без блокировок
-AXES_LOCK_OUT_AT_FAILURE = False  # Отключаем блокировку — попытки не ограничены
-AXES_FAILURE_LIMIT = 999999  # Не влияет при выключенной блокировке, но оставим большой предел
-AXES_COOLOFF_TIME = None  # Нет периода блокировки
-AXES_LOCKOUT_CALLABLE = 'axes.lockout.database_lockout'
+# Политика: 10 неудачных попыток -> блокировка на 5 минут ТОЛЬКО по email
+AXES_ENABLED = True
+AXES_LOCK_OUT_AT_FAILURE = True
+AXES_FAILURE_LIMIT = 10
+AXES_COOLOFF_TIME = timedelta(minutes=5)
 AXES_LOCKOUT_TEMPLATE = 'users/lockout.html'
 AXES_VERBOSE = True
+
+# Блокируем ТОЛЬКО по email, НЕ по IP
 AXES_LOCKOUT_BY_COMBINATION_USER_AND_IP = False
 AXES_LOCKOUT_BY_USER_OR_IP = False
-AXES_LOCKOUT_BY_USER = False
-AXES_LOCKOUT_BY_IP = False
-AXES_USE_USER_AGENT = True
-AXES_USE_CELERY = True  # Используем Celery для асинхронной обработки при необходимости
+AXES_LOCKOUT_BY_USER = True      # Блокируем по email
+AXES_LOCKOUT_BY_IP = False       # НЕ блокируем по IP
+
+AXES_USE_CELERY = True  # при наличии Celery
 
 # Rate limiting настройки
 RATELIMIT_ENABLE = True

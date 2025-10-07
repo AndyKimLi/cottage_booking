@@ -151,6 +151,7 @@
                 
                 <form method="post">
                     {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
                     
                     <div class="row">
                         <div class="col-md-4">
@@ -211,7 +212,7 @@
                     
                     <div class="form-group">
                         <label class="form-label">Телефон</label>
-                        <div id="phone_input" class="phone-input"></div>
+                        <div id="phone_input" class="simple-phone-input"></div>
                         {% if errors.phone %}
                             <div class="field-error">{{ errors.phone }}</div>
                         {% endif %}

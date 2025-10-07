@@ -394,6 +394,22 @@
         color: white;
     }
     
+    .date-picker-day.selected-intermediate {
+        background: #e3f2fd !important;
+        color: #1976d2 !important;
+        font-weight: bold;
+        position: relative;
+    }
+    
+    .date-picker-day.selected-intermediate::after {
+        content: '●';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 8px;
+        color: #1976d2;
+    }
+    
     /* Стили для полей ввода с выбранной датой */
     .custom-date-input .form-control:not(:placeholder-shown) {
         border-color: #28a745;
@@ -771,6 +787,35 @@ document.addEventListener('DOMContentLoaded', function() {
         let currentDate = new Date();
         let selectedDate = null;
         
+        // Функция для обновления промежуточных дат в календаре
+        function updateIntermediateDates() {
+            const checkInField = document.getElementById('id_check_in');
+            const checkOutField = document.getElementById('id_check_out');
+            const grid = popup.querySelector('.date-picker-grid');
+            
+            if (!checkInField || !checkOutField || !grid) return;
+            
+            // Убираем все промежуточные выделения
+            grid.querySelectorAll('.date-picker-day.selected-intermediate').forEach(day => {
+                day.classList.remove('selected-intermediate');
+            });
+            
+            // Добавляем промежуточные выделения если есть обе даты
+            if (checkInField.value && checkOutField.value) {
+                const checkInDate = new Date(checkInField.value);
+                const checkOutDate = new Date(checkOutField.value);
+                
+                grid.querySelectorAll('.date-picker-day').forEach(day => {
+                    const dayDate = new Date(day.dataset.date);
+                    
+                    // Проверяем, находится ли дата между заездом и выездом
+                    if (dayDate > checkInDate && dayDate < checkOutDate) {
+                        day.classList.add('selected-intermediate');
+                    }
+                });
+            }
+        }
+        
         // Функция для обновления календаря
         function updateCalendar() {
             const monthYear = popup.querySelector('.date-picker-month-year');
@@ -847,6 +892,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     dayElement.classList.add('selected-checkout');
                 }
                 
+                // Выделяем промежуточные даты между заездом и выездом
+                if (checkInField && checkOutField && checkInField.value && checkOutField.value) {
+                    const checkInDate = new Date(checkInField.value);
+                    const checkOutDate = new Date(checkOutField.value);
+                    const currentDateObj = new Date(dateString);
+                    
+                    // Проверяем, находится ли текущая дата между заездом и выездом
+                    if (currentDateObj > checkInDate && currentDateObj < checkOutDate) {
+                        dayElement.classList.add('selected-intermediate');
+                    }
+                }
+                
                 // Обработчик клика
                 dayElement.addEventListener('click', function() {
                     if (this.classList.contains('booked') || this.classList.contains('past')) {
@@ -916,6 +973,7 @@ document.addEventListener('DOMContentLoaded', function() {
             popup.classList.toggle('show');
             console.log('Popup показан:', popup.classList.contains('show'));
             updateCalendar();
+            updateIntermediateDates();
         });
         
         // Закрытие при клике вне popup
@@ -986,10 +1044,12 @@ document.addEventListener('DOMContentLoaded', function() {
         checkInInput.addEventListener('change', function() {
             validateDates();
             calculatePrice();
+            updateIntermediateDates();
         });
         checkInInput.addEventListener('input', function() {
             validateDates();
             calculatePrice();
+            updateIntermediateDates();
         });
     }
     
@@ -997,10 +1057,12 @@ document.addEventListener('DOMContentLoaded', function() {
         checkOutInput.addEventListener('change', function() {
             validateDates();
             calculatePrice();
+            updateIntermediateDates();
         });
         checkOutInput.addEventListener('input', function() {
             validateDates();
             calculatePrice();
+            updateIntermediateDates();
         });
     }
     

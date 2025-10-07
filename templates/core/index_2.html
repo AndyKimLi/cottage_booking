@@ -1,4 +1,5 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
 {% block title %}Главная - Kamchatka Village{% endblock %}
 
@@ -88,6 +89,28 @@
         right: 0;
         bottom: 0;
         background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 100%);
+    }
+    
+    /* Статичные картинки */
+    .nature-image-1 {
+        background-image: url('{% static "images/vulkan.jpeg" %}');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    
+    .nature-image-2 {
+        background-image: url('{% static "images/therms.webp" %}');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    
+    .nature-image-3 {
+        background-image: url('{% static "images/wolf.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        position: relative;
     }
     
     .stats-section {
@@ -255,7 +278,7 @@
         <div class="row g-4">
             <div class="col-lg-4 col-md-6">
                 <div class="nature-card">
-                    <div class="nature-image" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80')">
+                    <div class="nature-image nature-image-1">
                     </div>
                     <div class="p-4">
                         <h4 class="mb-3">🌋 Действующие вулканы</h4>
@@ -265,7 +288,7 @@
             </div>
             <div class="col-lg-4 col-md-6">
                 <div class="nature-card">
-                    <div class="nature-image" style="background-image: url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80')">
+                    <div class="nature-image nature-image-2">
                     </div>
                     <div class="p-4">
                         <h4 class="mb-3">♨️ Гейзеры и термальные источники</h4>
@@ -275,7 +298,7 @@
             </div>
             <div class="col-lg-4 col-md-6">
                 <div class="nature-card">
-                    <div class="nature-image" style="background-image: url('https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80')">
+                    <div class="nature-image nature-image-3">
                     </div>
                     <div class="p-4">
                         <h4 class="mb-3">🐻 Дикая природа</h4>

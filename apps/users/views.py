@@ -10,9 +10,12 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+import logging
 from .models import User
 from .serializers import UserSerializer, UserRegistrationSerializer
 from .forms import UserProfileForm, PasswordChangeForm, CustomPasswordResetForm
+
+logger = logging.getLogger(__name__)
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
@@ -105,7 +108,11 @@ class RegisterPageView(TemplateView):
             # Автоматически входим пользователя
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             
-            return redirect('core:index')
+            # Редирект на страницу откуда пришел пользователь или на главную
+            next_url = request.GET.get('next') or request.META.get('HTTP_REFERER')
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts=None):
+                return redirect(next_url)
+            return redirect('core_web:index')
             
         except Exception as e:
             context = {
@@ -300,7 +307,7 @@ class ChangePasswordView(LoginRequiredMixin, APIView):
         raw_new_password = (data.get('new_password') or '').strip()
         
         # Отладочная информация
-        print(f"DEBUG ChangePasswordView: new_password present={bool(raw_new_password)} length={len(raw_new_password)}")
+        logger.debug(f"ChangePasswordView: new_password present={bool(raw_new_password)} length={len(raw_new_password)}")
 
         if raw_new_password:
             # Пользователь задал свой пароль — валидируем минимальные требования

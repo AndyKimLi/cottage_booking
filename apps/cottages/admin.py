@@ -4,7 +4,10 @@ from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.utils import timezone
 from datetime import datetime, timedelta
+import logging
 from .models import Cottage, CottageImage, Amenity, CottageAmenity
+
+logger = logging.getLogger(__name__)
 
 
 @admin.register(Cottage)
@@ -50,7 +53,7 @@ class CottageAdmin(admin.ModelAdmin):
         
         # Создаем HTML календаря
         calendar_html = self._generate_calendar_html(obj, bookings, today, end_date)
-        print(f"DEBUG: Генерируем календарь для коттеджа {obj.name}, бронирований: {bookings.count()}")
+        logger.debug(f"Генерируем календарь для коттеджа {obj.name}, бронирований: {bookings.count()}")
         return mark_safe(calendar_html)
     
     availability_calendar.short_description = 'Календарь доступности'

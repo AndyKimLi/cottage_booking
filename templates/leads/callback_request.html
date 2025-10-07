@@ -242,7 +242,7 @@
                                 <label class="form-label">
                                     Телефон <span class="required">*</span>
                                 </label>
-                                <div id="callback_phone_input" class="phone-input"></div>
+                                <div id="callback_phone_input" class="simple-phone-input"></div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -292,18 +292,18 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('callbackForm');
     const submitBtn = document.getElementById('submitBtn');
-    // Инициализация компактного phone-input
+    // Инициализация простого phone-input
     if (document.getElementById('callback_phone_input')) {
-        new PhoneInput('callback_phone_input', {
-            // можно переопределить список стран или плейсхолдер при необходимости
+        new SimplePhoneInput('callback_phone_input', {
+            placeholder: 'Например: +7 (999) 123-45-67'
         });
         // Восстановим значение после ошибки отправки
         const existingPhone = '{{ form.phone.value|default:"" }}';
         if (existingPhone) {
-            const hidden = document.querySelector('#callback_phone_input_full');
-            if (hidden) {
-                hidden.value = existingPhone;
-                hidden.dispatchEvent(new Event('input'));
+            const phoneInput = document.querySelector('#callback_phone_input_number');
+            if (phoneInput) {
+                // Устанавливаем номер как есть
+                phoneInput.value = existingPhone;
             }
         }
     }

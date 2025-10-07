@@ -50,7 +50,7 @@ class CottageBookingBot:
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Обработка команды /start"""
         user = update.effective_user
-        print(f"DEBUG: User {user.id} ({user.first_name}) trying to access bot")
+        logger.debug(f"User {user.id} ({user.first_name}) trying to access bot")
         
         # Сначала создаем или активируем пользователя
         telegram_user = await self._register_telegram_user(user)
@@ -63,10 +63,10 @@ class CottageBookingBot:
         
         # Теперь проверяем, является ли пользователь персоналом
         is_staff = await self._is_staff_member(user.id)
-        print(f"DEBUG: Is staff check result: {is_staff}")
+        logger.debug(f"Is staff check result: {is_staff}")
         
         if not is_staff:
-            print(f"DEBUG: Access denied for user {user.id}")
+            logger.debug(f"Access denied for user {user.id}")
             await update.message.reply_text(
                 "❌ Доступ ограничен!\n\n"
                 "Ваш аккаунт зарегистрирован, но у вас нет прав персонала.\n"
@@ -192,12 +192,12 @@ class CottageBookingBot:
         def check_staff():
             try:
                 telegram_user = TelegramUser.objects.get(telegram_id=telegram_id)
-                print(f"DEBUG: Found TelegramUser {telegram_id}, is_staff: {telegram_user.user.is_staff}")
-                print(f"DEBUG: User email: {telegram_user.user.email}")
+                logger.debug(f"Found TelegramUser {telegram_id}, is_staff: {telegram_user.user.is_staff}")
+                logger.debug(f"User email: {telegram_user.user.email}")
                 return telegram_user.user.is_staff or telegram_user.user.is_superuser
             except TelegramUser.DoesNotExist:
                 # Пользователь не зарегистрирован - доступ запрещен
-                print(f"DEBUG: TelegramUser {telegram_id} not found in database")
+                logger.debug(f"TelegramUser {telegram_id} not found in database")
                 return False
         
         return await check_staff()
@@ -211,14 +211,14 @@ class CottageBookingBot:
             try:
                 # Ищем существующего пользователя
                 tg_user = TelegramUser.objects.get(telegram_id=telegram_user.id)
-                print(f"DEBUG: Activating existing TelegramUser {telegram_user.id}")
+                logger.debug(f"Activating existing TelegramUser {telegram_user.id}")
                 tg_user.is_active = True
                 tg_user.save()
                 return tg_user
             except TelegramUser.DoesNotExist:
-                print(f"DEBUG: Creating new TelegramUser {telegram_user.id} WITHOUT staff privileges")
+                logger.debug(f"Creating new TelegramUser {telegram_user.id} WITHOUT staff privileges")
                 
-                print(f"DEBUG: About to create user with is_staff=False")
+                logger.debug(f"About to create user with is_staff=False")
                 user = User.objects.create(
                     username=f"tg_{telegram_user.id}",
                     email=f"tg_{telegram_user.id}@example.com",
@@ -229,10 +229,10 @@ class CottageBookingBot:
                     is_active=True
                 )
                 
-                print(f"DEBUG: User created! username={user.username}, is_staff={user.is_staff}, is_superuser={user.is_superuser}")
+                logger.debug(f"User created! username={user.username}, is_staff={user.is_staff}, is_superuser={user.is_superuser}")
                 
                 user_from_db = User.objects.get(id=user.id)
-                print(f"DEBUG: User from DB: username={user_from_db.username}, is_staff={user_from_db.is_staff}, is_superuser={user_from_db.is_superuser}")
+                logger.debug(f"User from DB: username={user_from_db.username}, is_staff={user_from_db.is_staff}, is_superuser={user_from_db.is_superuser}")
                 
                 tg_user = TelegramUser.objects.create(
                     user=user,
@@ -315,18 +315,18 @@ class CottageBookingBot:
         """Отправляет уведомление о бронировании всем активным пользователям"""
         from asgiref.sync import sync_to_async
         
-        print(f"Starting notification send: {notification_type}")
+        logger.info(f"Starting notification send: {notification_type}")
         
         @sync_to_async
         def get_active_users():
             users = list(TelegramUser.objects.filter(is_active=True))
-            print(f"Found active users: {len(users)}")
+            logger.info(f"Found active users: {len(users)}")
             return users
         
         active_users = await get_active_users()
         
         if not active_users:
-            print("No active users for notifications")
+            logger.warning("No active users for notifications")
             return
         
         if notification_type == "new":
@@ -336,27 +336,27 @@ class CottageBookingBot:
         elif notification_type == "cancelled":
             message = self._format_cancelled_booking_message(booking)
         else:
-            print(f"Unknown notification type: {notification_type}")
+            logger.error(f"Unknown notification type: {notification_type}")
             return
         
-        print(f"Message to send:\n{message[:100]}...")
+        logger.debug(f"Message to send:\n{message[:100]}...")
         
         sent_count = 0
         for tg_user in active_users:
             try:
-                print(f"Sending message to user {tg_user.telegram_id}")
+                logger.debug(f"Sending message to user {tg_user.telegram_id}")
                 await self.application.bot.send_message(
                     chat_id=tg_user.telegram_id,
                     text=message,
                     parse_mode='Markdown'
                 )
                 sent_count += 1
-                print(f"Message sent to user {tg_user.telegram_id}")
+                logger.info(f"Message sent to user {tg_user.telegram_id}")
             except Exception as e:
-                print(f"Error sending message to user {tg_user.telegram_id}: {e}")
+                logger.error(f"Error sending message to user {tg_user.telegram_id}: {e}")
                 logger.error(f"Error sending message to user {tg_user.telegram_id}: {e}")
         
-        print(f"Sent {sent_count} of {len(active_users)} notifications")
+        logger.info(f"Sent {sent_count} of {len(active_users)} notifications")
     
     def _format_new_booking_message(self, booking: Booking) -> str:
         """Форматирует сообщение о новом бронировании"""
@@ -430,7 +430,7 @@ async def send_callback_notification(callback_request):
         )
         
         if not active_users:
-            print("No active staff users found for callback notification")
+            logger.warning("No active staff users found for callback notification")
             return False
         
         # Формируем сообщение
@@ -449,15 +449,15 @@ async def send_callback_notification(callback_request):
                     parse_mode='HTML'
                 )
                 sent_count += 1
-                print(f"Callback notification sent to user {telegram_user.telegram_id}")
+                logger.info(f"Callback notification sent to user {telegram_user.telegram_id}")
             except Exception as e:
-                print(f"Failed to send callback notification to {telegram_user.telegram_id}: {e}")
+                logger.error(f"Failed to send callback notification to {telegram_user.telegram_id}: {e}")
         
-        print(f"Sent {sent_count} callback notifications")
+        logger.info(f"Sent {sent_count} callback notifications")
         return sent_count > 0
         
     except Exception as e:
-        print(f"Error sending callback notification: {e}")
+        logger.error(f"Error sending callback notification: {e}")
         return False
 
 

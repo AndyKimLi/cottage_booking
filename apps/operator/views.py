@@ -6,12 +6,15 @@ from datetime import datetime, timedelta
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 import json
+import logging
 
 from apps.cottages.models import Cottage
 from apps.bookings.models import Booking, BookingStatus
 from apps.users.models import User
 from apps.leads.models import CallbackRequest
 from django.utils.safestring import mark_safe
+
+logger = logging.getLogger(__name__)
 
 
 def is_operator(user):
@@ -114,15 +117,15 @@ def quick_booking_view(request):
             )
             
             # Отладочная информация для проверки конфликтов
-            print(f"DEBUG: Проверяем конфликты для коттеджа {cottage.name}")
-            print(f"DEBUG: Новое бронирование: {check_in_date} - {check_out_date}")
-            print(f"DEBUG: Найдено конфликтующих бронирований: {conflicting_bookings.count()}")
+            logger.debug(f"Проверяем конфликты для коттеджа {cottage.name}")
+            logger.debug(f"Новое бронирование: {check_in_date} - {check_out_date}")
+            logger.debug(f"Найдено конфликтующих бронирований: {conflicting_bookings.count()}")
             
             if conflicting_bookings.exists():
                 conflict_dates = []
                 for booking in conflicting_bookings:
                     conflict_dates.append(f"{booking.check_in} - {booking.check_out}")
-                    print(f"DEBUG: Конфликт с бронированием {booking.id}: {booking.check_in} - {booking.check_out} (статус: {booking.status})")
+                    logger.debug(f"Конфликт с бронированием {booking.id}: {booking.check_in} - {booking.check_out} (статус: {booking.status})")
                 
                 # Восстанавливаем данные формы для отображения ошибки
                 form_data = {
@@ -156,9 +159,9 @@ def quick_booking_view(request):
             )
             
             # Отладочная информация
-            print(f"DEBUG: BookingStatus.CONFIRMED = {BookingStatus.CONFIRMED}")
-            print(f"DEBUG: Создано бронирование {booking.id} со статусом '{booking.status}' в {booking.created_at}")
-            print(f"DEBUG: get_status_display() = '{booking.get_status_display()}'")
+            logger.debug(f"BookingStatus.CONFIRMED = {BookingStatus.CONFIRMED}")
+            logger.debug(f"Создано бронирование {booking.id} со статусом '{booking.status}' в {booking.created_at}")
+            logger.debug(f"get_status_display() = '{booking.get_status_display()}'")
             
             return redirect('operator:dashboard')
             
@@ -211,7 +214,7 @@ def get_cottage_availability(request, cottage_id):
                 current_date += timedelta(days=1)
         
         # Отладочная информация
-        print(f"DEBUG: Коттедж {cottage.name}, забронированные даты: {unavailable_dates}")
+        logger.debug(f"Коттедж {cottage.name}, забронированные даты: {unavailable_dates}")
         
         return JsonResponse({
             'success': True,
@@ -257,9 +260,9 @@ def operator_dashboard(request):
     ).select_related('cottage').order_by('-created_at')[:20]
     
     # Отладочная информация
-    print(f"DEBUG: Найдено бронирований за 7 дней: {recent_bookings.count()}")
+    logger.debug(f"Найдено бронирований за 7 дней: {recent_bookings.count()}")
     for booking in recent_bookings:
-        print(f"DEBUG: Бронирование {booking.id}: статус='{booking.status}', создано={booking.created_at}, get_status_display='{booking.get_status_display()}'")
+        logger.debug(f"Бронирование {booking.id}: статус='{booking.status}', создано={booking.created_at}, get_status_display='{booking.get_status_display()}'")
     
     context = {
         'today_bookings': today_bookings,

@@ -11,10 +11,13 @@ from django.contrib import messages
 from django.views.generic import TemplateView
 from django.views import View
 from datetime import timedelta, datetime
+import logging
 from .models import Booking, BookingStatus
 from .serializers import BookingSerializer, BookingCreateSerializer
 from .forms import BookingForm
 from apps.cottages.models import Cottage
+
+logger = logging.getLogger(__name__)
 
 
 @method_decorator(ratelimit(key='ip', rate='100/h', method='GET'), name='list')
@@ -129,7 +132,7 @@ class BookingCreateView(LoginRequiredMixin, TemplateView):
                 booked_dates.append(current_date.strftime('%Y-%m-%d'))
                 current_date += timedelta(days=1)
         
-        print(f"DEBUG: Забронированные даты для коттеджа {cottage_id}: {booked_dates}")
+        logger.debug(f"Забронированные даты для коттеджа {cottage_id}: {booked_dates}")
         return booked_dates
     
     def post(self, request, *args, **kwargs):
@@ -324,15 +327,15 @@ class CancelBookingView(LoginRequiredMixin, View):
                 return redirect('users:bookings')
             
             # Отменяем бронирование
-            print(f"DEBUG: Cancelling booking {booking.id}, current status: {booking.status}")
+            logger.debug(f"Cancelling booking {booking.id}, current status: {booking.status}")
             booking.status = BookingStatus.CANCELLED
             booking.save()
-            print(f"DEBUG: Booking {booking.id} cancelled, new status: {booking.status}")
+            logger.debug(f"Booking {booking.id} cancelled, new status: {booking.status}")
             
             messages.success(request, 'Бронирование успешно отменено')
             
         except Exception as e:
-            print(f"DEBUG: Error cancelling booking: {e}")
+            logger.error(f"Error cancelling booking: {e}")
             messages.error(
                 request, 
                 f'Ошибка при отмене бронирования: {str(e)}'

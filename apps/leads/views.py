@@ -5,9 +5,12 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
+import logging
 from .models import CallbackRequest
 from .forms import CallbackRequestForm
 from apps.cottages.models import Cottage
+
+logger = logging.getLogger(__name__)
 
 
 class CallbackRequestView(TemplateView):
@@ -67,9 +70,9 @@ class CallbackRequestView(TemplateView):
             from apps.notifications.tasks import send_callback_request_notification
             # Отправляем задачу в очередь RabbitMQ
             send_callback_request_notification.delay(callback_request.id)
-            print(f"Callback notification queued for request #{callback_request.id}")
+            logger.info(f"Callback notification queued for request #{callback_request.id}")
         except Exception as e:
-            print(f"Ошибка постановки уведомления в очередь: {e}")
+            logger.error(f"Ошибка постановки уведомления в очередь: {e}")
             import traceback
             traceback.print_exc()
 
@@ -94,9 +97,9 @@ class CallbackRequestAjaxView(TemplateView):
             try:
                 from apps.notifications.tasks import send_callback_request_notification
                 send_callback_request_notification.delay(callback_request.id)
-                print(f"Callback notification queued for request #{callback_request.id}")
+                logger.info(f"Callback notification queued for request #{callback_request.id}")
             except Exception as e:
-                print(f"Ошибка постановки уведомления в очередь: {e}")
+                logger.error(f"Ошибка постановки уведомления в очередь: {e}")
             
             return JsonResponse({
                 'success': True,
