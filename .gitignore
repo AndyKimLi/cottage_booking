@@ -149,3 +149,7 @@ backups/
 
 # Certbot ACME и сертификаты (не храним в репозитории)
 certbot/
+
+# Секретные файлы
+PRODUCTION_SETUP.md
+config/monitoring/alertmanager.yml

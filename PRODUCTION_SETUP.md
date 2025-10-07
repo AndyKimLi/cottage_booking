@@ -6,11 +6,11 @@ Create `.env` file with the following variables:
 
 ```bash
 # Production Environment Variables
-TELEGRAM_BOT_TOKEN=8454218978:AAFLi7J5C-T5KDxla0fJ278Ohst9qfO2t0Q
+TELEGRAM_BOT_TOKEN=your-telegram-bot-token-here
 DEBUG=0
-SECRET_KEY=django-insecure-my-super-secret-key-for-cottage-booking-2024
+SECRET_KEY=your-super-secret-key-here
 ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com,51.250.113.151
-DB_PASSWORD=strong-production-password-2024
+DB_PASSWORD=your-strong-database-password-here
 RABBITMQ_PASSWORD=strong-rabbitmq-password-2024
 MONITORING_ENABLED=true
 
