@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
-    """Управление профилями пользователей"""
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
@@ -31,13 +30,11 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def me(self, request):
-        """Получить текущего пользователя"""
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
 
 class RegisterPageView(TemplateView):
-    """Веб-страница регистрации"""
     template_name = 'users/register.html'
     
     def get(self, request):
@@ -46,7 +43,6 @@ class RegisterPageView(TemplateView):
         return render(request, self.template_name)
     
     def post(self, request):
-        """Обработка формы регистрации"""
         username = request.POST.get('username')
         email = request.POST.get('email')
         password1 = request.POST.get('password1')
@@ -56,7 +52,6 @@ class RegisterPageView(TemplateView):
         middle_name = request.POST.get('middle_name', '')
         phone = request.POST.get('phone', '')
         
-        # Валидация
         errors = {}
         
         if not username:
@@ -89,7 +84,6 @@ class RegisterPageView(TemplateView):
             }
             return render(request, self.template_name, context)
         
-        # Создаем пользователя
         try:
             user = User.objects.create_user(
                 username=username,
@@ -100,15 +94,12 @@ class RegisterPageView(TemplateView):
                 phone=phone
             )
             
-            # Устанавливаем отчество отдельно, если оно указано
             if middle_name:
                 user.middle_name = middle_name
                 user.save()
             
-            # Автоматически входим пользователя
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             
-            # Редирект на страницу откуда пришел пользователь или на главную
             next_url = request.GET.get('next') or request.META.get('HTTP_REFERER')
             if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts=None):
                 return redirect(next_url)
@@ -126,40 +117,23 @@ class RegisterPageView(TemplateView):
             }
             return render(request, self.template_name, context)
 
-# class RegisterView(APIView):
-#     """Регистрация нового пользователя"""
-    
-#     def post(self, request):
-#         serializer = UserRegistrationSerializer(data=request.data)
-#         if serializer.is_valid():
-#             user = serializer.save()
-#             return Response({
-#                 'message': 'Пользователь успешно зарегистрирован',
-#                 'user_id': user.id
-#             }, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(TemplateView):
-    """Вход пользователя"""
     template_name = 'users/login.html'
     
     def get(self, request):
-        """Отображение страницы входа"""
         if request.user.is_authenticated:
             from django.shortcuts import redirect
             return redirect('core:index')
-        # поддержка возврата на предыдущую страницу через next и Referer
         next_url = request.GET.get('next')
         if not next_url:
             referer = request.META.get('HTTP_REFERER')
-            # избегаем зацикливания на странице логина
             if referer and '/users/login' not in referer:
                 next_url = referer
         return render(request, self.template_name, {'next': next_url} )
     
     def post(self, request):
-        """Обработка формы входа"""
         email = request.POST.get('email')
         password = request.POST.get('password')
         
@@ -167,62 +141,30 @@ class LoginView(TemplateView):
             user = authenticate(request, username=email, password=password)
             if user:
                 login(request, user)
-                # безопасный редирект обратно
                 next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
-                # в качестве дефолта — главная
                 fallback = reverse('core:index')
                 if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
                     return redirect(next_url)
                 return redirect(fallback)
             else:
-                # Неверные учетные данные
                 context = {'error': 'Неверный email или пароль'}
                 return render(request, self.template_name, context)
         else:
-            # Не заполнены поля
             context = {'error': 'Заполните все поля'}
             return render(request, self.template_name, context)
 
-# class LoginView(APIView):
-#     """Вход пользователя"""
-    
-#     def get(self, request):
-#         """Отображение страницы входа"""
-#         if request.user.is_authenticated:
-#             from django.shortcuts import redirect
-#             return redirect('core:index')
-#         return render(request, 'users/login.html')
-    
-#     def post(self, request):
-#         email = request.data.get('email')
-#         password = request.data.get('password')
-        
-#         if email and password:
-#             user = authenticate(request, username=email, password=password)
-#             if user:
-#                 login(request, user)
-#                 return Response({
-#                     'message': 'Успешный вход',
-#                     'user': UserSerializer(user).data
-#                 })
-        
-#         return Response({
-#             'error': 'Неверные учетные данные'
-#         }, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class LogoutView(APIView):
-    """Выход пользователя"""
+    permission_classes = []
     
     def post(self, request):
-        """API выход"""
         if request.user.is_authenticated:
             logout(request)
             return Response({'message': 'Успешный выход'})
         return Response({'error': 'Пользователь не аутентифицирован'}, status=status.HTTP_401_UNAUTHORIZED)
     
     def get(self, request):
-        """Выход через GET запрос (для веб-интерфейса)"""
         if request.user.is_authenticated:
             logout(request)
         from django.shortcuts import redirect
@@ -337,7 +279,6 @@ class ChangePasswordView(LoginRequiredMixin, APIView):
         current_password = (data.get('current_password') or '').strip()
         new_password = (data.get('new_password') or '').strip()
         
-        # Валидация
         if not current_password:
             return Response({'success': False, 'error': 'Введите текущий пароль'}, status=status.HTTP_400_BAD_REQUEST)
         

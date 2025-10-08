@@ -33,7 +33,6 @@ class CottageBookingBot:
     
     def _setup_handlers(self):
         """Настройка обработчиков команд"""
-        # Команды
         self.application.add_handler(CommandHandler("start", self.start_command))
         self.application.add_handler(CommandHandler("help", self.help_command))
         self.application.add_handler(CommandHandler("stats", self.stats_command))
@@ -41,10 +40,8 @@ class CottageBookingBot:
         self.application.add_handler(CommandHandler("subscribe", self.subscribe_command))
         self.application.add_handler(CommandHandler("unsubscribe", self.unsubscribe_command))
         
-        # Обработка callback запросов
         self.application.add_handler(CallbackQueryHandler(self.button_callback))
         
-        # Обработка текстовых сообщений
         self.application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_message))
     
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -52,7 +49,6 @@ class CottageBookingBot:
         user = update.effective_user
         logger.debug(f"User {user.id} ({user.first_name}) trying to access bot")
         
-        # Сначала создаем или активируем пользователя
         telegram_user = await self._register_telegram_user(user)
         if not telegram_user:
             await update.message.reply_text(
@@ -61,7 +57,6 @@ class CottageBookingBot:
             )
             return
         
-        # Теперь проверяем, является ли пользователь персоналом
         is_staff = await self._is_staff_member(user.id)
         logger.debug(f"Is staff check result: {is_staff}")
         
@@ -196,7 +191,6 @@ class CottageBookingBot:
                 logger.debug(f"User email: {telegram_user.user.email}")
                 return telegram_user.user.is_staff or telegram_user.user.is_superuser
             except TelegramUser.DoesNotExist:
-                # Пользователь не зарегистрирован - доступ запрещен
                 logger.debug(f"TelegramUser {telegram_id} not found in database")
                 return False
         
@@ -209,7 +203,6 @@ class CottageBookingBot:
         @sync_to_async
         def create_or_activate_user():
             try:
-                # Ищем существующего пользователя
                 tg_user = TelegramUser.objects.get(telegram_id=telegram_user.id)
                 logger.debug(f"Activating existing TelegramUser {telegram_user.id}")
                 tg_user.is_active = True
@@ -224,8 +217,8 @@ class CottageBookingBot:
                     email=f"tg_{telegram_user.id}@example.com",
                     first_name=telegram_user.first_name or '',
                     last_name=telegram_user.last_name or '',
-                    is_staff=False,  # ЯВНО НЕ даем права персонала!
-                    is_superuser=False,  # ЯВНО НЕ даем права суперпользователя!
+                    is_staff=False,
+                    is_superuser=False,
                     is_active=True
                 )
                 

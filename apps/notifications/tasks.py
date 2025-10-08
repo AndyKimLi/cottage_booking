@@ -1,6 +1,3 @@
-"""
-Celery задачи для отправки уведомлений
-"""
 from celery import shared_task
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -13,17 +10,12 @@ logger = logging.getLogger(__name__)
 
 @shared_task(bind=True, max_retries=3)
 def send_telegram_notification(self, booking_id, notification_type):
-    """
-    Отправляет уведомление в Telegram для операторов
-    """
     try:
         from apps.bookings.models import Booking
         from apps.telegram_bot.models import TelegramUser
         
-        # Получаем бронирование
         booking = Booking.objects.select_related('user', 'cottage').get(id=booking_id)
         
-        # Получаем активных операторов
         active_users = TelegramUser.objects.filter(
             is_active=True,
             user__is_staff=True
@@ -33,7 +25,6 @@ def send_telegram_notification(self, booking_id, notification_type):
             logger.warning("No active staff users for notifications")
             return False
         
-        # Формируем сообщение
         if notification_type == "new":
             message = f"""
 🆕 **Новое бронирование!**
@@ -63,7 +54,6 @@ def send_telegram_notification(self, booking_id, notification_type):
 📝 **Новый статус:** {booking.get_status_display()}
             """
         
-        # Отправляем сообщения
         sent_count = 0
         for tg_user in active_users:
             try:
@@ -89,19 +79,14 @@ def send_telegram_notification(self, booking_id, notification_type):
         
     except Exception as e:
         logger.error(f"Error in send_telegram_notification: {e}")
-        # Повторяем задачу при ошибке
         raise self.retry(countdown=60, exc=e)
 
 
 @shared_task(bind=True, max_retries=3)
 def send_email_notification(self, booking_id, notification_type):
-    """
-    Отправляет email уведомление пользователю
-    """
     try:
         from apps.bookings.models import Booking
         
-        # Получаем бронирование
         booking = Booking.objects.select_related('user', 'cottage').get(id=booking_id)
         
         # Проверяем email адрес
@@ -110,7 +95,6 @@ def send_email_notification(self, booking_id, notification_type):
             logger.warning(f"Booking {booking_id} has no email address")
             return False
         
-        # Формируем сообщение
         if notification_type == "confirmed":
             subject = f'🎉 Бронирование подтверждено - {booking.cottage.name}'
             template = 'emails/booking_confirmed.html'
@@ -119,7 +103,7 @@ def send_email_notification(self, booking_id, notification_type):
             template = 'emails/booking_cancelled.html'
         else:  # status_change
             subject = f'🔄 Статус бронирования изменен - {booking.cottage.name}'
-            template = 'emails/booking_status_changed.html'
+            template = 'emails/booking_confirmed.html'  # Используем существующий шаблон
         
         # Рендерим HTML шаблон
         context = {
@@ -145,7 +129,6 @@ def send_email_notification(self, booking_id, notification_type):
         
     except Exception as e:
         logger.error(f"Error in send_email_notification: {e}")
-        # Повторяем задачу при ошибке
         raise self.retry(countdown=60, exc=e)
 
 
@@ -161,7 +144,6 @@ def send_callback_request_notification(self, callback_id):
         # Получаем заявку
         callback = CallbackRequest.objects.select_related('cottage').get(id=callback_id)
         
-        # Получаем активных операторов
         active_users = TelegramUser.objects.filter(
             is_active=True,
             user__is_staff=True
@@ -171,7 +153,6 @@ def send_callback_request_notification(self, callback_id):
             logger.warning("No active staff users for callback notifications")
             return False
         
-        # Формируем сообщение
         message = f"""
 📞 **Новая заявка на звонок!**
 
@@ -184,7 +165,6 @@ def send_callback_request_notification(self, callback_id):
 🔗 **Ссылка:** [Открыть в админке](http://localhost:8000/admin/leads/callbackrequest/{callback.id}/)
         """
         
-        # Отправляем сообщения
         sent_count = 0
         for tg_user in active_users:
             try:
@@ -210,5 +190,4 @@ def send_callback_request_notification(self, callback_id):
         
     except Exception as e:
         logger.error(f"Error in send_callback_request_notification: {e}")
-        # Повторяем задачу при ошибке
         raise self.retry(countdown=60, exc=e)

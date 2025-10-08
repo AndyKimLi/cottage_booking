@@ -43,3 +43,6 @@ django-prometheus==2.3.1
 
 # Telegram Bot
 python-telegram-bot==22.4
+
+# Email services
+requests==2.31.0

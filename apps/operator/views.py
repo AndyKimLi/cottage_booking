@@ -28,7 +28,6 @@ def quick_booking_view(request):
     """Страница быстрого бронирования для оператора"""
     cottages = Cottage.objects.all()
     
-    # Если выбран коттедж, генерируем календарь как в админке
     selected_cottage_id = request.GET.get('cottage')
     calendar_html = ""
     if selected_cottage_id:
@@ -40,7 +39,6 @@ def quick_booking_view(request):
     
     if request.method == 'POST':
         try:
-            # Получаем данные из формы
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
             phone = request.POST.get('phone')
@@ -51,29 +49,22 @@ def quick_booking_view(request):
             guests = int(request.POST.get('guests', 1))
             special_requests = request.POST.get('special_requests', '')
             
-            # Валидация данных
             if not all([first_name, last_name, phone, cottage_id, check_in, check_out]):
                 return render(request, 'operator/quick_booking.html', {'cottages': cottages})
             
-            # Проверяем, существует ли пользователь с таким телефоном или email
             user = None
             try:
-                # Сначала ищем по телефону
                 user = User.objects.get(phone=phone)
-                # Обновляем данные пользователя
                 user.first_name = first_name
                 user.last_name = last_name
                 if email and user.email != email:
-                    # Проверяем, не занят ли новый email
                     if not User.objects.filter(email=email).exists():
                         user.email = email
                 user.save()
             except User.DoesNotExist:
-                # Если пользователь не найден по телефону, ищем по email
                 if email:
                     try:
                         user = User.objects.get(email=email)
-                        # Обновляем данные пользователя
                         user.first_name = first_name
                         user.last_name = last_name
                         user.phone = phone
@@ -166,7 +157,7 @@ def quick_booking_view(request):
             return redirect('operator:dashboard')
             
         except Exception as e:
-            print(f"ERROR: Ошибка при создании бронирования: {str(e)}")
+            logger.error(f"ERROR: Ошибка при создании бронирования: {str(e)}")
             import traceback
             traceback.print_exc()
     

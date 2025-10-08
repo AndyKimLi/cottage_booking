@@ -597,7 +597,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('JavaScript загружен');
     
     const checkInInput = document.querySelector('#id_check_in');
     const checkOutInput = document.querySelector('#id_check_out');
@@ -610,13 +609,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Забронированные даты из Django
     const bookedDates = {{ booked_dates|safe }};
-    console.log('=== ОТЛАДКА КАЛЕНДАРЯ ===');
-    console.log('Забронированные даты:', bookedDates);
-    console.log('Количество забронированных дат:', bookedDates.length);
-    console.log('Тип данных:', typeof bookedDates);
-    console.log('Содержит ли 2025-10-10:', bookedDates.includes('2025-10-10'));
     
-    console.log('Переменные инициализированы, цена коттеджа:', cottagePrice);
     
     // Функция для проверки забронированных дат
     function isDateBooked(dateString) {

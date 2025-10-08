@@ -1,6 +1,3 @@
-"""
-Django settings for cottage_booking project.
-"""
 
 import os
 import sys
@@ -13,18 +10,14 @@ if sys.platform == 'win32':
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
     sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production')
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,web,nginx').split(',')
 
-# Application definition
 DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -96,8 +89,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'cottage_booking.wsgi.application'
 ASGI_APPLICATION = 'cottage_booking.asgi.application'
 
-# Database
-# Для CI можно переключиться на SQLite, установив переменную окружения USE_SQLITE=1
 if config('USE_SQLITE', default=False, cast=bool):
     DATABASES = {
         'default': {
@@ -112,12 +103,11 @@ else:
             'NAME': config('DB_NAME', default='cottage_booking'),
             'USER': config('DB_USER', default='postgres'),
             'PASSWORD': config('DB_PASSWORD', default='password'),
-            'HOST': config('DB_HOST', default='db'),  # Используем имя сервиса Docker
+            'HOST': config('DB_HOST', default='db'),
             'PORT': config('DB_PORT', default='5432'),
         }
     }
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -133,50 +123,39 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
 LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images) с оптимизацией
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# Оптимизация статических файлов
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Настройки для статики
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Custom User Model
 AUTH_USER_MODEL = 'users.User'
 
-# Authentication URLs
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Session settings
-SESSION_COOKIE_AGE = 7 * 24 * 60 * 60  # 7 дней в секундах
+SESSION_COOKIE_AGE = 7 * 24 * 60 * 60
 
-# Site ID for allauth
 SITE_ID = 1
 
-# Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
@@ -189,13 +168,11 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
-# Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# Email settings
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.mail.ru')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
@@ -203,9 +180,10 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@cottagebooking.com')
 SERVER_EMAIL = config('SERVER_EMAIL', default='noreply@cottagebooking.com')
 
-# Celery Configuration (основные настройки)
+UNISENDER_API_KEY = config('UNISENDER_API_KEY', default='')
+UNISENDER_FROM_EMAIL = config('UNISENDER_FROM_EMAIL', default='')
 
-# Channels
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -215,7 +193,6 @@ CHANNEL_LAYERS = {
     },
 }
 
-# Cache с оптимизацией
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -229,7 +206,7 @@ CACHES = {
             'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
             'SERIALIZER': 'django_redis.serializers.json.JSONSerializer',
         },
-        'TIMEOUT': 300,  # 5 минут
+        'TIMEOUT': 300,
         'VERSION': 1,
         'KEY_PREFIX': 'cottage_booking',
     }
@@ -241,7 +218,6 @@ SESSION_COOKIE_AGE = 86400  # 24 hours
 
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
 
-# Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -287,9 +263,8 @@ LOGGING = {
     },
 }
 
-# Django Allauth settings
 AUTHENTICATION_BACKENDS = [
-    'axes.backends.AxesStandaloneBackend',  # Axes должен быть первым
+    'axes.backends.AxesStandaloneBackend',
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
@@ -299,13 +274,10 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
-# CORS настройки
 if DEBUG:
-    # Для разработки - разрешаем все источники
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_CREDENTIALS = True
 else:
-    # Для production - только разрешенные домены
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
         "https://yourdomain.com",
@@ -314,7 +286,6 @@ else:
     ]
     CORS_ALLOW_CREDENTIALS = True
 
-# Дополнительные CORS настройки
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -327,14 +298,11 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# Security settings (для production)
 if not DEBUG:
-    # Основные настройки безопасности
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     
-    # HTTPS настройки
     SECURE_HSTS_SECONDS = 31536000  # 1 год
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -343,12 +311,10 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     
-    # Дополнительные настройки безопасности
     SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
     SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
     
 else:
-    # Настройки для разработки (менее строгие)
     SECURE_BROWSER_XSS_FILTER = False
     SECURE_CONTENT_TYPE_NOSNIFF = False
     X_FRAME_OPTIONS = 'SAMEORIGIN'
@@ -356,7 +322,6 @@ else:
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
 
-# Celery Configuration
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='amqp://admin:password@localhost:5672//')
 CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
@@ -365,10 +330,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
-# Email settings (дополнительные настройки)
 
-# Django Axes (защита от брутфорса)
-# Политика: 10 неудачных попыток -> блокировка на 5 минут ТОЛЬКО по email
 AXES_ENABLED = True
 AXES_LOCK_OUT_AT_FAILURE = True
 AXES_FAILURE_LIMIT = 10
@@ -376,37 +338,29 @@ AXES_COOLOFF_TIME = timedelta(minutes=5)
 AXES_LOCKOUT_TEMPLATE = 'users/lockout.html'
 AXES_VERBOSE = True
 
-# Блокируем ТОЛЬКО по email, НЕ по IP
 AXES_LOCKOUT_BY_COMBINATION_USER_AND_IP = False
 AXES_LOCKOUT_BY_USER_OR_IP = False
-AXES_LOCKOUT_BY_USER = True      # Блокируем по email
-AXES_LOCKOUT_BY_IP = False       # НЕ блокируем по IP
+AXES_LOCKOUT_BY_USER = True
+AXES_LOCKOUT_BY_IP = False
 
-AXES_USE_CELERY = True  # при наличии Celery
+AXES_USE_CELERY = True
 
-# Rate limiting настройки
 RATELIMIT_ENABLE = True
 RATELIMIT_USE_CACHE = 'default'
 
-# Дополнительные настройки безопасности
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
 
-# Настройки для продакшена
 if not DEBUG:
-    # Отключаем DEBUG toolbar в продакшене
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TEMPLATE_CONTEXT': False,
     }
     
-    # Настройки для статических файлов
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Prometheus настройки (включено для production)
 PROMETHEUS_EXPORT_MIGRATIONS = True
 PROMETHEUS_EXPORT_USE_SETTINGS = True
-PROMETHEUS_EXPORT_URL = '/metrics'  # Включаем экспорт метрик
+PROMETHEUS_EXPORT_URL = '/metrics'
 
-# Мониторинг настройки
 MONITORING_ENABLED = config('MONITORING_ENABLED', default=True, cast=bool)
 PROMETHEUS_METRICS_EXPORT_PORT = config('PROMETHEUS_METRICS_EXPORT_PORT', default=8001, cast=int)
