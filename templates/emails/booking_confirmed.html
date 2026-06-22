@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бронирование подтверждено</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .header .subtitle {
+            margin-top: 10px;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+        }
+        .booking-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .info-value {
+            color: #212529;
+        }
+        .cottage-details {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .cottage-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        .cottage-description {
+            color: #424242;
+            line-height: 1.5;
+        }
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #155724;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .contact-info {
+            margin-top: 15px;
+        }
+        .contact-info a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .info-row {
+                flex-direction: column;
+            }
+            .info-label {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>🎉 Бронирование подтверждено!</h1>
+            <div class="subtitle">Ваш отдых на Камчатке ждет вас!</div>
+        </div>
+        
+        <div class="content">
+            <p>Здравствуйте, {{ booking.guest_full_name }}!</p>
+            
+            <div class="success-message">
+                <strong>✅ Ваше бронирование успешно подтверждено!</strong><br>
+                Мы рады сообщить, что ваша заявка на бронирование коттеджа была одобрена.
+            </div>
+            
+            <div class="booking-info">
+                <h3 style="margin-top: 0; color: #495057;">Детали бронирования</h3>
+                
+                <div class="info-row">
+                    <span class="info-label">Дата заезда:</span>
+                    <span class="info-value">{{ booking.check_in|date:"d.m.Y" }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Дата выезда:</span>
+                    <span class="info-value">{{ booking.check_out|date:"d.m.Y" }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Количество ночей:</span>
+                    <span class="info-value">{{ booking.nights }} ноч{{ booking.nights|pluralize:"ей,ей,ей" }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Количество гостей:</span>
+                    <span class="info-value">{{ booking.guests }} чел{{ booking.guests|pluralize:"ов,а,ов" }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Общая стоимость:</span>
+                    <span class="info-value"><strong>{{ booking.total_price }} ₽</strong></span>
+                </div>
+            </div>
+            
+            <div class="cottage-details">
+                <div class="cottage-name">{{ booking.cottage.name }}</div>
+                <div class="cottage-description">
+                    {{ booking.cottage.description|truncatewords:30 }}
+                </div>
+            </div>
+            
+            <p><strong>Что дальше?</strong></p>
+            <ul>
+                <li>Сохраните это письмо как подтверждение бронирования</li>
+                <li>При необходимости свяжитесь с нами для уточнения деталей</li>
+                <li>Приятного отдыха! 🏡</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p><strong>🏔️ Kamchatka Village</strong></p>
+            <div class="contact-info">
+                <p>📞 Телефон: <a href="tel:+7-999-123-45-67">+7 (999) 123-45-67</a></p>
+                <p>📧 Email: <a href="mailto:info@kamchatka-village.ru">info@kamchatka-village.ru</a></p>
+                <p>🌐 Сайт: <a href="https://kamchatka-village.ru">kamchatka-village.ru</a></p>
+            </div>
+            <p style="margin-top: 20px; font-size: 12px; color: #adb5bd;">
+                Это автоматическое сообщение, пожалуйста, не отвечайте на него.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,69 @@
+groups:
+  - name: django_alerts
+    rules:
+      - alert: DjangoHighErrorRate
+        expr: rate(django_http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Высокий уровень ошибок 5xx в Django"
+          description: "Django приложение генерирует {{ $value }} ошибок в секунду"
+
+      - alert: DjangoHighResponseTime
+        expr: histogram_quantile(0.95, django_http_request_duration_seconds_bucket) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокое время отклика Django"
+          description: "95% запросов выполняются дольше 2 секунд"
+
+      - alert: DjangoDown
+        expr: up{job="django-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Django приложение недоступно"
+          description: "Django приложение не отвечает уже {{ $value }} минут"
+
+  - name: database_alerts
+    rules:
+      - alert: PostgreSQLDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL недоступна"
+          description: "База данных PostgreSQL не отвечает"
+
+      - alert: PostgreSQLHighConnections
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокое количество подключений к PostgreSQL"
+          description: "Используется {{ $value }}% от максимальных подключений"
+
+  - name: system_alerts
+    rules:
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокое использование памяти"
+          description: "Используется {{ $value }}% памяти"
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокое использование CPU"
+          description: "CPU загружен на {{ $value }}%"

@@ -1,0 +1,79 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Аккаунт заблокирован{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-lock fa-3x text-danger"></i>
+                    </div>
+                    
+                    <h2 class="card-title text-danger mb-3">Аккаунт временно заблокирован</h2>
+                    
+                    <p class="card-text mb-4">
+                        Слишком много неудачных попыток входа. 
+                        Ваш аккаунт заблокирован на 5 минут для обеспечения безопасности.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Что делать:</strong>
+                        <ul class="list-unstyled mt-2">
+                            <li>• Подождите 5 минут</li>
+                            <li>• Проверьте правильность ввода данных</li>
+                            <li>• При необходимости восстановите пароль</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'users_web:login' %}" class="btn btn-primary me-2">
+                            <i class="fas fa-sign-in-alt"></i> Попробовать снова
+                        </a>
+                        <a href="{% url 'users_web:password_reset' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-key"></i> Забыли пароль?
+                        </a>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            Если проблема повторяется, обратитесь к администратору
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.fa-lock {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 20px;
+}
+</style>
+{% endblock %}

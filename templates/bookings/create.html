@@ -1,0 +1,1155 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Booking" %} - {{ cottage.name }} - Cottage Booking{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .form-control.is-valid {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    .booked-dates-warning {
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+        color: #856404;
+    }
+    
+    .booked-dates-warning .fas {
+        color: #f39c12;
+    }
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 50px;
+    }
+    
+    .booking-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    
+    .cottage-info {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 30px;
+    }
+    
+    .cottage-image {
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .booking-form {
+        padding: 40px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+    
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 15px 40px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+        border-radius: 25px;
+        padding: 15px 40px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    .price-summary {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 30px;
+    }
+    
+    .price-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .price-item:last-child {
+        border-bottom: none;
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: #667eea;
+    }
+    
+    .amenities-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 15px;
+    }
+    
+    .amenity-badge {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.9rem;
+    }
+    
+    .alert {
+        border-radius: 15px;
+        border: none;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+    }
+    
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        color: #721c24;
+    }
+    
+    .text-danger {
+        color: #dc3545 !important;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+    
+    .required {
+        color: #dc3545;
+    }
+    
+    /* Стили для забронированных дат */
+    .booked-date {
+        background-color: #f8d7da !important;
+        border-color: #dc3545 !important;
+        color: #721c24 !important;
+        cursor: not-allowed !important;
+    }
+    
+    .booked-date:hover {
+        background-color: #f5c6cb !important;
+        border-color: #dc3545 !important;
+    }
+    
+    .booked-date:focus {
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    }
+    
+    .booked-dates-info {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        color: #856404;
+    }
+    
+    .booked-dates-info .fas {
+        color: #f39c12;
+        margin-right: 8px;
+    }
+    
+    
+    /* Стили для кастомных полей ввода дат */
+    .custom-date-input {
+        position: relative;
+        display: flex;
+        align-items: center; /* Выравниваем по центру */
+    }
+    
+    .custom-date-input .form-control {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: none;
+        height: 38px; /* Фиксированная высота */
+        line-height: 1.5;
+    }
+    
+    .date-picker-btn {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: 1px solid #ced4da;
+        height: 38px; /* Фиксированная высота как у поля ввода */
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0; /* Не сжимается */
+        line-height: 1.5;
+    }
+    
+    .date-picker-btn:hover {
+        background-color: #e9ecef;
+        border-color: #adb5bd;
+    }
+    
+    .date-picker-popup {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        margin-top: 4px;
+        display: none;
+    }
+    
+    .date-picker-popup.show {
+        display: block;
+    }
+    
+    .date-picker-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid #e9ecef;
+        background: #f8f9fa;
+    }
+    
+    .date-picker-nav {
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+    
+    .date-picker-nav:hover {
+        background: #e9ecef;
+    }
+    
+    .date-picker-month-year {
+        font-weight: 600;
+        font-size: 16px;
+    }
+    
+    .date-picker-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        background: #e9ecef;
+        padding: 8px;
+    }
+    
+    .date-picker-day-header {
+        padding: 8px 4px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6c757d;
+        background: #f8f9fa;
+    }
+    
+    .date-picker-day {
+        padding: 8px 4px;
+        text-align: center;
+        cursor: pointer;
+        background: white;
+        border: none;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+    
+    .date-picker-day:hover {
+        background: #e9ecef;
+    }
+    
+    .date-picker-day.booked {
+        background: #f8d7da !important;
+        color: #721c24 !important;
+        cursor: not-allowed;
+        position: relative;
+    }
+    
+    .date-picker-day.booked:hover {
+        background: #f5c6cb !important;
+    }
+    
+    .date-picker-day.booked::after {
+        content: '✕';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 10px;
+        color: #dc3545;
+    }
+    
+    .date-picker-day.today {
+        background: #d4edda;
+        color: #155724;
+        font-weight: bold;
+    }
+    
+    .date-picker-day.selected {
+        background: #28a745;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .date-picker-day.selected:hover {
+        background: #218838;
+    }
+    
+    .date-picker-day.other-month {
+        color: #adb5bd;
+        background: #f8f9fa;
+    }
+    
+    .date-picker-day.past {
+        color: #6c757d;
+        background: #f8f9fa;
+        cursor: not-allowed;
+    }
+    
+    .date-picker-day.selected-checkin {
+        background: #17a2b8 !important;
+        color: white !important;
+        font-weight: bold;
+        position: relative;
+    }
+    
+    .date-picker-day.selected-checkin::after {
+        content: '✓';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 10px;
+        color: white;
+    }
+    
+    .date-picker-day.selected-checkout {
+        background: #17a2b8 !important;
+        color: white !important;
+        font-weight: bold;
+        position: relative;
+    }
+    
+    .date-picker-day.selected-checkout::after {
+        content: '✓';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 10px;
+        color: white;
+    }
+    
+    .date-picker-day.selected-intermediate {
+        background: #e3f2fd !important;
+        color: #1976d2 !important;
+        font-weight: bold;
+        position: relative;
+    }
+    
+    .date-picker-day.selected-intermediate::after {
+        content: '●';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 8px;
+        color: #1976d2;
+    }
+    
+    /* Стили для полей ввода с выбранной датой */
+    .custom-date-input .form-control:not(:placeholder-shown) {
+        border-color: #28a745;
+        background-color: #f8fff9;
+    }
+    
+    .custom-date-input .form-control:not(:placeholder-shown):focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    
+    
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-5 fw-bold mb-3">{% trans "Бронирование коттеджа" %}</h1>
+                <p class="lead">{% trans "Заполните форму ниже для создания бронирования" %}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Booking Content -->
+<section class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="booking-card">
+                <!-- Cottage Info -->
+                <div class="cottage-info">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="cottage-image" style="background-image: url('/static/images/default-cottage.jpg')">
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h2 class="mb-3">{{ cottage.name }}</h2>
+                            <p class="mb-3">{{ cottage.description|truncatechars:150 }}</p>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                    <strong><i class="fas fa-users me-2"></i>{% trans "Вместимость" %}:</strong> {% blocktrans with capacity=cottage.capacity %}{{ capacity }} гостей{% endblocktrans %}
+                                </div>
+                                <div class="col-sm-6">
+                                    <strong><i class="fas fa-ruble-sign me-2"></i>{% trans "Цена за ночь" %}:</strong> {{ cottage.price_per_night }} ₽
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <strong><i class="fas fa-map-marker-alt me-2"></i>{% trans "Адрес" %}:</strong> {{ cottage.address }}
+                                </div>
+                            </div>
+                            
+                            {% if cottage.amenities.all %}
+                                <div class="amenities-list">
+                                    {% for amenity in cottage.amenities.all %}
+                                        <span class="amenity-badge">{{ amenity.amenity.name }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Booking Form -->
+                <div class="booking-form">
+                    
+                    <h3 class="mb-4">{% trans "Данные бронирования" %}</h3>
+                    
+                    <form method="post" id="bookingForm">
+                        {% csrf_token %}
+                        
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="check_in_custom" class="form-label">
+                                        {% trans "Дата заезда" %} <span class="required">*</span>
+                                    </label>
+                                    <div class="custom-date-input">
+                                        <input type="text" id="check_in_custom" class="form-control" placeholder="{% trans 'Выберите дату заезда' %}" readonly>
+                                        <input type="hidden" id="id_check_in" name="check_in">
+                                        <button type="button" class="btn btn-outline-secondary date-picker-btn" data-target="check_in">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </button>
+                                    </div>
+                                    {% if form.check_in.errors %}
+                                        <div class="text-danger">{{ form.check_in.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="check_out_custom" class="form-label">
+                                        {% trans "Дата выезда" %} <span class="required">*</span>
+                                    </label>
+                                    <div class="custom-date-input">
+                                        <input type="text" id="check_out_custom" class="form-control" placeholder="{% trans 'Выберите дату выезда' %}" readonly>
+                                        <input type="hidden" id="id_check_out" name="check_out">
+                                        <button type="button" class="btn btn-outline-secondary date-picker-btn" data-target="check_out">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </button>
+                                    </div>
+                                    {% if form.check_out.errors %}
+                                        <div class="text-danger">{{ form.check_out.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.guests.id_for_label }}" class="form-label">
+                                        {% trans "Количество гостей" %} <span class="required">*</span>
+                                    </label>
+                                    {{ form.guests }}
+                                    {% if form.guests.errors %}
+                                        <div class="text-danger">{{ form.guests.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.special_requests.id_for_label }}" class="form-label">
+                                {% trans "Особые пожелания" %}
+                            </label>
+                            {{ form.special_requests }}
+                            {% if form.special_requests.errors %}
+                                <div class="text-danger">{{ form.special_requests.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Price Summary -->
+                        <div class="price-summary">
+                            <h5 class="mb-3">{% trans "Стоимость бронирования" %}</h5>
+                            <div class="price-item">
+                                <span>{% trans "Цена за ночь" %}:</span>
+                                <span>{{ cottage.price_per_night }} ₽</span>
+                            </div>
+                            <div class="price-item">
+                                <span>{% trans "Количество ночей" %}:</span>
+                                <span id="nightsCount">-</span>
+                            </div>
+                            <div class="price-item">
+                                <span>{% trans "Общая стоимость" %}:</span>
+                                <span id="totalPrice">-</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary me-3">
+                                <i class="fas fa-calendar-check me-2"></i>{% trans "Забронировать" %}
+                            </button>
+                            <a href="{% url 'cottages:page' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>{% trans "Назад к коттеджам" %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Translations
+    const translations = {
+        datesConflict: '{% trans "Выбранные даты пересекаются с забронированными" %}',
+        dateBooked: '{% trans "Эта дата уже забронирована" %}',
+        pastDate: '{% trans "Нельзя выбрать прошедшую дату" %}',
+        maxCapacity: '{% trans "Максимальная вместимость" %}',
+        guests: '{% trans "гостей" %}',
+        fillAllFields: '{% trans "Пожалуйста, заполните все обязательные поля" %}',
+        checkoutAfterCheckin: '{% trans "Дата выезда должна быть позже даты заезда" %}',
+        maxCapacityCottage: '{% trans "Максимальная вместимость коттеджа" %}',
+        datesConflictFull: '{% trans "Выбранные даты пересекаются с уже забронированными датами. Пожалуйста, выберите другие даты." %}',
+        attention: '{% trans "Внимание!" %}',
+        bookedDatesWarning: '{% trans "Следующие даты уже забронированы" %}',
+        andOthers: '{% trans "и другие..." %}',
+        months: ['{% trans "Январь" %}', '{% trans "Февраль" %}', '{% trans "Март" %}', '{% trans "Апрель" %}', '{% trans "Май" %}', '{% trans "Июнь" %}', 
+                 '{% trans "Июль" %}', '{% trans "Август" %}', '{% trans "Сентябрь" %}', '{% trans "Октябрь" %}', '{% trans "Ноябрь" %}', '{% trans "Декабрь" %}'],
+        weekdays: ['{% trans "Пн" %}', '{% trans "Вт" %}', '{% trans "Ср" %}', '{% trans "Чт" %}', '{% trans "Пт" %}', '{% trans "Сб" %}', '{% trans "Вс" %}']
+    };
+    
+    const checkInInput = document.querySelector('#id_check_in');
+    const checkOutInput = document.querySelector('#id_check_out');
+    const checkInCustom = document.querySelector('#check_in_custom');
+    const checkOutCustom = document.querySelector('#check_out_custom');
+    const guestsInput = document.querySelector('#id_guests');
+    const nightsCount = document.getElementById('nightsCount');
+    const totalPrice = document.getElementById('totalPrice');
+    const cottagePrice = parseFloat('{{ cottage.price_per_night|default:"0" }}'.replace(',', '.')) || 0;
+    
+    // Забронированные даты из Django
+    const bookedDates = {{ booked_dates|safe }};
+    
+    
+    // Функция для проверки забронированных дат
+    function isDateBooked(dateString) {
+        return bookedDates.includes(dateString);
+    }
+    
+    // Функция для проверки пересечения с забронированными датами
+    function checkBookingConflict(checkIn, checkOut) {
+        if (!checkIn || !checkOut) return false;
+        
+        const startDate = new Date(checkIn);
+        const endDate = new Date(checkOut);
+        
+        // Проверяем каждую дату в диапазоне
+        const currentDate = new Date(startDate);
+        while (currentDate < endDate) {
+            const dateString = currentDate.toISOString().split('T')[0];
+            if (isDateBooked(dateString)) {
+                return true;
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        return false;
+    }
+    
+    // Функция для валидации дат
+    function validateDates() {
+        const checkIn = checkInInput ? checkInInput.value : '';
+        const checkOut = checkOutInput ? checkOutInput.value : '';
+        
+        // Убираем предыдущие стили
+        if (checkInInput) {
+            checkInInput.classList.remove('is-invalid', 'is-valid');
+        }
+        if (checkOutInput) {
+            checkOutInput.classList.remove('is-invalid', 'is-valid');
+        }
+        
+        let isValid = true;
+        
+        // Проверяем забронированные даты
+        if (checkIn && checkOut) {
+            if (checkBookingConflict(checkIn, checkOut)) {
+                if (checkInInput) {
+                    checkInInput.classList.add('is-invalid');
+                    checkInInput.setCustomValidity(translations.datesConflict);
+                }
+                if (checkOutInput) {
+                    checkOutInput.classList.add('is-invalid');
+                    checkOutInput.setCustomValidity(translations.datesConflict);
+                }
+                isValid = false;
+            } else {
+                if (checkInInput) {
+                    checkInInput.classList.add('is-valid');
+                    checkInInput.setCustomValidity('');
+                }
+                if (checkOutInput) {
+                    checkOutInput.classList.add('is-valid');
+                    checkOutInput.setCustomValidity('');
+                }
+            }
+        } else {
+            // Простая валидация - проверяем только что даты заполнены
+            if (checkIn && checkInInput) {
+                checkInInput.classList.add('is-valid');
+                checkInInput.setCustomValidity('');
+            }
+            
+            if (checkOut && checkOutInput) {
+                checkOutInput.classList.add('is-valid');
+                checkOutInput.setCustomValidity('');
+            }
+        }
+        
+        return isValid;
+    }
+    
+    // Функция для показа предупреждения о забронированных датах
+    function showBookedDatesWarning() {
+        if (bookedDates.length > 0) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'alert alert-warning mt-3';
+            warningDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>${translations.attention}</strong> ${translations.bookedDatesWarning}: 
+                ${bookedDates.slice(0, 5).join(', ')}${bookedDates.length > 5 ? ' ' + translations.andOthers : ''}
+            `;
+            
+            // Добавляем предупреждение после формы дат
+            const dateSection = document.querySelector('.row .col-md-6:first-child').parentElement;
+            if (dateSection && !document.querySelector('.booked-dates-warning')) {
+                warningDiv.classList.add('booked-dates-warning');
+                dateSection.parentElement.insertBefore(warningDiv, dateSection.nextSibling);
+            }
+        }
+    }
+    
+    // Функция для добавления атрибутов к полям ввода дат
+    function addBookedDatesAttributes() {
+        if (bookedDates.length > 0) {
+            // Добавляем атрибуты для блокировки забронированных дат
+            if (checkInInput) {
+                checkInInput.addEventListener('change', function() {
+                    if (this.value && isDateBooked(this.value)) {
+                        this.classList.add('booked-date');
+                        this.setCustomValidity(translations.dateBooked);
+                    } else {
+                        this.classList.remove('booked-date');
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+            
+            if (checkOutInput) {
+                checkOutInput.addEventListener('change', function() {
+                    if (this.value && isDateBooked(this.value)) {
+                        this.classList.add('booked-date');
+                        this.setCustomValidity(translations.dateBooked);
+                    } else {
+                        this.classList.remove('booked-date');
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+        }
+    }
+    
+    
+    
+    // Функция для создания кастомного date picker
+    function createCustomDatePicker(targetField, displayField) {
+        console.log(`=== СОЗДАНИЕ DATE PICKER ДЛЯ ${targetField} ===`);
+        const pickerBtn = document.querySelector(`[data-target="${targetField}"]`);
+        console.log('Кнопка найдена:', pickerBtn);
+        if (!pickerBtn) {
+            console.log('Кнопка не найдена!');
+            return;
+        }
+        
+        // Находим соответствующие поля
+        const hiddenField = document.getElementById(`id_${targetField}`);
+        console.log('Скрытое поле найдено:', hiddenField);
+        
+        // Создаем popup для date picker
+        const popup = document.createElement('div');
+        popup.className = 'date-picker-popup';
+        popup.innerHTML = `
+            <div class="date-picker-header">
+                <button type="button" class="date-picker-nav" data-action="prev">‹</button>
+                <div class="date-picker-month-year"></div>
+                <button type="button" class="date-picker-nav" data-action="next">›</button>
+            </div>
+            <div class="date-picker-grid">
+                <div class="date-picker-day-header">${translations.weekdays[0]}</div>
+                <div class="date-picker-day-header">${translations.weekdays[1]}</div>
+                <div class="date-picker-day-header">${translations.weekdays[2]}</div>
+                <div class="date-picker-day-header">${translations.weekdays[3]}</div>
+                <div class="date-picker-day-header">${translations.weekdays[4]}</div>
+                <div class="date-picker-day-header">${translations.weekdays[5]}</div>
+                <div class="date-picker-day-header">${translations.weekdays[6]}</div>
+            </div>
+        `;
+        
+        // Добавляем popup к контейнеру
+        pickerBtn.parentElement.appendChild(popup);
+        
+        let currentDate = new Date();
+        let selectedDate = null;
+        
+        // Функция для обновления промежуточных дат в календаре
+        function updateIntermediateDates() {
+            const checkInField = document.getElementById('id_check_in');
+            const checkOutField = document.getElementById('id_check_out');
+            const grid = popup.querySelector('.date-picker-grid');
+            
+            if (!checkInField || !checkOutField || !grid) return;
+            
+            // Убираем все промежуточные выделения
+            grid.querySelectorAll('.date-picker-day.selected-intermediate').forEach(day => {
+                day.classList.remove('selected-intermediate');
+            });
+            
+            // Добавляем промежуточные выделения если есть обе даты
+            if (checkInField.value && checkOutField.value) {
+                const checkInDate = new Date(checkInField.value);
+                const checkOutDate = new Date(checkOutField.value);
+                
+                grid.querySelectorAll('.date-picker-day').forEach(day => {
+                    const dayDate = new Date(day.dataset.date);
+                    
+                    // Проверяем, находится ли дата между заездом и выездом
+                    if (dayDate > checkInDate && dayDate < checkOutDate) {
+                        day.classList.add('selected-intermediate');
+                    }
+                });
+            }
+        }
+        
+        // Функция для обновления календаря
+        function updateCalendar() {
+            const monthYear = popup.querySelector('.date-picker-month-year');
+            const grid = popup.querySelector('.date-picker-grid');
+            
+            // Обновляем заголовок
+            monthYear.textContent = `${translations.months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            // Очищаем дни (кроме заголовков)
+            const dayHeaders = grid.querySelectorAll('.date-picker-day-header');
+            grid.innerHTML = '';
+            dayHeaders.forEach(header => grid.appendChild(header));
+            
+            // Получаем первый день месяца и количество дней
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            const startDate = new Date(firstDay);
+            
+            // Находим первый понедельник
+            const dayOfWeek = firstDay.getDay();
+            const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            startDate.setDate(startDate.getDate() - mondayOffset);
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Создаем 6 недель (42 дня)
+            for (let i = 0; i < 42; i++) {
+                const currentDay = new Date(startDate);
+                currentDay.setDate(startDate.getDate() + i);
+                
+                // Создаем строку даты вручную, чтобы избежать проблем с временными зонами
+                const year = currentDay.getFullYear();
+                const month = String(currentDay.getMonth() + 1).padStart(2, '0');
+                const day = String(currentDay.getDate()).padStart(2, '0');
+                const dateString = `${year}-${month}-${day}`;
+                const dayNumber = currentDay.getDate();
+                const isCurrentMonth = currentDay.getMonth() === currentDate.getMonth();
+                // Проверяем, забронирована ли дата
+                const isBooked = bookedDates.includes(dateString);
+                
+                // Отладочная информация для даты 10 октября
+                if (dateString === '2025-10-10') {
+                    console.log('DEBUG: Проверяем дату 10 октября:', {
+                        dateString: dateString,
+                        isBooked: isBooked,
+                        bookedDates: bookedDates
+                    });
+                }
+                const isToday = currentDay.getTime() === today.getTime();
+                const isPast = currentDay < today;
+                
+                const dayElement = document.createElement('button');
+                dayElement.type = 'button';
+                dayElement.className = 'date-picker-day';
+                dayElement.textContent = dayNumber;
+                dayElement.dataset.date = dateString;
+                
+                if (isBooked) dayElement.classList.add('booked');
+                if (isToday) dayElement.classList.add('today');
+                if (isPast) dayElement.classList.add('past');
+                if (!isCurrentMonth) dayElement.classList.add('other-month');
+                
+                // Выделяем выбранные даты заезда и выезда светло-синим цветом
+                const checkInField = document.getElementById('id_check_in');
+                const checkOutField = document.getElementById('id_check_out');
+                
+                if (checkInField && checkInField.value === dateString) {
+                    dayElement.classList.add('selected-checkin');
+                }
+                if (checkOutField && checkOutField.value === dateString) {
+                    dayElement.classList.add('selected-checkout');
+                }
+                
+                // Выделяем промежуточные даты между заездом и выездом
+                if (checkInField && checkOutField && checkInField.value && checkOutField.value) {
+                    const checkInDate = new Date(checkInField.value);
+                    const checkOutDate = new Date(checkOutField.value);
+                    const currentDateObj = new Date(dateString);
+                    
+                    // Проверяем, находится ли текущая дата между заездом и выездом
+                    if (currentDateObj > checkInDate && currentDateObj < checkOutDate) {
+                        dayElement.classList.add('selected-intermediate');
+                    }
+                }
+                
+                // Обработчик клика
+                dayElement.addEventListener('click', function() {
+                    if (this.classList.contains('booked') || this.classList.contains('past')) {
+                        if (this.classList.contains('booked')) {
+                            alert(translations.dateBooked);
+                        } else {
+                            alert(translations.pastDate);
+                        }
+                        return;
+                    }
+                    
+                    // Убираем выделение с других дней
+                    grid.querySelectorAll('.date-picker-day.selected').forEach(day => {
+                        day.classList.remove('selected');
+                    });
+                    
+                    // Выделяем выбранный день
+                    this.classList.add('selected');
+                    selectedDate = this.dataset.date;
+                    
+                    // Обновляем поля
+                    // Простое отображение даты без преобразований
+                    const [year, month, day] = selectedDate.split('-');
+                    const formattedDate = `${day}.${month}.${year}`;
+                    
+                    console.log('=== ОТЛАДКА ДАТЫ ===');
+                    console.log('Выбранная дата (строка):', selectedDate);
+                    console.log('Разбор даты - год:', year, 'месяц:', month, 'день:', day);
+                    console.log('Отформатированная дата:', formattedDate);
+                    console.log('Значение в displayField:', displayField.value);
+                    console.log('Значение в hiddenField:', hiddenField.value);
+                    
+                    displayField.value = formattedDate;
+                    hiddenField.value = selectedDate;
+                    
+                    // Добавляем класс валидности к полю ввода
+                    displayField.classList.add('is-valid');
+                    displayField.classList.remove('is-invalid');
+                    
+                    // Закрываем popup
+                    popup.classList.remove('show');
+                    
+                    // Валидируем и рассчитываем цену
+                    validateDates();
+                    calculatePrice();
+                });
+                
+                grid.appendChild(dayElement);
+            }
+        }
+        
+        // Обработчики навигации
+        popup.querySelector('[data-action="prev"]').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendar();
+        });
+        
+        popup.querySelector('[data-action="next"]').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendar();
+        });
+        
+        // Обработчик клика по кнопке
+        pickerBtn.addEventListener('click', function(e) {
+            console.log('Кнопка календаря нажата!');
+            e.stopPropagation();
+            popup.classList.toggle('show');
+            console.log('Popup показан:', popup.classList.contains('show'));
+            updateCalendar();
+            updateIntermediateDates();
+        });
+        
+        // Закрытие при клике вне popup
+        document.addEventListener('click', function(e) {
+            if (!popup.contains(e.target) && !pickerBtn.contains(e.target)) {
+                popup.classList.remove('show');
+            }
+        });
+    }
+    
+    // Вызываем расчет при загрузке страницы (на случай если даты уже заполнены)
+    setTimeout(function() {
+        calculatePrice();
+        addBookedDatesAttributes();
+        
+        // Создаем кастомные date picker'ы
+        createCustomDatePicker('check_in', checkInCustom);
+        createCustomDatePicker('check_out', checkOutCustom);
+    }, 100);
+    
+    
+    // Добавляем атрибуты для блокировки забронированных дат в полях ввода
+    
+    
+    
+    
+    function calculatePrice() {
+        const checkIn = checkInInput ? checkInInput.value : '';
+        const checkOut = checkOutInput ? checkOutInput.value : '';
+        
+        console.log('Расчет цены:', { checkIn, checkOut, cottagePrice });
+        
+        if (checkIn && checkOut) {
+            const checkInDate = new Date(checkIn);
+            const checkOutDate = new Date(checkOut);
+            
+            console.log('Даты:', { checkInDate, checkOutDate });
+            
+            if (checkOutDate > checkInDate) {
+                const timeDiff = checkOutDate.getTime() - checkInDate.getTime();
+                const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                const total = nights * cottagePrice;
+                
+                console.log('Результат расчета:', { nights, total, cottagePrice });
+                
+                if (nightsCount) {
+                    nightsCount.textContent = nights;
+                    console.log('Обновлен nightsCount:', nights);
+                }
+                if (totalPrice) {
+                    totalPrice.textContent = total.toLocaleString() + ' ₽';
+                    console.log('Обновлен totalPrice:', total.toLocaleString() + ' ₽');
+                }
+            } else {
+                console.log('Дата выезда должна быть позже даты заезда');
+                if (nightsCount) nightsCount.textContent = '-';
+                if (totalPrice) totalPrice.textContent = '-';
+            }
+        } else {
+            console.log('Не все даты заполнены:', { checkIn, checkOut });
+            if (nightsCount) nightsCount.textContent = '-';
+            if (totalPrice) totalPrice.textContent = '-';
+        }
+    }
+    
+    // Добавляем обработчики событий для полей ввода дат
+    if (checkInInput) {
+        checkInInput.addEventListener('change', function() {
+            validateDates();
+            calculatePrice();
+            updateIntermediateDates();
+        });
+        checkInInput.addEventListener('input', function() {
+            validateDates();
+            calculatePrice();
+            updateIntermediateDates();
+        });
+    }
+    
+    if (checkOutInput) {
+        checkOutInput.addEventListener('change', function() {
+            validateDates();
+            calculatePrice();
+            updateIntermediateDates();
+        });
+        checkOutInput.addEventListener('input', function() {
+            validateDates();
+            calculatePrice();
+            updateIntermediateDates();
+        });
+    }
+    
+    // Добавляем обработчик для поля количества гостей
+    if (guestsInput) {
+        guestsInput.addEventListener('change', function() {
+            calculatePrice();
+        });
+        guestsInput.addEventListener('input', function() {
+            calculatePrice();
+        });
+    }
+    
+    // Устанавливаем минимальную дату выезда при выборе даты заезда
+    if (checkInInput && checkOutInput) {
+        checkInInput.addEventListener('change', function() {
+            if (this.value) {
+                const checkInDate = new Date(this.value);
+                const minCheckOut = new Date(checkInDate);
+                minCheckOut.setDate(minCheckOut.getDate() + 1);
+                
+                checkOutInput.min = minCheckOut.toISOString().split('T')[0];
+                
+                // Если дата выезда меньше минимальной, сбрасываем её
+                if (checkOutInput.value && new Date(checkOutInput.value) <= checkInDate) {
+                    checkOutInput.value = '';
+                    calculatePrice();
+                }
+            }
+        });
+    }
+    
+    // Валидация количества гостей
+    if (guestsInput) {
+        guestsInput.addEventListener('input', function() {
+            const maxGuests = {{ cottage.capacity }};
+            if (parseInt(this.value) > maxGuests) {
+                this.setCustomValidity(`${translations.maxCapacity}: ${maxGuests} ${translations.guests}`);
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+    
+    // Предотвращаем отправку формы с ошибками
+    const bookingForm = document.getElementById('bookingForm');
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', function(e) {
+            const checkIn = checkInInput ? checkInInput.value : '';
+            const checkOut = checkOutInput ? checkOutInput.value : '';
+            const guests = guestsInput ? guestsInput.value : '';
+            
+            if (!checkIn || !checkOut || !guests) {
+                e.preventDefault();
+                alert(translations.fillAllFields);
+                return false;
+            }
+            
+            if (new Date(checkOut) <= new Date(checkIn)) {
+                e.preventDefault();
+                alert(translations.checkoutAfterCheckin);
+                return false;
+            }
+            
+            if (parseInt(guests) > {{ cottage.capacity }}) {
+                e.preventDefault();
+                alert(`${translations.maxCapacityCottage}: {{ cottage.capacity }} ${translations.guests}`);
+                return false;
+            }
+            
+            // Проверяем, не забронированы ли выбранные даты
+            if (checkBookingConflict(checkIn, checkOut)) {
+                e.preventDefault();
+                alert(translations.datesConflictFull);
+                return false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

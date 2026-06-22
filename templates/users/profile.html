@@ -1,0 +1,513 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "My profile" %} - Cottage Booking{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 50px;
+    }
+    
+    .profile-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 3rem;
+        color: white;
+        border: 5px solid white;
+    }
+    
+    .profile-body {
+        padding: 40px;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 20px;
+        font-size: 1.2rem;
+    }
+    
+    .info-content {
+        flex: 1;
+    }
+    
+    .info-label {
+        font-weight: 500;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+        color: #2c3e50;
+    }
+    
+    
+    .btn-edit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .admin-badge {
+        background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: inline-block;
+        margin-top: 10px;
+    }
+    
+    .profile-container .edit-form {
+        display: none !important;
+    }
+    
+    .profile-container.edit-mode .edit-form {
+        display: block !important;
+    }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Profile Header -->
+<section class="profile-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-4">{% trans "My profile" %}</h1>
+                <p class="lead">{% trans "Manage your data" %}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Profile Content -->
+<section class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto profile-container">
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h2 class="mb-3">{{ user.email }}</h2>
+                    {% if user.is_staff %}
+                        <div class="admin-badge">
+                            <i class="fas fa-crown me-2"></i>{% trans "Administrator" %}
+                        </div>
+                    {% else %}
+                        <p class="mb-0">{% trans "User" %}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="profile-body">
+                    {% if user.first_name or user.last_name %}
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">{% trans "Full name" %}</div>
+                            <div class="info-value">
+                                {{ user.full_name }}
+                                {% if not user.first_name and not user.last_name %}
+                                    <span class="text-muted">{% trans "Not specified" %}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">{% trans "Email" %}</div>
+                            <div class="info-value">{{ user.email }}</div>
+                        </div>
+                    </div>
+                    
+                    {% if user.phone %}
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">{% trans "Phone" %}</div>
+                            <div class="info-value">{{ user.phone }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.date_of_birth %}
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-birthday-cake"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">{% trans "Date of birth" %}</div>
+                            <div class="info-value">{{ user.date_of_birth|date:"d.m.Y" }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">{% trans "Registration date" %}</div>
+                            <div class="info-value">{{ user.date_joined|date:"d.m.Y" }}</div>
+                        </div>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+            
+            
+            <!-- Edit Profile Form -->
+            <div class="profile-card mt-4 edit-form" id="editForm">
+                <div class="profile-header">
+                    <h3 class="mb-0">{% trans "Edit profile" %}</h3>
+                </div>
+                <div class="profile-body">
+                    
+                    <form method="post" id="profileForm">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                    {% trans "Last name" %} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small">{{ form.last_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                    {% trans "First name" %} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small">{{ form.first_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.middle_name.id_for_label }}" class="form-label">
+                                    {% trans "Middle name" %}
+                                </label>
+                                {{ form.middle_name }}
+                                {% if form.middle_name.errors %}
+                                    <div class="text-danger small">{{ form.middle_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{% trans "Phone" %}</label>
+                                <div id="profile_phone_input" class="simple-phone-input"></div>
+                                {% if form.phone.errors %}
+                                    <div class="text-danger small">{{ form.phone.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.username.id_for_label }}" class="form-label">
+                                    {% trans "Username" %}
+                                </label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">
+                                    {% trans "Date of birth" %}
+                                </label>
+                                {{ form.date_of_birth }}
+                                {% if form.date_of_birth.errors %}
+                                    <div class="text-danger small">{{ form.date_of_birth.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end">
+                                <button type="button" class="btn btn-outline-warning" onclick="showPasswordChange()">
+                                    <i class="fas fa-key me-1"></i>{% trans "Change password" %}
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-edit me-3">
+                                <i class="fas fa-save me-2"></i>{% trans "Save changes" %}
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="window.cancelEdit()">
+                                <i class="fas fa-times me-2"></i>{% trans "Cancel" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="text-center mt-4">
+                <button class="btn btn-edit me-3" onclick="window.showEditForm()">
+                    <i class="fas fa-edit me-2"></i>{% trans "Edit profile" %}
+                </button>
+                <a href="{% url 'users:bookings' %}" class="btn btn-edit">
+                    <i class="fas fa-calendar-check me-2"></i>{% trans "My bookings" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Глобальные переменные и функции
+window.isEditMode = false;
+
+window.showEditForm = function() {
+    window.isEditMode = true;
+    const container = document.querySelector('.profile-container');
+    container.classList.add('edit-mode');
+    document.getElementById('editForm').scrollIntoView({ behavior: 'smooth' });
+};
+
+window.cancelEdit = function() {
+    window.isEditMode = false;
+    const container = document.querySelector('.profile-container');
+    container.classList.remove('edit-mode');
+    // Сбрасываем форму
+    document.getElementById('profileForm').reset();
+};
+
+// Проверяем, нужно ли показать форму редактирования при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем флаг из Django контекста
+    {% if show_edit_form %}
+        window.showEditForm();
+    {% endif %}
+});
+
+// Инициализация компонента телефона с существующим значением
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneContainer = document.getElementById('profile_phone_input');
+    if (phoneContainer) {
+        const existingPhone = '{{ user.phone|default:"" }}';
+        if (existingPhone) {
+            // Ждем инициализации компонента и устанавливаем значение
+            setTimeout(() => {
+                const phoneInput = phoneContainer.querySelector('#profile_phone_input_full');
+                if (phoneInput) {
+                    phoneInput.value = existingPhone;
+                    // Триггерим событие для обновления компонента
+                    phoneInput.dispatchEvent(new Event('input'));
+                }
+            }, 100);
+        }
+    }
+});
+
+// Функция для показа модального окна смены пароля
+function showPasswordChange() {
+    const modal = document.getElementById('passwordChangeModal');
+    if (modal) {
+        // Сброс формы модалки перед показом
+        const input = document.getElementById('customNewPassword');
+        if (input) input.value = '';
+        const box = document.getElementById('generatedPasswordBox');
+        if (box) {
+            box.style.display = 'none';
+            const code = document.getElementById('generatedPassword');
+            if (code) code.textContent = '';
+        }
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    }
+}
+
+// Функция для смены пароля
+function changePassword() {
+    const currentPassword = document.getElementById('currentPassword').value.trim();
+    const newPassword = document.getElementById('customNewPassword').value.trim();
+    const confirmPassword = document.getElementById('confirmNewPassword').value.trim();
+    const errorDiv = document.getElementById('passwordError');
+    
+    // Скрываем предыдущие ошибки
+    errorDiv.style.display = 'none';
+    
+    // Валидация
+    if (!currentPassword) {
+        showPasswordError('{% trans "Enter current password" %}');
+        return;
+    }
+    
+    if (!newPassword) {
+        showPasswordError('{% trans "Enter new password" %}');
+        return;
+    }
+    
+    if (newPassword.length < 8) {
+        showPasswordError('{% trans "New password must be at least 8 characters long" %}');
+        return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+        showPasswordError('{% trans "New passwords do not match" %}');
+        return;
+    }
+    
+    if (currentPassword === newPassword) {
+        showPasswordError('{% trans "New password must be different from current password" %}');
+        return;
+    }
+    
+    // Отправляем запрос
+    fetch('{% url "users:change_password" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ 
+            current_password: currentPassword,
+            new_password: newPassword 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('{% trans "Password changed successfully!" %}');
+            // Очищаем форму
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('customNewPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+            // Закрываем модалку
+            document.getElementById('passwordChangeModal').querySelector('.btn-close').click();
+        } else {
+            showPasswordError(data.error || '{% trans "Unknown error" %}');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showPasswordError('{% trans "Error changing password" %}');
+    });
+}
+
+// Функция для показа ошибок
+function showPasswordError(message) {
+    const errorDiv = document.getElementById('passwordError');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+}
+</script>
+
+<!-- Modal для смены пароля -->
+<div class="modal fade" id="passwordChangeModal" tabindex="-1" aria-labelledby="passwordChangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passwordChangeModalLabel">
+                    <i class="fas fa-key me-2"></i>{% trans "Change password" %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">{% trans "To change your password, enter your current password and new password." %}</p>
+                <div class="mb-3">
+                    <label for="currentPassword" class="form-label">{% trans "Current password" %} *</label>
+                    <input type="password" class="form-control" id="currentPassword" placeholder="{% trans 'Enter current password' %}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="customNewPassword" class="form-label">{% trans "New password" %} *</label>
+                    <input type="password" class="form-control" id="customNewPassword" placeholder="{% trans 'Enter new password (min. 8 characters)' %}" required>
+                    <div class="form-text">{% trans "Password must contain at least 8 characters." %}</div>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmNewPassword" class="form-label">{% trans "Confirm new password" %} *</label>
+                    <input type="password" class="form-control" id="confirmNewPassword" placeholder="{% trans 'Repeat new password' %}" required>
+                </div>
+                <div id="passwordError" class="alert alert-danger" style="display:none"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
+                <button type="button" class="btn btn-primary" onclick="changePassword()">
+                    <i class="fas fa-key me-1"></i>{% trans "Apply" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

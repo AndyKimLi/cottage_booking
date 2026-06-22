@@ -1,0 +1,426 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Главная" %} - Kamchatka Village{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 100px 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><polygon points="0,100 1000,0 1000,100"/></svg>');
+        background-size: cover;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        border: none;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: white;
+        font-size: 2rem;
+    }
+    
+    .nature-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 80px 0;
+    }
+    
+    .nature-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .nature-card:hover {
+        transform: scale(1.02);
+    }
+    
+    .nature-image {
+        height: 250px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    
+    .nature-image::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 100%);
+    }
+    
+    /* Статичные картинки */
+    .nature-image-1 {
+        background-image: url('{% static "images/vulkan.jpeg" %}');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    
+    .nature-image-2 {
+        background-image: url('{% static "images/therms.webp" %}');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    
+    .nature-image-3 {
+        background-image: url('{% static "images/wolf.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    
+    .stats-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .stat-number {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        display: block;
+    }
+    
+    .stat-label {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    .cta-section {
+        background: #2c3e50;
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 15px 40px;
+        font-weight: 500;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-outline-light {
+        border: 2px solid white;
+        border-radius: 50px;
+        padding: 12px 35px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-light:hover {
+        background: white;
+        color: #2c3e50;
+        transform: translateY(-2px);
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 15px 40px;
+        font-weight: 500;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(40, 167, 69, 0.4);
+        background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+    }
+    
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin-bottom: 20px;
+        color: #2c3e50;
+    }
+    
+    .section-subtitle {
+        font-size: 1.2rem;
+        color: #6c757d;
+        margin-bottom: 50px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<body class="home-page">
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center hero-content">
+                <h1 class="display-3 fw-bold mb-4">{% trans "Добро пожаловать на Камчатку!" %}</h1>
+                <p class="lead mb-4">{% trans "Откройте для себя удивительную природу полуострова и отдохните в комфортабельных коттеджах среди вулканов, гейзеров и дикой природы" %}</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'cottages:page' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home me-2"></i>{% trans "Выбрать коттедж" %}
+                    </a>
+                    <a href="#nature" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-mountain me-2"></i>{% trans "О природе" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="section-title">{% trans "Почему выбирают нас?" %}</h2>
+                <p class="section-subtitle">{% trans "Уникальный опыт отдыха в сердце дикой природы" %}</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mountain"></i>
+                    </div>
+                    <h4 class="text-center mb-3">{% trans "Вулканы и гейзеры" %}</h4>
+                    <p class="text-muted text-center">{% trans "Живите рядом с действующими вулканами и наблюдайте извержения гейзеров. Уникальная возможность увидеть силу природы в действии." %}</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-fish"></i>
+                    </div>
+                    <h4 class="text-center mb-3">{% trans "Рыбалка и охота" %}</h4>
+                    <p class="text-muted text-center">{% trans "Лучшая в мире лососевая рыбалка, охота на медведя и другая дикая природа. Профессиональные гиды и все необходимое оборудование." %}</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <h4 class="text-center mb-3">{% trans "Комфортные коттеджи" %}</h4>
+                    <p class="text-muted text-center">{% trans "Современные коттеджи со всеми удобствами. После активного дня отдохните в комфорте и тепле." %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Nature Section -->
+<section id="nature" class="nature-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="section-title">{% trans "Природа Камчатки" %}</h2>
+                <p class="section-subtitle">{% trans "Первозданная красота, которая завораживает и вдохновляет" %}</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="nature-card">
+                    <div class="nature-image nature-image-1">
+                    </div>
+                    <div class="p-4">
+                        <h4 class="mb-3">🌋 {% trans "Действующие вулканы" %}</h4>
+                        <p class="text-muted">{% trans "Более 300 вулканов, 29 из которых действующие. Уникальная возможность наблюдать извержения и потоки лавы." %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="nature-card">
+                    <div class="nature-image nature-image-2">
+                    </div>
+                    <div class="p-4">
+                        <h4 class="mb-3">♨️ {% trans "Гейзеры и термальные источники" %}</h4>
+                        <p class="text-muted">{% trans "Долина гейзеров - одно из семи чудес России. Термальные источники с целебной водой для отдыха." %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="nature-card">
+                    <div class="nature-image nature-image-3">
+                    </div>
+                    <div class="p-4">
+                        <h4 class="mb-3">🐻 {% trans "Дикая природа" %}</h4>
+                        <p class="text-muted">{% trans "Бурые медведи, лисы, соболи, орлы. Уникальная фауна, которую можно наблюдать в естественной среде обитания." %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">{% trans "Камчатка в цифрах" %}</h2>
+                <p class="lead">{% trans "Уникальные факты о нашем полуострове" %}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <span class="stat-number">300+</span>
+                    <div class="stat-label">{% trans "Вулканов" %}</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <span class="stat-number">29</span>
+                    <div class="stat-label">{% trans "Действующих вулканов" %}</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <span class="stat-number">20000</span>
+                    <div class="stat-label">{% trans "Бурых медведей" %}</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <span class="stat-number">6</span>
+                    <div class="stat-label">{% trans "Объектов ЮНЕСКО" %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Activities Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="section-title">{% trans "Активный отдых" %}</h2>
+                <p class="section-subtitle">{% trans "Множество возможностей для незабываемых приключений" %}</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-hiking"></i>
+                    </div>
+                    <h5 class="text-center mb-3">{% trans "Треккинг" %}</h5>
+                    <p class="text-muted text-center small">{% trans "Пешие походы по вулканам и горным тропам с опытными гидами" %}</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-skiing"></i>
+                    </div>
+                    <h5 class="text-center mb-3">{% trans "Горные лыжи" %}</h5>
+                    <p class="text-muted text-center small">{% trans "Катание на склонах вулканов с потрясающими видами" %}</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h5 class="text-center mb-3">{% trans "Фотосафари" %}</h5>
+                    <p class="text-muted text-center small">{% trans "Съемка диких животных и природных явлений" %}</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-water"></i>
+                    </div>
+                    <h5 class="text-center mb-3">{% trans "Рафтинг" %}</h5>
+                    <p class="text-muted text-center small">{% trans "Сплав по бурным рекам среди вулканических пейзажей" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-5 fw-bold mb-4">{% trans "Готовы к приключениям?" %}</h2>
+                <p class="lead mb-4">{% trans "Забронируйте свой идеальный коттедж на Камчатке и погрузитесь в мир дикой природы и комфорта" %}</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'cottages:page' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home me-2"></i>{% trans "Выбрать коттедж" %}
+                    </a>
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'users:register' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>{% trans "Зарегистрироваться" %}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

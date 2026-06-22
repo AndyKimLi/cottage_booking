@@ -1,0 +1,2238 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-22 09:27+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
+"(n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+msgid "Особые пожелания, требования к размещению..."
+msgstr "Особые пожелания, требования к размещению..."
+
+#, python-brace-format
+msgid "Максимум {capacity} гостей"
+msgstr "Максимум {capacity} гостей"
+
+msgid "Дата заезда не может быть в прошлом"
+msgstr "Дата заезда не может быть в прошлом"
+
+msgid "Бронирование возможно максимум на год вперед"
+msgstr "Бронирование возможно максимум на год вперед"
+
+msgid "Дата выезда должна быть в будущем"
+msgstr "Дата выезда должна быть в будущем"
+
+msgid "Дата выезда должна быть позже даты заезда"
+msgstr "Дата выезда должна быть позже даты заезда"
+
+msgid "Максимальная продолжительность бронирования - 30 дней"
+msgstr "Максимальная продолжительность бронирования - 30 дней"
+
+msgid "Минимальная продолжительность - 1 день"
+msgstr "Минимальная продолжительность - 1 день"
+
+msgid "Количество гостей должно быть больше 0"
+msgstr "Количество гостей должно быть больше 0"
+
+#, python-brace-format
+msgid "Максимальная вместимость коттеджа: {capacity} гостей"
+msgstr "Максимальная вместимость коттеджа: {capacity} гостей"
+
+msgid "Выбранные даты недоступны. Пожалуйста, выберите другие даты."
+msgstr "Выбранные даты недоступны. Пожалуйста, выберите другие даты."
+
+msgid "Booking cancelled"
+msgstr "Бронирование отменено"
+
+msgid "Cannot cancel this booking"
+msgstr "Невозможно отменить это бронирование"
+
+msgid "Cottage not found"
+msgstr "Коттедж не найден"
+
+msgid "Cottage not specified for booking"
+msgstr "Коттедж не указан для бронирования"
+
+#, python-format
+msgid "Error creating booking: %(error)s"
+msgstr "Ошибка при создании бронирования: %(error)s"
+
+msgid "Please correct errors in the form"
+msgstr "Пожалуйста, исправьте ошибки в форме"
+
+msgid "You do not have permission to view this booking"
+msgstr "У вас нет прав для просмотра этого бронирования"
+
+msgid "Booking not found"
+msgstr "Бронирование не найдено"
+
+msgid "You do not have permission to edit this booking"
+msgstr "У вас нет прав для редактирования этого бронирования"
+
+msgid ""
+"Confirmed bookings cannot be edited. You can cancel the booking and create a "
+"new one."
+msgstr ""
+"Подтвержденные бронирования нельзя редактировать. Вы можете отменить "
+"бронирование и создать новое."
+
+msgid "Cannot edit cancelled booking"
+msgstr "Невозможно редактировать отмененное бронирование"
+
+msgid "Cannot edit completed booking"
+msgstr "Невозможно редактировать завершенное бронирование"
+
+msgid "This booking cannot be edited"
+msgstr "Это бронирование нельзя редактировать"
+
+msgid "All fields are required"
+msgstr "Все поля обязательны для заполнения"
+
+msgid "Invalid date format"
+msgstr "Неверный формат даты"
+
+msgid "Check-out date must be later than check-in date"
+msgstr "Дата выезда должна быть позже даты заезда"
+
+#, python-format
+msgid "Maximum cottage capacity: %(capacity)s guests"
+msgstr "Максимальная вместимость коттеджа: %(capacity)s гостей"
+
+msgid "An error occurred while updating the booking"
+msgstr "Произошла ошибка при обновлении бронирования"
+
+msgid "This booking cannot be cancelled"
+msgstr "Это бронирование нельзя отменить"
+
+msgid "Booking successfully cancelled"
+msgstr "Бронирование успешно отменено"
+
+#, python-format
+msgid "Error cancelling booking: %(error)s"
+msgstr "Ошибка при отмене бронирования: %(error)s"
+
+msgid "Check-in and check-out dates must be specified"
+msgstr "Необходимо указать даты заезда и выезда"
+
+msgid "Invalid date format. Use YYYY-MM-DD"
+msgstr "Неверный формат даты. Используйте ГГГГ-ММ-ДД"
+
+msgid "Check-in date must be earlier than check-out date"
+msgstr "Дата заезда должна быть раньше даты выезда"
+
+msgid "Check-in date cannot be in the past"
+msgstr "Дата заезда не может быть в прошлом"
+
+msgid "Cottage is available for booking"
+msgstr "Коттедж доступен для бронирования"
+
+#, python-format
+msgid "Cottage with ID %(id)s not found or inactive"
+msgstr "Коттедж с ID %(id)s не найден или неактивен"
+
+msgid "Выберите удобное время"
+msgstr "Выберите удобное время"
+
+msgid "Имя"
+msgstr "Имя"
+
+msgid "Фамилия"
+msgstr "Фамилия"
+
+msgid "Отчество (необязательно)"
+msgstr "Отчество (необязательно)"
+
+msgid "Введите номер телефона"
+msgstr "Введите номер телефона"
+
+msgid "Расскажите о ваших пожеланиях..."
+msgstr "Расскажите о ваших пожеланиях..."
+
+msgid "Выберите коттедж (необязательно)"
+msgstr "Выберите коттедж (необязательно)"
+
+msgid "Thank you! Your request has been accepted. We will contact you soon."
+msgstr "Спасибо! Ваша заявка принята. Мы свяжемся с вами в ближайшее время."
+
+msgid "Введите имя"
+msgstr "Введите имя"
+
+msgid "Введите фамилию"
+msgstr "Введите фамилию"
+
+msgid "Введите отчество (необязательно)"
+msgstr "Введите отчество (необязательно)"
+
+msgid "Введите email"
+msgstr "Введите email"
+
+msgid "Введите имя пользователя"
+msgstr "Введите имя пользователя"
+
+msgid "Номер телефона должен содержать минимум 10 цифр"
+msgstr "Номер телефона должен содержать минимум 10 цифр"
+
+msgid "Пользователь с таким email уже существует"
+msgstr "Пользователь с таким email уже существует"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Введите ваш email"
+msgstr "Введите ваш email"
+
+msgid "Пользователь с таким email не найден"
+msgstr "Пользователь с таким email не найден"
+
+msgid "Username is required"
+msgstr "Требуется имя пользователя"
+
+msgid "User with this username already exists"
+msgstr "Пользователь с таким именем пользователя уже существует"
+
+msgid "Email is required"
+msgstr "Требуется email"
+
+msgid "User with this email already exists"
+msgstr "Пользователь с таким email уже существует"
+
+msgid "Password is required"
+msgstr "Требуется пароль"
+
+msgid "Password must be at least 8 characters long"
+msgstr "Пароль должен содержать не менее 8 символов"
+
+msgid "Passwords do not match"
+msgstr "Пароли не совпадают"
+
+msgid "An error occurred during registration. Please try again."
+msgstr "Произошла ошибка при регистрации. Пожалуйста, попробуйте снова."
+
+msgid "Invalid email or password"
+msgstr "Неверный email или пароль"
+
+msgid "Please fill in all fields"
+msgstr "Пожалуйста, заполните все поля"
+
+msgid "Successfully logged out"
+msgstr "Успешно вышли из системы"
+
+msgid "User is not authenticated"
+msgstr "Пользователь не аутентифицирован"
+
+#, python-brace-format
+msgid "{editor}: Editing failed"
+msgstr ""
+
+#, python-brace-format
+msgid "{editor}: Editing failed: {e}"
+msgstr ""
+
+#, python-brace-format
+msgid "{text} {deprecated_message}"
+msgstr ""
+
+msgid "Options"
+msgstr ""
+
+#, python-brace-format
+msgid "Got unexpected extra argument ({args})"
+msgid_plural "Got unexpected extra arguments ({args})"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "DeprecationWarning: The command {name!r} is deprecated.{extra_message}"
+msgstr ""
+
+msgid "Aborted!"
+msgstr ""
+
+msgid "Commands"
+msgstr ""
+
+msgid "Missing command."
+msgstr ""
+
+msgid "No such command {name!r}."
+msgstr ""
+
+msgid "Value must be an iterable."
+msgstr ""
+
+#, python-brace-format
+msgid "Takes {nargs} values but 1 was given."
+msgid_plural "Takes {nargs} values but {len} were given."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid ""
+"DeprecationWarning: The {param_type} {name!r} is deprecated.{extra_message}"
+msgstr ""
+
+#, python-brace-format
+msgid "env var: {var}"
+msgstr ""
+
+#, python-brace-format
+msgid "default: {default}"
+msgstr ""
+
+msgid "(dynamic)"
+msgstr ""
+
+#, python-format
+msgid "%(prog)s, version %(version)s"
+msgstr ""
+
+msgid "Show the version and exit."
+msgstr ""
+
+msgid "Show this message and exit."
+msgstr ""
+
+#, python-brace-format
+msgid "Error: {message}"
+msgstr ""
+
+#, python-brace-format
+msgid "Try '{command} {option}' for help."
+msgstr ""
+
+#, python-brace-format
+msgid "Invalid value: {message}"
+msgstr ""
+
+#, python-brace-format
+msgid "Invalid value for {param_hint}: {message}"
+msgstr ""
+
+msgid "Missing argument"
+msgstr ""
+
+msgid "Missing option"
+msgstr ""
+
+msgid "Missing parameter"
+msgstr ""
+
+#, python-brace-format
+msgid "Missing {param_type}"
+msgstr ""
+
+#, python-brace-format
+msgid "Missing parameter: {param_name}"
+msgstr ""
+
+#, python-brace-format
+msgid "No such option: {name}"
+msgstr ""
+
+#, python-brace-format
+msgid "Did you mean {possibility}?"
+msgid_plural "(Possible options: {possibilities})"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "unknown error"
+msgstr ""
+
+msgid "Could not open file {filename!r}: {message}"
+msgstr ""
+
+msgid "Usage:"
+msgstr ""
+
+msgid "Argument {name!r} takes {nargs} values."
+msgstr ""
+
+msgid "Option {name!r} does not take a value."
+msgstr ""
+
+msgid "Option {name!r} requires an argument."
+msgid_plural "Option {name!r} requires {nargs} arguments."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Shell completion is not supported for Bash versions older than 4.4."
+msgstr ""
+
+msgid "Couldn't detect Bash version, shell completion is not supported."
+msgstr ""
+
+msgid "Repeat for confirmation"
+msgstr ""
+
+msgid "Error: The value you entered was invalid."
+msgstr ""
+
+#, python-brace-format
+msgid "Error: {e.message}"
+msgstr ""
+
+msgid "Error: The two entered values do not match."
+msgstr ""
+
+msgid "Error: invalid input"
+msgstr ""
+
+msgid "Press any key to continue..."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Choose from:\n"
+"\t{choices}"
+msgstr ""
+
+msgid "{value!r} is not {choice}."
+msgid_plural "{value!r} is not one of {choices}."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "{value!r} does not match the format {format}."
+msgid_plural "{value!r} does not match the formats {formats}."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "{value!r} is not a valid {number_type}."
+msgstr ""
+
+#, python-brace-format
+msgid "{value} is not in the range {range}."
+msgstr ""
+
+msgid "{value!r} is not a valid boolean."
+msgstr ""
+
+msgid "{value!r} is not a valid UUID."
+msgstr ""
+
+msgid "file"
+msgstr ""
+
+msgid "directory"
+msgstr ""
+
+msgid "path"
+msgstr ""
+
+msgid "{name} {filename!r} does not exist."
+msgstr ""
+
+msgid "{name} {filename!r} is a file."
+msgstr ""
+
+msgid "{name} {filename!r} is a directory."
+msgstr ""
+
+msgid "{name} {filename!r} is not readable."
+msgstr ""
+
+msgid "{name} {filename!r} is not writable."
+msgstr ""
+
+msgid "{name} {filename!r} is not executable."
+msgstr ""
+
+#, python-brace-format
+msgid "{len_type} values are required, but {len_value} was given."
+msgid_plural "{len_type} values are required, but {len_value} were given."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Messages"
+msgstr ""
+
+msgid "Site Maps"
+msgstr ""
+
+msgid "Static Files"
+msgstr ""
+
+msgid "Syndication"
+msgstr ""
+
+#. Translators: String used to replace omitted page numbers in elided page
+#. range generated by paginators, e.g. [1, 2, '…', 5, 6, 7, '…', 9, 10].
+msgid "…"
+msgstr ""
+
+msgid "That page number is not an integer"
+msgstr ""
+
+msgid "That page number is less than 1"
+msgstr ""
+
+msgid "That page contains no results"
+msgstr ""
+
+msgid "Enter a valid value."
+msgstr ""
+
+msgid "Enter a valid URL."
+msgstr ""
+
+msgid "Enter a valid integer."
+msgstr ""
+
+msgid "Enter a valid email address."
+msgstr ""
+
+#. Translators: "letters" means latin letters: a-z and A-Z.
+msgid ""
+"Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."
+msgstr ""
+
+msgid ""
+"Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or "
+"hyphens."
+msgstr ""
+
+msgid "Enter a valid IPv4 address."
+msgstr ""
+
+msgid "Enter a valid IPv6 address."
+msgstr ""
+
+msgid "Enter a valid IPv4 or IPv6 address."
+msgstr ""
+
+msgid "Enter only digits separated by commas."
+msgstr ""
+
+#, python-format
+msgid "Ensure this value is %(limit_value)s (it is %(show_value)s)."
+msgstr ""
+
+#, python-format
+msgid "Ensure this value is less than or equal to %(limit_value)s."
+msgstr ""
+
+#, python-format
+msgid "Ensure this value is greater than or equal to %(limit_value)s."
+msgstr ""
+
+#, python-format
+msgid "Ensure this value is a multiple of step size %(limit_value)s."
+msgstr ""
+
+#, python-format
+msgid ""
+"Ensure this value has at least %(limit_value)d character (it has "
+"%(show_value)d)."
+msgid_plural ""
+"Ensure this value has at least %(limit_value)d characters (it has "
+"%(show_value)d)."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid ""
+"Ensure this value has at most %(limit_value)d character (it has "
+"%(show_value)d)."
+msgid_plural ""
+"Ensure this value has at most %(limit_value)d characters (it has "
+"%(show_value)d)."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Enter a number."
+msgstr ""
+
+#, python-format
+msgid "Ensure that there are no more than %(max)s digit in total."
+msgid_plural "Ensure that there are no more than %(max)s digits in total."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "Ensure that there are no more than %(max)s decimal place."
+msgid_plural "Ensure that there are no more than %(max)s decimal places."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid ""
+"Ensure that there are no more than %(max)s digit before the decimal point."
+msgid_plural ""
+"Ensure that there are no more than %(max)s digits before the decimal point."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid ""
+"File extension “%(extension)s” is not allowed. Allowed extensions are: "
+"%(allowed_extensions)s."
+msgstr ""
+
+msgid "Null characters are not allowed."
+msgstr ""
+
+msgid "and"
+msgstr ""
+
+#, python-format
+msgid "%(model_name)s with this %(field_labels)s already exists."
+msgstr ""
+
+#, python-format
+msgid "Constraint “%(name)s” is violated."
+msgstr ""
+
+#, python-format
+msgid "Value %(value)r is not a valid choice."
+msgstr ""
+
+msgid "This field cannot be null."
+msgstr ""
+
+msgid "This field cannot be blank."
+msgstr ""
+
+#, python-format
+msgid "%(model_name)s with this %(field_label)s already exists."
+msgstr ""
+
+#. Translators: The 'lookup_type' is one of 'date', 'year' or
+#. 'month'. Eg: "Title must be unique for pub_date year"
+#, python-format
+msgid ""
+"%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
+msgstr ""
+
+#, python-format
+msgid "Field of type: %(field_type)s"
+msgstr ""
+
+#, python-format
+msgid "“%(value)s” value must be either True or False."
+msgstr ""
+
+#, python-format
+msgid "“%(value)s” value must be either True, False, or None."
+msgstr ""
+
+msgid "Boolean (Either True or False)"
+msgstr ""
+
+#, python-format
+msgid "String (up to %(max_length)s)"
+msgstr ""
+
+msgid "String (unlimited)"
+msgstr ""
+
+msgid "Comma-separated integers"
+msgstr ""
+
+#, python-format
+msgid ""
+"“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD "
+"format."
+msgstr ""
+
+#, python-format
+msgid ""
+"“%(value)s” value has the correct format (YYYY-MM-DD) but it is an invalid "
+"date."
+msgstr ""
+
+msgid "Date (without time)"
+msgstr ""
+
+#, python-format
+msgid ""
+"“%(value)s” value has an invalid format. It must be in YYYY-MM-DD "
+"HH:MM[:ss[.uuuuuu]][TZ] format."
+msgstr ""
+
+#, python-format
+msgid ""
+"“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
+"[TZ]) but it is an invalid date/time."
+msgstr ""
+
+msgid "Date (with time)"
+msgstr ""
+
+#, python-format
+msgid "“%(value)s” value must be a decimal number."
+msgstr ""
+
+msgid "Decimal number"
+msgstr ""
+
+#, python-format
+msgid ""
+"“%(value)s” value has an invalid format. It must be in [DD] "
+"[[HH:]MM:]ss[.uuuuuu] format."
+msgstr ""
+
+msgid "Duration"
+msgstr ""
+
+msgid "Email address"
+msgstr ""
+
+msgid "File path"
+msgstr ""
+
+#, python-format
+msgid "“%(value)s” value must be a float."
+msgstr ""
+
+msgid "Floating point number"
+msgstr ""
+
+#, python-format
+msgid "“%(value)s” value must be an integer."
+msgstr ""
+
+msgid "Integer"
+msgstr ""
+
+msgid "Big (8 byte) integer"
+msgstr ""
+
+msgid "Small integer"
+msgstr ""
+
+msgid "IPv4 address"
+msgstr ""
+
+msgid "IP address"
+msgstr ""
+
+#, python-format
+msgid "“%(value)s” value must be either None, True or False."
+msgstr ""
+
+msgid "Boolean (Either True, False or None)"
+msgstr ""
+
+msgid "Positive big integer"
+msgstr ""
+
+msgid "Positive integer"
+msgstr ""
+
+msgid "Positive small integer"
+msgstr ""
+
+#, python-format
+msgid "Slug (up to %(max_length)s)"
+msgstr ""
+
+msgid "Text"
+msgstr ""
+
+#, python-format
+msgid ""
+"“%(value)s” value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] "
+"format."
+msgstr ""
+
+#, python-format
+msgid ""
+"“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is an "
+"invalid time."
+msgstr ""
+
+msgid "Time"
+msgstr ""
+
+msgid "URL"
+msgstr ""
+
+msgid "Raw binary data"
+msgstr ""
+
+#, python-format
+msgid "“%(value)s” is not a valid UUID."
+msgstr ""
+
+msgid "Universally unique identifier"
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "Image"
+msgstr ""
+
+msgid "A JSON object"
+msgstr ""
+
+msgid "Value must be valid JSON."
+msgstr ""
+
+#, python-format
+msgid "%(model)s instance with %(field)s %(value)r does not exist."
+msgstr ""
+
+msgid "Foreign Key (type determined by related field)"
+msgstr ""
+
+msgid "One-to-one relationship"
+msgstr ""
+
+#, python-format
+msgid "%(from)s-%(to)s relationship"
+msgstr ""
+
+#, python-format
+msgid "%(from)s-%(to)s relationships"
+msgstr ""
+
+msgid "Many-to-many relationship"
+msgstr ""
+
+#. Translators: If found as last label character, these punctuation
+#. characters will prevent the default label_suffix to be appended to the label
+msgid ":?.!"
+msgstr ""
+
+msgid "This field is required."
+msgstr ""
+
+msgid "Enter a whole number."
+msgstr ""
+
+msgid "Enter a valid date."
+msgstr ""
+
+msgid "Enter a valid time."
+msgstr ""
+
+msgid "Enter a valid date/time."
+msgstr ""
+
+msgid "Enter a valid duration."
+msgstr ""
+
+#, python-brace-format
+msgid "The number of days must be between {min_days} and {max_days}."
+msgstr ""
+
+msgid "No file was submitted. Check the encoding type on the form."
+msgstr ""
+
+msgid "No file was submitted."
+msgstr ""
+
+msgid "The submitted file is empty."
+msgstr ""
+
+#, python-format
+msgid "Ensure this filename has at most %(max)d character (it has %(length)d)."
+msgid_plural ""
+"Ensure this filename has at most %(max)d characters (it has %(length)d)."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Please either submit a file or check the clear checkbox, not both."
+msgstr ""
+
+msgid ""
+"Upload a valid image. The file you uploaded was either not an image or a "
+"corrupted image."
+msgstr ""
+
+#, python-format
+msgid "Select a valid choice. %(value)s is not one of the available choices."
+msgstr ""
+
+msgid "Enter a list of values."
+msgstr ""
+
+msgid "Enter a complete value."
+msgstr ""
+
+msgid "Enter a valid UUID."
+msgstr ""
+
+msgid "Enter a valid JSON."
+msgstr ""
+
+#. Translators: This is the default suffix added to form field labels
+msgid ":"
+msgstr ""
+
+#, python-format
+msgid "(Hidden field %(name)s) %(error)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"ManagementForm data is missing or has been tampered with. Missing fields: "
+"%(field_names)s. You may need to file a bug report if the issue persists."
+msgstr ""
+
+#, python-format
+msgid "Please submit at most %(num)d form."
+msgid_plural "Please submit at most %(num)d forms."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "Please submit at least %(num)d form."
+msgid_plural "Please submit at least %(num)d forms."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Order"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+#, python-format
+msgid "Please correct the duplicate data for %(field)s."
+msgstr ""
+
+#, python-format
+msgid "Please correct the duplicate data for %(field)s, which must be unique."
+msgstr ""
+
+#, python-format
+msgid ""
+"Please correct the duplicate data for %(field_name)s which must be unique "
+"for the %(lookup)s in %(date_field)s."
+msgstr ""
+
+msgid "Please correct the duplicate values below."
+msgstr ""
+
+msgid "The inline value did not match the parent instance."
+msgstr ""
+
+msgid "Select a valid choice. That choice is not one of the available choices."
+msgstr ""
+
+#, python-format
+msgid "“%(pk)s” is not a valid value."
+msgstr ""
+
+#, python-format
+msgid ""
+"%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; it "
+"may be ambiguous or it may not exist."
+msgstr ""
+
+msgid "Clear"
+msgstr ""
+
+msgid "Currently"
+msgstr ""
+
+msgid "Change"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "No"
+msgstr ""
+
+#. Translators: Please do not add spaces around commas.
+msgid "yes,no,maybe"
+msgstr ""
+
+#, python-format
+msgid "%(size)d byte"
+msgid_plural "%(size)d bytes"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%s KB"
+msgstr ""
+
+#, python-format
+msgid "%s MB"
+msgstr ""
+
+#, python-format
+msgid "%s GB"
+msgstr ""
+
+#, python-format
+msgid "%s TB"
+msgstr ""
+
+#, python-format
+msgid "%s PB"
+msgstr ""
+
+msgid "p.m."
+msgstr ""
+
+msgid "a.m."
+msgstr ""
+
+msgid "PM"
+msgstr ""
+
+msgid "AM"
+msgstr ""
+
+msgid "midnight"
+msgstr ""
+
+msgid "noon"
+msgstr ""
+
+msgid "Monday"
+msgstr ""
+
+msgid "Tuesday"
+msgstr ""
+
+msgid "Wednesday"
+msgstr ""
+
+msgid "Thursday"
+msgstr ""
+
+msgid "Friday"
+msgstr ""
+
+msgid "Saturday"
+msgstr ""
+
+msgid "Sunday"
+msgstr ""
+
+msgid "Mon"
+msgstr ""
+
+msgid "Tue"
+msgstr ""
+
+msgid "Wed"
+msgstr ""
+
+msgid "Thu"
+msgstr ""
+
+msgid "Fri"
+msgstr ""
+
+msgid "Sat"
+msgstr ""
+
+msgid "Sun"
+msgstr ""
+
+msgid "January"
+msgstr ""
+
+msgid "February"
+msgstr ""
+
+msgid "March"
+msgstr ""
+
+msgid "April"
+msgstr ""
+
+msgid "May"
+msgstr ""
+
+msgid "June"
+msgstr ""
+
+msgid "July"
+msgstr ""
+
+msgid "August"
+msgstr ""
+
+msgid "September"
+msgstr ""
+
+msgid "October"
+msgstr ""
+
+msgid "November"
+msgstr ""
+
+msgid "December"
+msgstr ""
+
+msgid "jan"
+msgstr ""
+
+msgid "feb"
+msgstr ""
+
+msgid "mar"
+msgstr ""
+
+msgid "apr"
+msgstr ""
+
+msgid "may"
+msgstr ""
+
+msgid "jun"
+msgstr ""
+
+msgid "jul"
+msgstr ""
+
+msgid "aug"
+msgstr ""
+
+msgid "sep"
+msgstr ""
+
+msgid "oct"
+msgstr ""
+
+msgid "nov"
+msgstr ""
+
+msgid "dec"
+msgstr ""
+
+msgctxt "abbrev. month"
+msgid "Jan."
+msgstr ""
+
+msgctxt "abbrev. month"
+msgid "Feb."
+msgstr ""
+
+msgctxt "abbrev. month"
+msgid "March"
+msgstr ""
+
+msgctxt "abbrev. month"
+msgid "April"
+msgstr ""
+
+msgctxt "abbrev. month"
+msgid "May"
+msgstr ""
+
+msgctxt "abbrev. month"
+msgid "June"
+msgstr ""
+
+msgctxt "abbrev. month"
+msgid "July"
+msgstr ""
+
+msgctxt "abbrev. month"
+msgid "Aug."
+msgstr ""
+
+msgctxt "abbrev. month"
+msgid "Sept."
+msgstr ""
+
+msgctxt "abbrev. month"
+msgid "Oct."
+msgstr ""
+
+msgctxt "abbrev. month"
+msgid "Nov."
+msgstr ""
+
+msgctxt "abbrev. month"
+msgid "Dec."
+msgstr ""
+
+msgctxt "alt. month"
+msgid "January"
+msgstr ""
+
+msgctxt "alt. month"
+msgid "February"
+msgstr ""
+
+msgctxt "alt. month"
+msgid "March"
+msgstr ""
+
+msgctxt "alt. month"
+msgid "April"
+msgstr ""
+
+msgctxt "alt. month"
+msgid "May"
+msgstr ""
+
+msgctxt "alt. month"
+msgid "June"
+msgstr ""
+
+msgctxt "alt. month"
+msgid "July"
+msgstr ""
+
+msgctxt "alt. month"
+msgid "August"
+msgstr ""
+
+msgctxt "alt. month"
+msgid "September"
+msgstr ""
+
+msgctxt "alt. month"
+msgid "October"
+msgstr ""
+
+msgctxt "alt. month"
+msgid "November"
+msgstr ""
+
+msgctxt "alt. month"
+msgid "December"
+msgstr ""
+
+msgid "This is not a valid IPv6 address."
+msgstr ""
+
+#, python-format
+msgctxt "String to return when truncating text"
+msgid "%(truncated_text)s…"
+msgstr ""
+
+msgid "or"
+msgstr ""
+
+#. Translators: This string is used as a separator between list elements
+msgid ", "
+msgstr ""
+
+#, python-format
+msgid "%(num)d year"
+msgid_plural "%(num)d years"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%(num)d month"
+msgid_plural "%(num)d months"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%(num)d week"
+msgid_plural "%(num)d weeks"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%(num)d day"
+msgid_plural "%(num)d days"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%(num)d hour"
+msgid_plural "%(num)d hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%(num)d minute"
+msgid_plural "%(num)d minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Forbidden"
+msgstr ""
+
+msgid "CSRF verification failed. Request aborted."
+msgstr ""
+
+msgid ""
+"You are seeing this message because this HTTPS site requires a “Referer "
+"header” to be sent by your web browser, but none was sent. This header is "
+"required for security reasons, to ensure that your browser is not being "
+"hijacked by third parties."
+msgstr ""
+
+msgid ""
+"If you have configured your browser to disable “Referer” headers, please re-"
+"enable them, at least for this site, or for HTTPS connections, or for “same-"
+"origin” requests."
+msgstr ""
+
+msgid ""
+"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or "
+"including the “Referrer-Policy: no-referrer” header, please remove them. The "
+"CSRF protection requires the “Referer” header to do strict referer checking. "
+"If you’re concerned about privacy, use alternatives like <a "
+"rel=\"noreferrer\" …> for links to third-party sites."
+msgstr ""
+
+msgid ""
+"You are seeing this message because this site requires a CSRF cookie when "
+"submitting forms. This cookie is required for security reasons, to ensure "
+"that your browser is not being hijacked by third parties."
+msgstr ""
+
+msgid ""
+"If you have configured your browser to disable cookies, please re-enable "
+"them, at least for this site, or for “same-origin” requests."
+msgstr ""
+
+msgid "More information is available with DEBUG=True."
+msgstr ""
+
+msgid "No year specified"
+msgstr ""
+
+msgid "Date out of range"
+msgstr ""
+
+msgid "No month specified"
+msgstr ""
+
+msgid "No day specified"
+msgstr ""
+
+msgid "No week specified"
+msgstr ""
+
+#, python-format
+msgid "No %(verbose_name_plural)s available"
+msgstr ""
+
+#, python-format
+msgid ""
+"Future %(verbose_name_plural)s not available because "
+"%(class_name)s.allow_future is False."
+msgstr ""
+
+#, python-format
+msgid "Invalid date string “%(datestr)s” given format “%(format)s”"
+msgstr ""
+
+#, python-format
+msgid "No %(verbose_name)s found matching the query"
+msgstr ""
+
+msgid "Page is not “last”, nor can it be converted to an int."
+msgstr ""
+
+#, python-format
+msgid "Invalid page (%(page_number)s): %(message)s"
+msgstr ""
+
+#, python-format
+msgid "Empty list and “%(class_name)s.allow_empty” is False."
+msgstr ""
+
+msgid "Directory indexes are not allowed here."
+msgstr ""
+
+#, python-format
+msgid "“%(path)s” does not exist"
+msgstr ""
+
+#, python-format
+msgid "Index of %(directory)s"
+msgstr ""
+
+msgid "The install worked successfully! Congratulations!"
+msgstr ""
+
+#, python-format
+msgid ""
+"View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
+"target=\"_blank\" rel=\"noopener\">release notes</a> for Django %(version)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"You are seeing this page because <a href=\"https://docs.djangoproject.com/en/"
+"%(version)s/ref/settings/#debug\" target=\"_blank\" "
+"rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
+"configured any URLs."
+msgstr ""
+
+msgid "Django Documentation"
+msgstr ""
+
+msgid "Topics, references, &amp; how-to’s"
+msgstr ""
+
+msgid "Tutorial: A Polling App"
+msgstr ""
+
+msgid "Get started with Django"
+msgstr ""
+
+msgid "Django Community"
+msgstr ""
+
+msgid "Connect, get help, or contribute"
+msgstr ""
+
+#, python-format
+msgid "Attempting to connect to qpid with SASL mechanism %s"
+msgstr ""
+
+#, python-format
+msgid "Connected to qpid with SASL mechanism %s"
+msgstr ""
+
+#, python-format
+msgid "Unable to connect to qpid with SASL mechanism %s"
+msgstr ""
+
+msgid "A valid timezone is required."
+msgstr ""
+
+msgid "Главная"
+msgstr ""
+
+msgid "Коттеджи"
+msgstr ""
+
+msgid "Контакты"
+msgstr ""
+
+msgid "Оставить заявку"
+msgstr ""
+
+msgid "Администратор"
+msgstr ""
+
+msgid "Пользователь"
+msgstr ""
+
+msgid "Мой профиль"
+msgstr ""
+
+msgid "Мои бронирования"
+msgstr ""
+
+msgid "Панель оператора"
+msgstr ""
+
+msgid "Администрирование"
+msgstr ""
+
+msgid "Выйти"
+msgstr ""
+
+msgid "Зарегистрироваться"
+msgstr ""
+
+msgid "Войти"
+msgstr ""
+
+msgid "Все права защищены."
+msgstr ""
+
+msgid "Booking"
+msgstr ""
+
+msgid "Бронирование коттеджа"
+msgstr ""
+
+msgid "Заполните форму ниже для создания бронирования"
+msgstr ""
+
+msgid "Вместимость"
+msgstr ""
+
+#, python-format
+msgid "%(capacity)s гостей"
+msgstr ""
+
+msgid "Цена за ночь"
+msgstr ""
+
+msgid "Адрес"
+msgstr ""
+
+msgid "Данные бронирования"
+msgstr ""
+
+msgid "Дата заезда"
+msgstr ""
+
+msgid "Выберите дату заезда"
+msgstr ""
+
+msgid "Дата выезда"
+msgstr ""
+
+msgid "Выберите дату выезда"
+msgstr ""
+
+msgid "Количество гостей"
+msgstr ""
+
+msgid "Особые пожелания"
+msgstr ""
+
+msgid "Стоимость бронирования"
+msgstr ""
+
+msgid "Количество ночей"
+msgstr ""
+
+msgid "Общая стоимость"
+msgstr ""
+
+msgid "Забронировать"
+msgstr ""
+
+msgid "Назад к коттеджам"
+msgstr ""
+
+msgid "Выбранные даты пересекаются с забронированными"
+msgstr ""
+
+msgid "Эта дата уже забронирована"
+msgstr ""
+
+msgid "Нельзя выбрать прошедшую дату"
+msgstr ""
+
+msgid "Максимальная вместимость"
+msgstr ""
+
+msgid "гостей"
+msgstr ""
+
+msgid "Пожалуйста, заполните все обязательные поля"
+msgstr ""
+
+msgid "Максимальная вместимость коттеджа"
+msgstr ""
+
+msgid ""
+"Выбранные даты пересекаются с уже забронированными датами. Пожалуйста, "
+"выберите другие даты."
+msgstr ""
+
+msgid "Внимание!"
+msgstr ""
+
+msgid "Следующие даты уже забронированы"
+msgstr ""
+
+msgid "и другие..."
+msgstr ""
+
+msgid "Январь"
+msgstr ""
+
+msgid "Февраль"
+msgstr ""
+
+msgid "Март"
+msgstr ""
+
+msgid "Апрель"
+msgstr ""
+
+msgid "Май"
+msgstr ""
+
+msgid "Июнь"
+msgstr ""
+
+msgid "Июль"
+msgstr ""
+
+msgid "Август"
+msgstr ""
+
+msgid "Сентябрь"
+msgstr ""
+
+msgid "Октябрь"
+msgstr ""
+
+msgid "Ноябрь"
+msgstr ""
+
+msgid "Декабрь"
+msgstr ""
+
+msgid "Пн"
+msgstr ""
+
+msgid "Вт"
+msgstr ""
+
+msgid "Ср"
+msgstr ""
+
+msgid "Чт"
+msgstr ""
+
+msgid "Пт"
+msgstr ""
+
+msgid "Сб"
+msgstr ""
+
+msgid "Вс"
+msgstr ""
+
+#, python-format
+msgid "Booking #%(id)s"
+msgstr ""
+
+msgid "Back to bookings"
+msgstr "Вернуться к бронированиям"
+
+msgid "Confirmed"
+msgstr "Подтверждено"
+
+msgid "Pending confirmation"
+msgstr "Ожидает подтверждения"
+
+msgid "Cancelled"
+msgstr "Отменено"
+
+msgid "Completed"
+msgstr "Завершено"
+
+msgid "Cottage information"
+msgstr "Информация о коттедже"
+
+msgid "Name"
+msgstr "Название"
+
+msgid "Address"
+msgstr "Адрес"
+
+msgid "Price per night"
+msgstr "Цена за ночь"
+
+msgid "Booking details"
+msgstr "Детали бронирования"
+
+msgid "Check-in date"
+msgstr "Дата заезда"
+
+msgid "Check-out date"
+msgstr "Дата выезда"
+
+msgid "Number of guests"
+msgstr "Количество гостей"
+
+msgid "guests"
+msgstr "гостей"
+
+msgid "Total cost"
+msgstr "Общая стоимость"
+
+msgid "Cottage amenities"
+msgstr "Удобства коттеджа"
+
+msgid "Available amenities"
+msgstr "Доступные удобства"
+
+msgid "Special requests"
+msgstr "Особые пожелания"
+
+msgid "Requests"
+msgstr "Пожелания"
+
+msgid "Not specified"
+msgstr "Не указано"
+
+msgid "Edit booking"
+msgstr "Редактировать бронирование"
+
+msgid ""
+"You can change check-in date, check-out date, number of guests and special "
+"requests."
+msgstr ""
+
+msgid "Attention!"
+msgstr "Внимание!"
+
+msgid "Confirmed bookings cannot be edited."
+msgstr "Подтвержденные бронирования нельзя редактировать."
+
+msgid "You can cancel this booking and create a new one."
+msgstr "Вы можете отменить это бронирование и создать новое."
+
+msgid "Save changes"
+msgstr "Сохранить изменения"
+
+msgid "Cancel"
+msgstr "Отмена"
+
+msgid "Edit"
+msgstr "Редактировать"
+
+msgid "Cancel booking"
+msgstr "Отменить бронирование"
+
+msgid "Confirmed booking"
+msgstr "Подтвержденное бронирование"
+
+msgid "This booking is already confirmed and cannot be changed."
+msgstr "Это бронирование уже подтверждено и не может быть изменено."
+
+msgid "You can cancel it and create a new booking."
+msgstr "Вы можете отменить его и создать новое бронирование."
+
+msgid "Cancelled booking"
+msgstr "Отмененное бронирование"
+
+msgid "This booking was cancelled and cannot be changed."
+msgstr "Это бронирование было отменено и не может быть изменено."
+
+msgid "Create new booking"
+msgstr "Создать новое бронирование"
+
+msgid "Completed booking"
+msgstr "Завершенное бронирование"
+
+msgid "This booking was successfully completed."
+msgstr "Это бронирование было успешно завершено."
+
+msgid "Please fill in all required fields"
+msgstr "Пожалуйста, заполните все обязательные поля"
+
+msgid "This date is already booked. Please select another date."
+msgstr "Эта дата уже забронирована. Пожалуйста, выберите другую дату."
+
+msgid "Добро пожаловать на Камчатку!"
+msgstr ""
+
+msgid ""
+"Откройте для себя удивительную природу полуострова и отдохните в "
+"комфортабельных коттеджах среди вулканов, гейзеров и дикой природы"
+msgstr ""
+
+msgid "Выбрать коттедж"
+msgstr ""
+
+msgid "О природе"
+msgstr ""
+
+msgid "Почему выбирают нас?"
+msgstr ""
+
+msgid "Уникальный опыт отдыха в сердце дикой природы"
+msgstr ""
+
+msgid "Вулканы и гейзеры"
+msgstr ""
+
+msgid ""
+"Живите рядом с действующими вулканами и наблюдайте извержения гейзеров. "
+"Уникальная возможность увидеть силу природы в действии."
+msgstr ""
+
+msgid "Рыбалка и охота"
+msgstr ""
+
+msgid ""
+"Лучшая в мире лососевая рыбалка, охота на медведя и другая дикая природа. "
+"Профессиональные гиды и все необходимое оборудование."
+msgstr ""
+
+msgid "Комфортные коттеджи"
+msgstr ""
+
+msgid ""
+"Современные коттеджи со всеми удобствами. После активного дня отдохните в "
+"комфорте и тепле."
+msgstr ""
+
+msgid "Природа Камчатки"
+msgstr ""
+
+msgid "Первозданная красота, которая завораживает и вдохновляет"
+msgstr ""
+
+msgid "Действующие вулканы"
+msgstr ""
+
+msgid ""
+"Более 300 вулканов, 29 из которых действующие. Уникальная возможность "
+"наблюдать извержения и потоки лавы."
+msgstr ""
+
+msgid "Гейзеры и термальные источники"
+msgstr ""
+
+msgid ""
+"Долина гейзеров - одно из семи чудес России. Термальные источники с целебной "
+"водой для отдыха."
+msgstr ""
+
+msgid "Дикая природа"
+msgstr ""
+
+msgid ""
+"Бурые медведи, лисы, соболи, орлы. Уникальная фауна, которую можно наблюдать "
+"в естественной среде обитания."
+msgstr ""
+
+msgid "Камчатка в цифрах"
+msgstr ""
+
+msgid "Уникальные факты о нашем полуострове"
+msgstr ""
+
+msgid "Вулканов"
+msgstr ""
+
+msgid "Действующих вулканов"
+msgstr ""
+
+msgid "Бурых медведей"
+msgstr ""
+
+msgid "Объектов ЮНЕСКО"
+msgstr ""
+
+msgid "Активный отдых"
+msgstr ""
+
+msgid "Множество возможностей для незабываемых приключений"
+msgstr ""
+
+msgid "Треккинг"
+msgstr ""
+
+msgid "Пешие походы по вулканам и горным тропам с опытными гидами"
+msgstr ""
+
+msgid "Горные лыжи"
+msgstr ""
+
+msgid "Катание на склонах вулканов с потрясающими видами"
+msgstr ""
+
+msgid "Фотосафари"
+msgstr ""
+
+msgid "Съемка диких животных и природных явлений"
+msgstr ""
+
+msgid "Рафтинг"
+msgstr ""
+
+msgid "Сплав по бурным рекам среди вулканических пейзажей"
+msgstr ""
+
+msgid "Готовы к приключениям?"
+msgstr ""
+
+msgid ""
+"Забронируйте свой идеальный коттедж на Камчатке и погрузитесь в мир дикой "
+"природы и комфорта"
+msgstr ""
+
+msgid "Наши Коттеджи"
+msgstr ""
+
+msgid ""
+"Откройте для себя идеальное место для отдыха среди наших уютных коттеджей"
+msgstr ""
+
+msgid "Доступные коттеджи"
+msgstr ""
+
+msgid "Сортировка по цене"
+msgstr ""
+
+msgid "Цена: по возрастанию"
+msgstr ""
+
+msgid "Цена: по убыванию"
+msgstr ""
+
+msgid "Название: А-Я"
+msgstr ""
+
+msgid "Название: Я-А"
+msgstr ""
+
+msgid "Вместимость: больше"
+msgstr ""
+
+msgid "Вместимость: меньше"
+msgstr ""
+
+msgid "Загрузка..."
+msgstr ""
+
+msgid "Загружаем коттеджи..."
+msgstr ""
+
+msgid "Коттеджи не найдены"
+msgstr ""
+
+msgid "Попробуйте изменить параметры поиска"
+msgstr ""
+
+msgid "₽/ночь"
+msgstr ""
+
+#, python-format
+msgid "До %(capacity)s гостей"
+msgstr ""
+
+msgid "Подробнее"
+msgstr ""
+
+msgid "До"
+msgstr ""
+
+msgid "Произошла ошибка при загрузке коттеджей. Попробуйте обновить страницу."
+msgstr ""
+
+msgid "Фотографии коттеджа"
+msgstr ""
+
+msgid "Фотографии будут добавлены позже"
+msgstr ""
+
+msgid "Описание"
+msgstr ""
+
+msgid "Основные характеристики"
+msgstr ""
+
+msgid "Тип"
+msgstr ""
+
+msgid "Коттедж"
+msgstr ""
+
+msgid "Статус"
+msgstr ""
+
+msgid "Доступен для бронирования"
+msgstr ""
+
+msgid "Удобства и услуги"
+msgstr ""
+
+msgid "Информация об удобствах будет добавлена позже"
+msgstr ""
+
+msgid "Забронировать коттедж"
+msgstr ""
+
+msgid ""
+"Выберите даты и количество гостей для бронирования этого уютного коттеджа"
+msgstr ""
+
+msgid "Забронировать сейчас"
+msgstr ""
+
+msgid "Свяжитесь с нами для бронирования или получения информации"
+msgstr ""
+
+msgid "Cottage Booking"
+msgstr ""
+
+msgid "ул. Лесная, д. 15<br>Поселок Дачный<br>Московская область, 143000"
+msgstr ""
+
+msgid "Телефон"
+msgstr ""
+
+msgid "Сайт"
+msgstr ""
+
+msgid "Время работы"
+msgstr ""
+
+msgid "Понедельник - Пятница"
+msgstr ""
+
+msgid "Суббота"
+msgstr ""
+
+msgid "Воскресенье"
+msgstr ""
+
+msgid "Экстренная связь"
+msgstr ""
+
+msgid "Круглосуточно"
+msgstr ""
+
+msgid "Дополнительная информация"
+msgstr ""
+
+msgid "Как добраться"
+msgstr ""
+
+msgid ""
+"От МКАД по Ярославскому шоссе 45 км, поворот налево у указателя 'Поселок "
+"Дачный'"
+msgstr ""
+
+msgid "Парковка"
+msgstr ""
+
+msgid "Бесплатная парковка для гостей. Места для 20 автомобилей."
+msgstr ""
+
+msgid "Оплата"
+msgstr ""
+
+msgid "Принимаем наличные, карты, банковские переводы."
+msgstr ""
+
+msgid "Найти коттедж"
+msgstr ""
+
+msgid "Позвонить сейчас"
+msgstr ""
+
+msgid "Callback request"
+msgstr "Заявка на обратный звонок"
+
+msgid "Leave a request and we will contact you at a convenient time"
+msgstr "Оставьте заявку, и мы свяжемся с вами в удобное время"
+
+msgid "₽/night"
+msgstr "₽/ночь"
+
+msgid "Leave a request"
+msgstr "Оставить заявку"
+
+msgid "Fill out the form and we will call you back"
+msgstr "Заполните форму, и мы вам перезвоним"
+
+msgid "Please correct the following errors"
+msgstr "Пожалуйста, исправьте следующие ошибки"
+
+msgid "Last name"
+msgstr "Фамилия"
+
+msgid "First name"
+msgstr "Имя"
+
+msgid "Middle name"
+msgstr "Отчество"
+
+msgid "Phone"
+msgstr "Телефон"
+
+msgid "Cottage of interest"
+msgstr "Интересующий коттедж"
+
+msgid "Preferred call time"
+msgstr "Предпочтительное время звонка"
+
+msgid "Message"
+msgstr "Сообщение"
+
+msgid "Submit request"
+msgstr "Отправить заявку"
+
+msgid "For example: +7 (999) 123-45-67"
+msgstr "Например: +7 (999) 123-45-67"
+
+msgid "Please fill in the required fields: Last name, First name and Phone"
+msgstr "Пожалуйста, заполните обязательные поля: Фамилия, Имя и Телефон"
+
+msgid "Sending..."
+msgstr "Отправка..."
+
+msgid "My bookings"
+msgstr "Мои бронирования"
+
+msgid "Details"
+msgstr "Подробности"
+
+msgid "You don't have any bookings yet"
+msgstr "У вас пока нет бронирований"
+
+msgid "Start planning your vacation in Kamchatka!"
+msgstr "Начните планировать свой отпуск на Камчатке!"
+
+msgid "Find cottage"
+msgstr "Найти коттедж"
+
+msgid "Are you sure you want to cancel this booking?"
+msgstr "Вы уверены, что хотите отменить это бронирование?"
+
+msgid "Login"
+msgstr "Вход"
+
+msgid "Log in to your account to book cottages"
+msgstr "Войдите в свой аккаунт, чтобы забронировать коттедж"
+
+msgid "Enter your email"
+msgstr "Введите ваш email"
+
+msgid "Password"
+msgstr "Пароль"
+
+msgid "Enter password"
+msgstr "Введите пароль"
+
+msgid "Forgot password?"
+msgstr "Забыли пароль?"
+
+msgid "Don't have an account?"
+msgstr "Нет аккаунта?"
+
+msgid "Register"
+msgstr "Регистрация"
+
+msgid "Password recovery"
+msgstr "Восстановление пароля"
+
+msgid "Enter your email to receive a new password"
+msgstr "Введите ваш email для получения нового пароля"
+
+msgid "How it works"
+msgstr "Как это работает"
+
+msgid "Enter the email address associated with your account"
+msgstr "Введите адрес электронной почты, связанный с вашим аккаунтом"
+
+msgid "We will generate a new password and send it to your email"
+msgstr "Мы сгенерируем новый пароль и отправим его на ваш email"
+
+msgid "Log in with the new password and change it in your personal account"
+msgstr "Войдите с новым паролем и измените его в личном кабинете"
+
+#, python-format
+msgid "New password sent to email <strong>%(email)s</strong>"
+msgstr ""
+
+msgid "Check your email and log in with the new password"
+msgstr "Проверьте вашу почту и войдите с новым паролем"
+
+msgid "Get new password"
+msgstr "Получить новый пароль"
+
+msgid "Back to login"
+msgstr "Вернуться к входу"
+
+msgid "My profile"
+msgstr "Мой профиль"
+
+msgid "Manage your data"
+msgstr "Управление вашими данными"
+
+msgid "Administrator"
+msgstr "Администратор"
+
+msgid "User"
+msgstr "Пользователь"
+
+msgid "Full name"
+msgstr "Полное имя"
+
+msgid "Date of birth"
+msgstr "Дата рождения"
+
+msgid "Registration date"
+msgstr "Дата регистрации"
+
+msgid "Edit profile"
+msgstr "Редактировать профиль"
+
+msgid "Username"
+msgstr "Имя пользователя"
+
+msgid "Change password"
+msgstr "Изменить пароль"
+
+msgid "Enter current password"
+msgstr "Введите текущий пароль"
+
+msgid "Enter new password"
+msgstr "Введите новый пароль"
+
+msgid "New password must be at least 8 characters long"
+msgstr "Новый пароль должен содержать не менее 8 символов"
+
+msgid "New passwords do not match"
+msgstr "Новые пароли не совпадают"
+
+msgid "New password must be different from current password"
+msgstr "Новый пароль должен отличаться от текущего"
+
+msgid "Password changed successfully!"
+msgstr "Пароль успешно изменен!"
+
+msgid "Unknown error"
+msgstr "Неизвестная ошибка"
+
+msgid "Error changing password"
+msgstr "Ошибка при изменении пароля"
+
+msgid "To change your password, enter your current password and new password."
+msgstr "Чтобы изменить пароль, введите текущий пароль и новый пароль."
+
+msgid "Current password"
+msgstr "Текущий пароль"
+
+msgid "New password"
+msgstr "Новый пароль"
+
+msgid "Enter new password (min. 8 characters)"
+msgstr "Введите новый пароль (мин. 8 символов)"
+
+msgid "Password must contain at least 8 characters."
+msgstr "Пароль должен содержать не менее 8 символов."
+
+msgid "Confirm new password"
+msgstr "Подтвердите новый пароль"
+
+msgid "Repeat new password"
+msgstr "Повторите новый пароль"
+
+msgid "Close"
+msgstr "Закрыть"
+
+msgid "Apply"
+msgstr "Применить"
+
+msgid "Create an account and start planning your vacation in Kamchatka"
+msgstr "Создайте аккаунт и начните планировать свой отпуск на Камчатке"
+
+msgid "Enter your last name"
+msgstr "Введите вашу фамилию"
+
+msgid "Enter your first name"
+msgstr "Введите ваше имя"
+
+msgid "Enter your middle name"
+msgstr "Введите ваше отчество"
+
+msgid "Enter username"
+msgstr "Введите имя пользователя"
+
+msgid "Confirm password"
+msgstr "Подтвердите пароль"
+
+msgid "Already have an account?"
+msgstr "Уже есть аккаунт?"

@@ -1,0 +1,311 @@
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from django.utils.translation import gettext as _
+import logging
+from .models import User
+from .serializers import UserSerializer, UserRegistrationSerializer
+from .forms import UserProfileForm, PasswordChangeForm, CustomPasswordResetForm
+
+logger = logging.getLogger(__name__)
+
+
+class UserProfileViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return User.objects.all()
+        return User.objects.filter(id=self.request.user.id)
+    
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
+
+
+class RegisterPageView(TemplateView):
+    template_name = 'users/register.html'
+    
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('core:index')
+        return render(request, self.template_name)
+    
+    def post(self, request):
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        first_name = request.POST.get('first_name', '')
+        last_name = request.POST.get('last_name', '')
+        middle_name = request.POST.get('middle_name', '')
+        phone = request.POST.get('phone', '')
+        
+        errors = {}
+        
+        if not username:
+            errors['username'] = _('Username is required')
+        elif User.objects.filter(username=username).exists():
+            errors['username'] = _('User with this username already exists')
+        
+        if not email:
+            errors['email'] = _('Email is required')
+        elif User.objects.filter(email=email).exists():
+            errors['email'] = _('User with this email already exists')
+        
+        if not password1:
+            errors['password1'] = _('Password is required')
+        elif len(password1) < 8:
+            errors['password1'] = _('Password must be at least 8 characters long')
+        
+        if password1 != password2:
+            errors['password2'] = _('Passwords do not match')
+        
+        if errors:
+            context = {
+                'errors': errors,
+                'username': username,
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name,
+                'middle_name': middle_name,
+                'phone': phone,
+            }
+            return render(request, self.template_name, context)
+        
+        try:
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password1,
+                first_name=first_name,
+                last_name=last_name,
+                phone=phone
+            )
+            
+            if middle_name:
+                user.middle_name = middle_name
+                user.save()
+            
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            
+            next_url = request.GET.get('next') or request.META.get('HTTP_REFERER')
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts=None):
+                return redirect(next_url)
+            return redirect('core_web:index')
+            
+        except Exception as e:
+            context = {
+                'error': _('An error occurred during registration. Please try again.'),
+                'username': username,
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name,
+                'middle_name': middle_name,
+                'phone': phone,
+            }
+            return render(request, self.template_name, context)
+
+
+
+class LoginView(TemplateView):
+    template_name = 'users/login.html'
+    
+    def get(self, request):
+        if request.user.is_authenticated:
+            from django.shortcuts import redirect
+            return redirect('core:index')
+        next_url = request.GET.get('next')
+        if not next_url:
+            referer = request.META.get('HTTP_REFERER')
+            if referer and '/users/login' not in referer:
+                next_url = referer
+        return render(request, self.template_name, {'next': next_url} )
+    
+    def post(self, request):
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        
+        if email and password:
+            user = authenticate(request, username=email, password=password)
+            if user:
+                login(request, user)
+                next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
+                fallback = reverse('core:index')
+                if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+                    return redirect(next_url)
+                return redirect(fallback)
+            else:
+                context = {'error': _('Invalid email or password')}
+                return render(request, self.template_name, context)
+        else:
+            context = {'error': _('Please fill in all fields')}
+            return render(request, self.template_name, context)
+
+
+
+class LogoutView(APIView):
+    permission_classes = []
+    
+    def post(self, request):
+        if request.user.is_authenticated:
+            logout(request)
+            return Response({'message': _('Successfully logged out')})
+        return Response({'error': _('User is not authenticated')}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    def get(self, request):
+        if request.user.is_authenticated:
+            logout(request)
+        from django.shortcuts import redirect
+        return redirect('core_web:index')
+
+
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'users/profile.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        context['form'] = UserProfileForm(instance=self.request.user)
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        form = UserProfileForm(request.POST, instance=request.user)
+        
+        if form.is_valid():
+            form.save()
+            return redirect('users:profile')
+        else:
+            context = self.get_context_data()
+            context['form'] = form
+            context['show_edit_form'] = True
+            return render(request, self.template_name, context)
+
+
+class PasswordResetRequestView(TemplateView):
+    template_name = 'users/password_reset_request.html'
+    
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('users_web:profile')
+        form = PasswordChangeForm()
+        return render(request, self.template_name, {'form': form})
+    
+    def post(self, request):
+        form = PasswordChangeForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = User.objects.get(email=email)
+                if getattr(user, 'is_staff', False) or getattr(user, 'is_superuser', False):
+                    form.add_error('email', 'Этот способ восстановления недоступен для этой учетной записи')
+                    return render(request, self.template_name, {'form': form})
+                
+                import secrets
+                import string
+                new_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+                user.set_password(new_password)
+                user.save()
+
+                from django.core.mail import send_mail
+                from django.template.loader import render_to_string
+                
+                try:
+                    html_message = render_to_string('emails/password_reset.html', {
+                        'user': user,
+                        'new_password': new_password
+                    })
+                    
+                    send_mail(
+                        subject='Новый пароль - Kamchatka Village',
+                        message=f'Ваш новый пароль: {new_password}',
+                        from_email=None,
+                        recipient_list=[email],
+                        html_message=html_message,
+                        fail_silently=False
+                    )
+                    
+                    messages.success(request, f'Новый пароль отправлен на email {email}. Проверьте почту и войдите в систему.')
+                    logger.info(f"Password reset email sent to {email}")
+                    
+                except Exception as e:
+                    logger.error(f"Failed to send password reset email to {email}: {str(e)}")
+                    messages.error(request, 'Ошибка отправки письма. Попробуйте позже или обратитесь в поддержку.')
+                    return render(request, self.template_name, {'form': form})
+
+                context = {
+                    'form': PasswordChangeForm(),
+                    'email_sent': True,
+                    'email_shown': email,
+                }
+                return render(request, self.template_name, context)
+                
+            except User.DoesNotExist:
+                form.add_error('email', 'Пользователь с таким email не найден')
+        return render(request, self.template_name, {'form': form})
+
+
+class ChangePasswordView(LoginRequiredMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from django.contrib.auth import authenticate
+        
+        try:
+            data = request.data or {}
+        except Exception:
+            data = {}
+
+        current_password = (data.get('current_password') or '').strip()
+        new_password = (data.get('new_password') or '').strip()
+        
+        if not current_password:
+            return Response({'success': False, 'error': 'Введите текущий пароль'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not new_password:
+            return Response({'success': False, 'error': 'Введите новый пароль'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if len(new_password) < 8:
+            return Response({'success': False, 'error': 'Новый пароль должен быть не короче 8 символов'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = authenticate(request, username=request.user.email, password=current_password)
+        if not user or user != request.user:
+            return Response({'success': False, 'error': 'Неверный текущий пароль'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        request.user.set_password(new_password)
+        request.user.save()
+        
+        logger.info(f"Password changed for user {request.user.email}")
+        
+        return Response({'success': True})
+
+
+class MyBookingsPageView(LoginRequiredMixin, TemplateView):
+    template_name = 'users/bookings.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        from apps.bookings.models import Booking
+        bookings = Booking.objects.filter(
+            user=self.request.user
+        ).exclude(
+            status='cancelled'
+        ).select_related('cottage').prefetch_related(
+            'cottage__amenities__amenity'
+        ).order_by('-created_at')
+        
+        context['bookings'] = bookings
+        return context
